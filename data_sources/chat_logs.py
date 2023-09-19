@@ -10,7 +10,7 @@ server = 'irc.chat.twitch.tv'
 port = 6667
 nickname = 'learndatasci'
 token = config("twitch_token")
-channel = '#k4yfour'
+channel = '#fanta'
 
 sock.connect((server, port))
 sock.send(f"PASS {token}\n".encode('utf-8'))
@@ -21,7 +21,7 @@ resp = sock.recv(2048).decode('utf-8')
 logging.basicConfig(level=logging.DEBUG,
                     format='%(asctime)s — %(message)s',
                     datefmt='%Y-%m-%d_%H:%M:%S',
-                    handlers=[logging.FileHandler('testing/log/chat.log', encoding='utf-8')])
+                    handlers=[logging.FileHandler('/Users/surfgreen/B/AppworksSchool/projects/files/log/chat.log', encoding='utf-8')])
 
 logging.info(resp)
 
