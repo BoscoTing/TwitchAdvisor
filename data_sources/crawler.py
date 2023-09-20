@@ -99,3 +99,4 @@ sec-ch-ua-platform: "macOS"
 #         active_viewers
 #         )
 #     time.sleep(5)
+get_viewers_count("fanta")
