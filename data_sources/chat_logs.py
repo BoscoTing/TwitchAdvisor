@@ -10,7 +10,7 @@ server = 'irc.chat.twitch.tv'
 port = 6667
 nickname = 'learndatasci'
 token = config("twitch_token")
-channel = '#fanta'
+channel = '#sneakylol'
 
 sock.connect((server, port))
 sock.send(f"PASS {token}\n".encode('utf-8'))
