@@ -42,6 +42,8 @@ sec-ch-ua-platform: "macOS"
     payloads["variables"]['channelLogin'] = channel
     payloads = json.dumps(payloads)
     response = requests.post(url, headers=headers, data=payloads)
+    # response.encoding = 'utf-8'
+    print(response.text)
     resp_json = response.json()
     viewers_count = resp_json['data']['user']['stream']['viewersCount']
     channel_info[int(time.time())] = {'channel':channel, 'viewers_count': viewers_count}
@@ -99,3 +101,4 @@ sec-ch-ua-platform: "macOS"
 #         active_viewers
 #         )
 #     time.sleep(5)
+get_viewers_count("fanta")

@@ -11,8 +11,10 @@ sys.path.insert(0, "/Users/surfgreen/B/AppworksSchool/projects/personal_project"
 
 from databases.mongodb import connect_mongo
 from data_sources.crawler import get_viewers_count
+# from data_sources.chat_logs import listen_to_chatroom, get_chats, parse_chat_mongo
 from dashboard_info.chats_bert import analyze_new_msg
 
+channel = "sneakylol"
 df_active = pd.DataFrame(columns=["messages", "chatters", "calculated_at"]).set_index("calculated_at") 
 def execute_query():
     collection = connect_mongo("chats")
@@ -42,16 +44,19 @@ def draw_radar():
     fig.update_polars(radialaxis=dict(range=[0, 5]))
     return fig
 
+# listen_to_chatroom(channel)
 value = execute_query()
 # title = st.header("Total Viewers")
 line_chart_title = st.header("Audience Interaction")
-text = st.subheader(f"Total Viewers:{get_viewers_count('fanta')}")
+text = st.subheader(f"Total Viewers:{get_viewers_count(channel)}")
 line_chart = st.line_chart(df_active, height=10)
 radar_chart_title = st.header("Sentiment Analysis")
 # radar_chart_text = st.subheader(f"Recent messages: {value['messages']}")
 radar_chart = st.plotly_chart(draw_radar())
 
 while True:
+    # chat_log = get_chats()
+    # parse_chat_mongo(chat_log)
     value = execute_query()
     df_active = df_active._append(
         pd.DataFrame(
@@ -60,7 +65,7 @@ while True:
         )
     )
     line_chart.line_chart(df_active, height=400)
-    text.subheader(f"Total Viewers: {get_viewers_count('fanta')}")
+    text.subheader(f"Total Viewers: {get_viewers_count(channel)}")
     # radar_chart_text.subheader(f"Recent messages: {value['messages']}")
     print(value['messages'])
     radar_chart.plotly_chart(draw_radar())
