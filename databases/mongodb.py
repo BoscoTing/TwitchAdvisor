@@ -19,6 +19,19 @@ def insert_document(collection, data):
     #         "category": "chatroom"}
     collection.insert_one(data)
     print("inserted.")
+
+def upsert_document(collection, query, upsert_data):
+    collection.update(
+        query,
+        upsert_data,
+        {
+            'upsert': True,
+            'multi': True
+        }
+    )
+    print(query)
+    print(upsert_data)
+
 def search_by_query(collection):
     cursor = collection.find({})
     for document in cursor:
@@ -31,4 +44,3 @@ def search_by_query(collection):
 #client.close()
 # search_by_query(connect_mongo())
 # search_by_query(connect_mongo("chats"))
-

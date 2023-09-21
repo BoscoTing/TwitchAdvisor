@@ -36,7 +36,7 @@ def get_chats():
         logging.info(demojize(resp))
     return demojize(resp)
 
-listen_to_chatroom("sneakylol")
+listen_to_chatroom("lolworldchampionship")
 while True:
     chat_log = get_chats()
     parse_chat_mongo(chat_log)
