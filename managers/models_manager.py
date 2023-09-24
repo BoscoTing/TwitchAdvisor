@@ -1,20 +1,21 @@
 from transformers import AutoTokenizer, AutoModelForSequenceClassification
-from datetime import datetime
-import matplotlib.pyplot as plt
-import pandas as pd
-import numpy as np
 import torch
-import sys
 import os
+# os.environ['TRANSFORMERS_CACHE'] = os.getcwd()+'/dags/.cache/'
+import sys
 sys.path.insert(0, os.getcwd())
 
 class SentimentAnalyser:
     def __init__(self, model_name):
         self.modelname = model_name
-        self.tokenizer = AutoTokenizer.from_pretrained(model_name)
-        self.model = AutoModelForSequenceClassification.from_pretrained(model_name)
+        self.tokenizer = AutoTokenizer.from_pretrained(model_name, 
+                                                       cache_dir=os.getcwd()+'/dags/scheduled_dags/.cache/'
+                                                       )
+        self.model = AutoModelForSequenceClassification.from_pretrained(model_name,
+                                                                        cache_dir=os.getcwd()+'/dags/scheduled_dags/.cache/'
+                                                                        )
 
-    def analyse_sentiment(self, chat):
+    def sentiment_score(self, chat):
         tokens = self.tokenizer.encode(chat, return_tensors='pt')
         result = self.model(tokens)
         if self.modelname == 'cardiffnlp/twitter-roberta-base-sentiment':

@@ -22,7 +22,7 @@ class TwitchChatListener:
         logging.basicConfig(level=logging.DEBUG,
                             format='%(asctime)s — %(message)s',
                             datefmt='%Y-%m-%d_%H:%M:%S',
-                            handlers=[logging.FileHandler('/Users/surfgreen/B/AppworksSchool/projects/files/log/chat.log', 
+                            handlers=[logging.FileHandler(f'/Users/surfgreen/B/AppworksSchool/projects/files/log/chat_{self.channel}.log', 
                                                           encoding='utf-8')])
         logging.info(resp)
     
