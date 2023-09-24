@@ -2,4 +2,5 @@
 .env
 .DS_Store
 **/__pycache__/
-testing/
+chat_logs/
+scheduled_dags/.cache
