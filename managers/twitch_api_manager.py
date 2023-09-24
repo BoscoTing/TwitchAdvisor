@@ -44,7 +44,7 @@ class TwitchDeveloper:
         
         return channel_dict
         
-    def get_channel_info(self, channel):
+    def detect_living_channel(self, channel):
         url = f'https://api.twitch.tv/helix/streams?user_login={channel}'
         headers = {
             'Client-ID' : config('twitch_app_id'),
@@ -52,12 +52,12 @@ class TwitchDeveloper:
         }
         resp = requests.get(url, headers=headers).json()['data']
         if resp:
-            return resp[0]
+            return resp[0]['started_at']
         else:
             return False
 
 # use_example
 
 # twitch_api = TwitchDeveloper()
-# channels = twitch_api.search_channels()
-# print(channels['League of Legends'])
+# result = twitch_api.detect_living_channel("sneakylol")
+# print(result)
