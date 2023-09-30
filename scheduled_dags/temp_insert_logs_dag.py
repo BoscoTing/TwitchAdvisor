@@ -7,15 +7,15 @@ sys.path.insert(0, os.getcwd())
 
 from features.viewers_reaction import ViewersReactionAnalyser
 
-analyser = ViewersReactionAnalyser()
+analyser = ViewersReactionAnalyser("sneakylol")
 one_minute_ago = datetime.now().utcnow() - timedelta(minutes=1)
 with DAG(
-    "insertmany_chat_logs_dag",
-    schedule=timedelta(seconds=30), 
+    "insert_chat_logs_dag",
+    schedule=timedelta(seconds=3), 
     start_date=one_minute_ago,
     concurrency=1,
     max_active_runs=1
 ) as dag:
-    viewer=PythonOperator(task_id="insertmany_chat_logs",
-                          python_callable=analyser.insertmany_chat_logs,
-                          op_kwargs={"file": os.getcwd()+'/dags/chat_logs/chat.log'})
+    insert=PythonOperator(task_id="insert_chat_logs",
+                          python_callable=analyser.insert_temp_chat_logs,
+                          op_kwargs={"file": os.getcwd()+ f'/dags/chat_logs/{analyser.channel}.log'})

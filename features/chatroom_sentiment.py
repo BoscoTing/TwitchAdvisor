@@ -28,4 +28,11 @@ class ChatroomSentiment:
             score_list[self.analyser.sentiment_score(msg)] += 1 # sentiment_score: 0(negative), 1(neutral), 2(positive)
         
         return score_list
+    
+    # def insert_stats_result(self):
+    #     organized_data = deepcopy(self.stats) # prevent from changing 'self.stats'
+    #     organized_data['started_at'] = self.start_at
+    #     organized_data['channel'] = self.channel
+    #     organized_data['total_viewers'] = self.api.detect_living_channel(self.channel)['viewer_count']
+    #     self.db.insertone_into_collection(organized_data, collection_name='chat_stats')
 # ChatroomSentiment().analyse_new_messages()
