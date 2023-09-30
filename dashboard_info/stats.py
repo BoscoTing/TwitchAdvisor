@@ -6,22 +6,23 @@ import plotly.express as px
 from datetime import datetime
 from time import time, sleep, strftime
 from pytz import timezone
+import os
 import sys
-sys.path.insert(0, "/Users/surfgreen/B/AppworksSchool/projects/personal_project")
+sys.path.insert(0, os.getcwd())
 
 from databases.mongodb import connect_mongo
 # from data_sources.crawler import get_viewers_count
 # from data_sources.chat_logs import listen_to_chatroom, get_chats, parse_chat_mongo
 from dashboard_info.chats_bert import analyze_new_msg
 
-channel = "sneakylol"
+channel = "gosu"
 df_active = pd.DataFrame(columns=["messages", "chatters", "calculated_at"]).set_index("calculated_at") 
 def execute_query():
-    collection = connect_mongo("chats")
+    collection = connect_mongo("chat_logs")
     query = {
             "$and": [ 
-                {"unix_time_stamp": { "$gt": time()-10 }}, 
-                {"unix_time_stamp": { "$lte": time() }} 
+                {"timestamp": { "$gt": time()-10 }}, 
+                {"timestamp": { "$lte": time() }} 
                 ] 
         }
     messages_count = collection.count_documents(query)

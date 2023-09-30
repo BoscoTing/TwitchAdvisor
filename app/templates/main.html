@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html>
+<head>
+   <title>TwitchAdvisor</title>
+   <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+</head>
+<body>
+   <h1 id="title">TwitchAdvisor</h1>
+
+   <div id="defaultBroadcasters">
+      <h3>Broadcasters who we are tracking</h2>
+      <ul>
+         {% for b in broadcasters %}
+         <li class="defaultBroadcasters">{{b}}</li>
+         {% endfor %}  
+      </ul>
+   </div>
+
+   <div id="streamingPlot"></div>
+   
+   <div id="historicalPlot"></div>
+
+   <div id="liveBroadcasters"></div>
+      <h3 id="topLiveChannels">Top live channels</h3>
+
+   <script src="../static/mainPage.js"></script>
+   <script src="../static/streamingPlot.js"></script>
+   <script src="../static/historicalPlot.js"></script>
+</body>
+</html>

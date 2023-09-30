@@ -9,7 +9,8 @@ import torch
 import whisper
 import re
 import sys
-sys.path.insert(0, "/Users/surfgreen/B/AppworksSchool/projects/personal_project")
+import os
+sys.path.insert(0, os.getcwd())
 
 from databases.mongodb import connect_mongo, insert_document
 model_name = 'cardiffnlp/twitter-roberta-base-sentiment'
