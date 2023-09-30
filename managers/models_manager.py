@@ -9,11 +9,13 @@ class SentimentAnalyser:
     def __init__(self, model_name):
         self.modelname = model_name
         self.tokenizer = AutoTokenizer.from_pretrained(model_name, 
-                                                       cache_dir=os.getcwd()+'/dags/scheduled_dags/.cache/'
-                                                       )
+                                                       cache_dir=os.getcwd()+'/dags/scheduled_dags/.cache/',
+                                                       force_download=True,
+                                                       resume_download=False)
         self.model = AutoModelForSequenceClassification.from_pretrained(model_name,
-                                                                        cache_dir=os.getcwd()+'/dags/scheduled_dags/.cache/'
-                                                                        )
+                                                                        cache_dir=os.getcwd()+'/dags/scheduled_dags/.cache/',
+                                                                        force_download=True,
+                                                                        resume_download=False)
 
     def sentiment_score(self, chat):
         tokens = self.tokenizer.encode(chat, return_tensors='pt')

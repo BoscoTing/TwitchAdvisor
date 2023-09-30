@@ -1,4 +1,7 @@
 from decouple import config
+from datetime import datetime, timedelta
+import logging
+import pytz
 import requests
 import json
 
@@ -50,14 +53,46 @@ class TwitchDeveloper:
             'Client-ID' : config('twitch_app_id'),
             'Authorization' :  "Bearer " + self.get_token()
         }
-        resp = requests.get(url, headers=headers).json()['data']
-        if resp:
-            return resp[0]['started_at']
+        # logging.warn(channel)
+        # logging.warn(requests.get(url, headers=headers).json())
+        resp_data = requests.get(url, headers=headers).json()['data']
+        if resp_data:
+            taipei_time = datetime.fromisoformat(resp_data[0]['started_at'][:-1]) + timedelta(hours=8)
+            taipei_isoformat = datetime.isoformat(taipei_time) + "+08:00"
+            resp_data[0]['started_at'] = taipei_isoformat
+            print(resp_data[0])
+            logging.info(resp_data[0])
+            return resp_data[0]
         else:
             return False
-
+    
+    def get_broadcaster_id(self, channel):
+        url = f'https://api.twitch.tv/helix/streams?user_login={channel}'
+        headers = {
+            'Client-ID' : config('twitch_app_id'),
+            'Authorization' :  "Bearer " + self.get_token()
+        }
+        resp_data = requests.get(url, headers=headers).json()['data']
+        if resp_data:
+            return resp_data[0]['user_id']
+        else:
+            return False
+        
+    def get_channel_schedule(self, channel):
+        broadcaster_id = self.get_broadcaster_id(channel)
+        print(broadcaster_id)
+        url = f"https://api.twitch.tv/helix/schedule?broadcaster_id={broadcaster_id}"
+        headers = {
+            'Client-ID' : config('twitch_app_id'),
+            'Authorization' :  "Bearer " + self.get_token()
+        }
+        resp_data = requests.get(url, headers=headers).json()#['data']
+        if resp_data:
+            return resp_data#[0]
+        else:
+            return False
 # use_example
 
 # twitch_api = TwitchDeveloper()
-# result = twitch_api.detect_living_channel("sneakylol")
+# result = twitch_api.get_channel_schedule("cowsep")
 # print(result)
