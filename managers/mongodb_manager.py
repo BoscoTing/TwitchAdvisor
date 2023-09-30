@@ -20,7 +20,15 @@ class MongoDBManager:
         collection = self.db[collection_name]
         collection.insert_many(documents)
 
+    def insertone_into_collection(self, document, collection_name):
+        collection = self.db[collection_name]
+        collection.insert_one(document)
 
+    def query_historical_data(self, channel, started_at):
+        collection = self.db["chat_logs"]
+        query = collection.find({}, {"metadata.started_at": { "$in": [started_at]},
+                                     "metadata.channel": {"in": [channel]}})
+# collection.find({}, {"metadata.row":1}).sort("timestamp", -1).limit(1)]
 
 # use_example
 # if __name__ == "__main__":
