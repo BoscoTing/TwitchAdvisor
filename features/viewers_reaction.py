@@ -131,17 +131,15 @@ class ViewersReactionAnalyser():
                     doc['metadata']['viewer_count'] = viewer_count
                     if new_row >= 1: # skip the log which has already been inserted last time.
                         documents.append(doc)
-                        logging.debug(doc)   
                         logging.debug("appended chat logs")
                     new_row += 1
                 except Exception as e:
-                    print(e)
-                    logging.error(e)
+                    # print(e)
+                    # logging.error(e)
                     pass
                 self.lastest_record += 1
 
             if documents:
-                print(documents)
                 self.db.insertmany_into_collection(documents, collection_name=self.col)
                 print('inserted.')
 
@@ -256,7 +254,7 @@ class ViewersReactionAnalyser():
         try:
             self.db.insertmany_into_collection(organized_documents, collection_name='chat_stats')
         except Exception as e:
-            print(e)
+            # print(e)
             sleep(5)
             pass
 
@@ -338,11 +336,11 @@ class ViewersReactionAnalyser():
         logging.debug("time_logged", time_logged)
 
         started_at = line.split('—')[1].strip()
-        logging.warning("started_at", started_at)
+        logging.debug("started_at", started_at)
 
         username_message = line.split('—')[2:]
         username_message = '—'.join(username_message).strip()
-        logging.warning("username_message", username_message)
+        logging.debug("username_message", username_message)
 
         username, channel, message = re.search(
             ':(.*)\!.*@.*\.tmi\.twitch\.tv PRIVMSG #(.*) :(.*)', username_message
@@ -358,7 +356,7 @@ class ViewersReactionAnalyser():
                 'startedAt': started_at
                 }        
             }
-        logging.warning("parsed_doc", doc)
+        # logging.warning("parsed_doc", doc)
         return doc
 
     def insert_temp_chat_logs(self, file): # streaming
@@ -402,13 +400,12 @@ class ViewersReactionAnalyser():
             for line in lines[latest_row+1:]:
                 logging.debug("line: ", line)
                 try:
-                    logging.warning("parse_line", line)
+                    logging.info("parse_line", line)
                     doc = self.parse_temp_chat_logs(line)
-                    logging.warning("parsed_doc", doc)
+                    logging.info("parsed_doc")
                     doc['viewerCount'] = viewer_count
                     if new_row >= 1: # skip the log which has already been inserted last time.
                         documents.append(doc)
-                        logging.warning(doc)   
                         logging.warning("appended temporary chat logs")
                     new_row += 1
                 except Exception as e:
@@ -418,7 +415,6 @@ class ViewersReactionAnalyser():
                 self.lastest_record += 1
             # print(documents)
             if documents:
-                logging.info(documents)
                 self.db.insertmany_into_collection(documents, collection_name="tempChatLogs")
                 logging.warning('inserted.')
 
@@ -484,13 +480,12 @@ class ViewersReactionAnalyser():
                         "$sort": { "_id": 1 }
                     }
                 ]
-        logging.warning("started_at", started_at)
-        logging.warning("channel", channel)
+        # logging.warning("started_at", started_at)
+        # logging.warning("channel", channel)
         collection = self.db.connect_collection("tempChatLogs")
-        logging.warning(collection)
+        # logging.warning(collection)
         temp_stats = [row for row in collection.aggregate(query)]
-        logging.warning(temp_stats)
-
+        # logging.warning(temp_stats)
         return temp_stats
 
 if __name__ == "__main__":

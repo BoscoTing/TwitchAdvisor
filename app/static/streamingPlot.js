@@ -1,4 +1,4 @@
-function updateStreamingPlot(selectedChannel) {
+function trackStreamingChat(selectedChannel) {
     var xmlHttp = new XMLHttpRequest();
     xmlHttp.open( "GET", `/api/streaming_logs?channel=${selectedChannel}`, true ); 
     xmlHttp.onload = function () {
@@ -7,13 +7,16 @@ function updateStreamingPlot(selectedChannel) {
         }
     }
     xmlHttp.send();
+    console.log(`try to listen to ${selectedChannel}'s chatroom`);
+}
 
+function updateStreamingPlot(selectedChannel) {
+    var xmlHttp = new XMLHttpRequest();
     xmlHttp.open( "GET", `/api/streaming_stats?channel=${selectedChannel}`, true ); 
     xmlHttp.onload = function () {
         if (xmlHttp.status === 200) {
             var responseHtml = xmlHttp.responseText;
             var responseJson = JSON.parse(responseHtml);
-            console.log(responseJson)
             let stats = responseJson.stats; // get the stats data
             const channel = stats.channel;
             const startedAt = stats.startedAt;
@@ -22,7 +25,7 @@ function updateStreamingPlot(selectedChannel) {
             const messageCount = stats.map(stats => stats.messageCount);
             const chatterCount = stats.map(stats => stats.chatterCount);
             const cheer = stats.map(stats => stats.cheers.length);
-            console.log(cheer)
+            console.log("updating: ", messageCount.length);
 
             const trace1 = {
                 x: timestamp,
@@ -70,7 +73,6 @@ function updateStreamingPlot(selectedChannel) {
                     title: 'Average Viewer Count'
                 }
             };
-            
             Plotly.react(
                     'streamingPlot', 
                     [
@@ -89,16 +91,8 @@ function updateStreamingPlot(selectedChannel) {
 
 const liveChannels = document.getElementsByClassName("liveChannels");
 
-let selectedChannel = null;
-
-for (var i = 0; i < liveChannels.length; i++) {
-    let liveChannel = liveChannels[i]
-    liveChannel.addEventListener("click", function () {
-        selectedChannel = liveChannel.textContent;
-        console.log(selectedChannel);
-        updateStreamingPlot(selectedChannel);
-    });
-};
+// let selectedChannel = null;
+// let updateInterval = null;
 
 function updateAfterSelectingChannel() {
     if (selectedChannel) {
@@ -106,5 +100,23 @@ function updateAfterSelectingChannel() {
     }
 ;}
 
-// updateStreamingPlot(liveChannels);
-var updateInterval = setInterval(updateAfterSelectingChannel, 5000); // update in every 5 seconds.
+function startUpdateInterval() {
+    updateInterval = setInterval(updateAfterSelectingChannel, 5000);
+};
+
+for (var i = 0; i < liveChannels.length; i++) {
+    let liveChannel = liveChannels[i]
+    liveChannel.addEventListener("click", function () {
+        selectedChannel = liveChannel.textContent;
+        console.log("latest selected channel: ", selectedChannel);
+
+        clearInterval(updateInterval); // stop updating previous selected channel
+        console.log("clear the update interval for previous selected channel.")
+
+        trackStreamingChat(selectedChannel);
+
+        updateStreamingPlot(selectedChannel);
+
+        startUpdateInterval();
+    });
+};

@@ -60,7 +60,7 @@ class TwitchDeveloper:
             taipei_time = datetime.fromisoformat(resp_data[0]['started_at'][:-1]) + timedelta(hours=8)
             taipei_isoformat = datetime.isoformat(taipei_time) + "+08:00"
             resp_data[0]['started_at'] = taipei_isoformat
-            print(resp_data[0])
+            # print(resp_data[0])
             logging.info(resp_data[0])
             return resp_data[0]
         else:

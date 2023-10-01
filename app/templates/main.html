@@ -1,27 +1,41 @@
 <!DOCTYPE html>
 <html>
 <head>
+   <meta charset="UTF-8">
+   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+   <link rel="stylesheet" type="text/css" href="../static/dropdown.css">
    <title>TwitchAdvisor</title>
    <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
 </head>
 <body>
    <h1 id="title">TwitchAdvisor</h1>
 
-   <div id="defaultBroadcasters">
-      <h3>Broadcasters who we are tracking</h2>
-      <ul>
-         {% for b in broadcasters %}
-         <li class="defaultBroadcasters">{{b}}</li>
-         {% endfor %}  
-      </ul>
+
+
+   
+   <div class="plotContainer">
+      <div id="liveBroadcasters" class="options">
+         <span id="topLiveChannels">Top live channels</span>
+      </div>
+      <div id="streamingPlot" class="plot"></div>
    </div>
 
-   <div id="streamingPlot"></div>
-   
-   <div id="historicalPlot"></div>
+   <div class="plotContainer">
+      <div id="defaultBroadcasters" class="options">
+         <h3>Broadcasters who we are tracking</h3>
+         <ul>
+            {% for b in broadcasters %}
+            <li class="defaultBroadcasters">{{b}}</li>
+            {% endfor %}  
+         </ul>
+      </div>
 
-   <div id="liveBroadcasters"></div>
-      <h3 id="topLiveChannels">Top live channels</h3>
+      <div id="historicalPlot" class="plot"></div>
+   </div>
+
+
+
+
 
    <script src="../static/mainPage.js"></script>
    <script src="../static/streamingPlot.js"></script>

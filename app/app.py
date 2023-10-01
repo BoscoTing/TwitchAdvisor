@@ -6,20 +6,24 @@ from flask import (Flask,
                    jsonify)
 from time import time, sleep
 from datetime import datetime
+from copy import deepcopy
+import threading
 import logging
 import re
 import json
 import os
 import sys
-sys.path.insert(0, os.getcwd())
 import argparse
+sys.path.insert(0, os.getcwd())
 parser = argparse.ArgumentParser()
 parser.add_argument( '-log',
                      '--loglevel',
-                     default='warn',
+                     default='warning',
                      help='Provide logging level. Example --loglevel debug, default=warning' )
 args = parser.parse_args()
 logging.basicConfig( level=args.loglevel.upper() )
+logger = logging.getLogger('my-logger')
+logger.propagate = False
 
 from managers.twitch_api_manager import TwitchDeveloper
 from managers.ircbot_manager import TwitchChatListener
@@ -64,14 +68,68 @@ def get_channel_list():
         channel_json = json.dumps(data)
         return channel_json
 
-@app.route("/api/streaming_logs", methods=["GET"]) # start listening to selected channel and insert document into collection
+
+
+request_param_lock = threading.Lock()
+
+latest_selected_channel = None
+
+class TwitchChatListenerTEMP(threading.Thread):
+    def __init__(self, channel):
+        super().__init__()
+        self.channel = channel
+        self.stopped = threading.Event()
+
+    def run(self):
+        listener = TwitchChatListener(self.channel)
+        listener.listen_to_chatroom_temp()
+        print(f"Listening to channel: {self.channel}")
+        while not self.stopped.is_set():
+            listener.record_logs_temp()
+
+    def stop(self):
+        self.stopped.set()
+
+# start listening to selected channel.
+@app.route("/api/streaming_logs", methods=["GET"]) 
 def streaming_plot():
-    channel = request.args.get("channel")
-    listener = TwitchChatListener(channel)
-    listener.listen_to_chatroom_temp()
-    while True:
-        listener.record_logs_temp()
-            
+    global latest_selected_channel # initial value is None
+
+    selected_channel = request.args.get("channel")
+
+    with request_param_lock:            
+        if selected_channel == latest_selected_channel:
+            # doesn't change current process when same channel is selected.
+            pass
+        else: # when receiving different query param or this is the first request
+            latest_selected_channel = selected_channel
+
+            # (if not the first request) stop the previous listener and assign a new one.
+            if hasattr(app, 'listener_thread') and app.listener_thread.is_alive():
+                app.listener_thread.stop()
+                app.listener_thread.join()
+
+            # Start a new listener thread
+            app.listener_thread = TwitchChatListenerTEMP(selected_channel)
+            app.listener_thread.start()
+
+    # logging.warning("flask: selected_channel", selected_channel)
+    # if interrupted_by_other_selected_channel(selected_channel) == True:
+
+def interrupted_by_other_selected_channel(selected_channel):
+    global latest_selected_channel
+    if latest_selected_channel == None:
+        latest_selected_channel = deepcopy(selected_channel)
+    
+    elif selected_channel == latest_selected_channel:
+        pass
+
+    elif selected_channel != latest_selected_channel:
+        logging.warning("flask: interrupted_by_other_selected_channel", selected_channel)
+        return True
+
+    return False
+
 @app.route("/api/streaming_stats", methods=["GET"]) # start querying and drawing the chart of selected channel.
 def streaming_stats():
     channel = request.args.get("channel")
@@ -81,7 +139,6 @@ def streaming_stats():
     for doc in stats:
         doc['timestamp'] = datetime.timestamp(doc['_id'])
         del doc["_id"]
-    logging.warning(stats)
     resp_data = {
     'stats' : stats
     }
@@ -98,8 +155,11 @@ def historical_stats():
 
     analyser = ViewersReactionAnalyser(channel)
     stats = analyser.query_historical_stats(started_at)
-    if stats == False or stats == []:
-        return f"We haven't seen {analyser.channel} recently."
+    if stats == False:
+        # return f"We haven't seen {analyser.channel} recently."
+        return []
+    elif stats == []:
+        return stats
     logging.warning("getting historical stats:", stats[-1])
     
     for doc in stats:
@@ -124,8 +184,11 @@ def historical_plot():
 
     analyser = ViewersReactionAnalyser(channel)
     stats = analyser.query_historical_stats(started_at)
-    if stats == False or stats == []:
-        return f"We haven't seen {analyser.channel} recently."
+    if stats == False:
+        # return f"We haven't seen {analyser.channel} recently."
+        return []
+    elif stats == []:
+        return stats
     logging.warning("getting historical stats:", stats[-1])
     
     for doc in stats:
