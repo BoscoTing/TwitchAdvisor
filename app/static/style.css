@@ -1,0 +1,59 @@
+/* Example CSS styles */
+body {
+    font-family: Arial, sans-serif;
+    background-color: #f0f0f0;
+}
+
+.plotContainer {
+    max-width: 100%; /* Ensure it doesn't exceed the viewport width */
+    display: flex; /* Use flexbox to align elements */
+    flex-wrap: wrap; /* Allow wrapping of elements if needed */
+    background-color: #fff;
+    border-radius: 5px;
+    box-shadow: 0 0 5px rgba(0, 0, 0, 0.1);
+    padding: 20px;
+    margin: 20px;
+    min-height: 600px; /* Set a minimum height for the container */
+}
+
+h1, h3 {
+    color: #333;
+}
+
+.options ul {
+    list-style: none;
+    padding: 0;
+}
+
+.options li {
+    margin-bottom: 10px;
+}
+
+.button {
+    background-color: #007bff;
+    color: #fff;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+.plotContainer .loadingOverlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(255, 255, 255, 0.8); /* Semi-transparent white background */
+    display: none; /* Initially hidden */
+    justify-content: center;
+    align-items: center;
+    z-index: 100; /* Make sure it appears above other content */
+}
+
+/* Add styles for loadingMessage within loadingOverlay */
+.plotContainer .loadingMessage {
+    font-size: 1.5rem;
+    color: #333;
+    position: absolute;
+}
