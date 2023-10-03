@@ -32,7 +32,7 @@ def pause_dag(dag, is_paused):
 class ChannelDetect:
     def __init__(self):
         self.twitch_developer = TwitchDeveloper()
-        self.channels = ['sneakylol', 'gosu', 'scarra', 'disguisedtoast']
+        self.channels = ['sneakylol', 'gosu', 'scarra', 'disguisedtoast', 'trick2g', 'midbeast', 'perkz_lol']
         
     def dags_beggining(self, channel):
         dag_list_streaming = [f"insert_logs_{channel}_dag", f"listen_{channel}_dag"]
