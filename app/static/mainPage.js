@@ -1,4 +1,3 @@
-
 function updateLiveChannels() {
     var xmlHttp = new XMLHttpRequest();
     var host = window.location.host; 

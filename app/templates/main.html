@@ -3,6 +3,7 @@
 <head>
    <meta charset="UTF-8">
    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+   <link rel="stylesheet" type="text/css" href="../static/style.css">
    <link rel="stylesheet" type="text/css" href="../static/dropdown.css">
    <title>TwitchAdvisor</title>
    <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
@@ -10,17 +11,37 @@
 <body>
    <h1 id="title">TwitchAdvisor</h1>
 
+   <!-- streaming -->
+   <div class="plotContainer"> 
 
-
-   
-   <div class="plotContainer">
+      <!-- channel list -->
       <div id="liveBroadcasters" class="options">
          <span id="topLiveChannels">Top live channels</span>
       </div>
+
+      <!-- selected channel -->
+      <h3 id="selectedLiveBroadcaster"></h3>
+
+      <!-- average viewers -->
+      <h3 class="avgViewerCount">Average Viewers</h3>
+      <p id="avgViewerCount" class="avgViewerCount"></p>
+
+      <!-- plot -->
       <div id="streamingPlot" class="plot"></div>
+      <div class="loadingOverlay" id="loadingOverlayStreaming">
+         <div class="loadingMessage">Entering into Chatroom...</div>
+      </div>
    </div>
 
+
+   <!-- historical -->
    <div class="plotContainer">
+
+      <div class="loadingOverlay" id="loadingOverlayHistorical">
+         <div class="loadingMessage">Loading...</div>
+      </div>
+
+      <!-- channel list -->
       <div id="defaultBroadcasters" class="options">
          <h3>Broadcasters who we are tracking</h3>
          <ul>
@@ -30,11 +51,15 @@
          </ul>
       </div>
 
+      <!-- selected channel -->
+      <h3 id="selectedBroadcaster"></h3>
+
+      <!-- schedule -->
+      <div id="scheduleHeader">Historical Schedule</div>
+
+      <!-- plot -->
       <div id="historicalPlot" class="plot"></div>
    </div>
-
-
-
 
 
    <script src="../static/mainPage.js"></script>
