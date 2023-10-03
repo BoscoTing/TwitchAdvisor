@@ -1,6 +1,7 @@
 from decouple import config
 from datetime import datetime, timedelta
 import logging
+logging.basicConfig(level=logging.ERROR)
 import pytz
 import requests
 import json
@@ -94,5 +95,5 @@ class TwitchDeveloper:
 # use_example
 
 # twitch_api = TwitchDeveloper()
-# result = twitch_api.get_channel_schedule("cowsep")
+# result = twitch_api.detect_living_channel("trick2g")
 # print(result)
