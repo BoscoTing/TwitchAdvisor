@@ -1,10 +1,20 @@
 /* Example CSS styles */
 body {
     font-family: Arial, sans-serif;
-    background-color: #f0f0f0;
+    background-color: rgba(0, 0, 0, 0.1);
+    margin: 0% 1%; /* Remove default body margin */
+}
+
+#title{
+    display: inline-block;
+    padding: 5px;
+    background-color: #b546bdcf;
+    text-shadow: 5px 5px 5px 5px #000000;
+    color: #fff;
 }
 
 .plotContainer {
+    position: relative;
     max-width: 100%; /* Ensure it doesn't exceed the viewport width */
     display: flex; /* Use flexbox to align elements */
     flex-wrap: wrap; /* Allow wrapping of elements if needed */
@@ -12,23 +22,54 @@ body {
     border-radius: 5px;
     box-shadow: 0 0 5px rgba(0, 0, 0, 0.1);
     padding: 20px;
-    margin: 20px;
+    margin: 0px 0px 2% 0px;
     min-height: 600px; /* Set a minimum height for the container */
+}
+
+.column {
+    flex: 1; /* Take up available space */
+    display: flexbox; /* Nested flex container */
+    background-color: #fff;
+    justify-content: space-between;
+    padding: 10px; /* Adjust padding as needed */
+    /* margin-left: 50px; */
+}
+
+.plot {
+    flex: 3; /* Take up more available space */
+    background-color: #fff;
+    border-radius: 5px;
+    box-shadow: 0 0 5px rgba(0, 0, 0, 0.1);
+    padding: 20px;
+    min-height: 600px; /* Set a minimum height for the container */
+    margin: 10px 0 0 0; /* Adjust margin as needed */
 }
 
 h1, h3 {
     color: #333;
 }
 
-.options ul {
+/* .options ul {
     list-style: none;
     padding: 0;
+} */
+
+.options {
+    margin: 0% 5% 0% 0%;
 }
 
-.options li {
-    margin-bottom: 10px;
+#selectionInfo {
+    display: flex;
+    flex-direction: column;
+    align-items: center; /* Center horizontally within the container */
+    text-align: center; /* Center text horizontally within the container */
+    margin-top: 20px; /* Adjust margin as needed */
 }
-
+#scheduleHeader {
+    display: flexbox;
+    background-color: #f0f0f0; /* Add background color as needed */
+    padding: 10px; /* Add padding as needed */
+}
 .button {
     background-color: #007bff;
     color: #fff;

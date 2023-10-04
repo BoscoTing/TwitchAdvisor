@@ -21,7 +21,7 @@ function updateHistoricalPlot(selectBroadcaster, startedAt) {
             console.log(scheduleArray);
             const scheduleHeader = document.getElementById("scheduleHeader");
 
-            const startedAtElements = scheduleHeader.getElementsByClassName("startedAt");
+            const startedAtElements = document.getElementsByClassName("startedAt");
             while (startedAtElements.length > 0) { // delete schedule when select a default channel
                 scheduleHeader.removeChild(startedAtElements[0]);
             };
@@ -47,8 +47,8 @@ function updateHistoricalPlot(selectBroadcaster, startedAt) {
             const channel = stats.map(stats => stats.channel)[0];
             console.log("selectedBroadcaster: ", channel);
             const selectedChannelElement = document.getElementById("selectedBroadcaster");
-            selectedChannelElement.textContent = channel;
-
+            selectedChannelElement.textContent = `${channel}'s channel`;
+            selectedChannelElement.appendChild(scheduleHeader);
             // const cheers = stats.cheers;
             // const startedAt = stats.startedAt;
             const timestamp = stats.map(stats => new Date(stats.timestamp*1000));
