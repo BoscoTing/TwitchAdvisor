@@ -6,44 +6,31 @@ from flask import (Flask,
                    jsonify)
 from time import time, sleep
 from datetime import datetime
-import logging
+from copy import deepcopy
+import threading
+# import logging
 import re
 import json
 import os
 import sys
 sys.path.insert(0, os.getcwd())
-import argparse
-parser = argparse.ArgumentParser()
-parser.add_argument( '-log',
-                     '--loglevel',
-                     default='warn',
-                     help='Provide logging level. Example --loglevel debug, default=warning' )
-args = parser.parse_args()
-logging.basicConfig( level=args.loglevel.upper() )
+# logging.basicConfig(level=logging.ERROR)
 
 from managers.twitch_api_manager import TwitchDeveloper
 from managers.ircbot_manager import TwitchChatListener
 from features.viewers_reaction import ViewersReactionAnalyser
+from managers.mongodb_manager import MongoDBManager
 
 app = Flask(__name__)
 
 @app.route("/") # main page
 def main_page():
-    broadcasters = ['sneakylol', 'gosu', 'disguisedtoast', 'scarra']
+    broadcasters = ['sneakylol', 'gosu', 'disguisedtoast', 'scarra', 'trick2g', 'midbeast', 'perkz_lol']
     return render_template('main.html', broadcasters=broadcasters)
 
 @app.route("/api/viewers_reaction", methods=["GET"])
 def track_viewers_reaction():
     channel = request.args.get("channel") # receive the channel chosen by user
-    # Airflow Dag of TwitchChatListener:
-    #   a existing DAG still tracking default channels.
-    #   another DAG will be triggered to execute a new script that is ready for tracking new channel.
-
-    # Airflow Dag of ViewersReactionAnalyser: 
-    #   a existing DAG still tracking the log messages of default channel.
-    #   another DAG will be triggered to execute a new script that is parsing the log messages of selected channel.
-
-    # listener = TwitchChatListener(channel)
 
 @app.route("/api/update_channels", methods=["GET"])
 def get_channel_list():
@@ -58,35 +45,85 @@ def get_channel_list():
         renamed_channel_dict = {} # renamed keys of channel_dict using snake case
         for key, value in channel_dict.items():
             renamed_key = snake_case(key)
-            renamed_channel_dict[renamed_key] = value
+            if value not in ['sneakylol', 'gosu', 'disguisedtoast', 'scarra', 'trick2g', 'midbeast', 'perkz_lol']:
+                renamed_channel_dict[renamed_key] = value
             data = {'data': renamed_channel_dict}
 
         channel_json = json.dumps(data)
         return channel_json
 
-@app.route("/api/streaming_logs", methods=["GET"]) # start listening to selected channel and insert document into collection
-def streaming_plot():
-    channel = request.args.get("channel")
-    listener = TwitchChatListener(channel)
-    listener.listen_to_chatroom_temp()
-    while True:
-        listener.record_logs_temp()
-            
 @app.route("/api/streaming_stats", methods=["GET"]) # start querying and drawing the chart of selected channel.
 def streaming_stats():
     channel = request.args.get("channel")
     analyser = ViewersReactionAnalyser(channel)
-    analyser.insert_temp_chat_logs(os.getcwd() + f'/chat_logs/{channel}.log')
+
+    analyser.insert_temp_chat_logs(os.getcwd()+f'/chat_logs/{channel}.log')
     stats = ViewersReactionAnalyser(channel).temp_stats(channel)
     for doc in stats:
         doc['timestamp'] = datetime.timestamp(doc['_id'])
         del doc["_id"]
-    logging.warning(stats)
     resp_data = {
     'stats' : stats
     }
     stats_json = json.dumps(resp_data)
     return stats_json
+
+
+request_param_lock = threading.Lock()
+latest_selected_channel = None
+class TwitchChatListenerTEMP(threading.Thread):
+    def __init__(self, channel):
+        super().__init__()
+        self.channel = channel
+        self.stopped = threading.Event()
+
+    def run(self):
+        listener = TwitchChatListener(self.channel)
+        listener.listen_to_chatroom_temp()
+        print(f"Listening to channel: {self.channel}")
+        while not self.stopped.is_set():
+            listener.record_logs_temp()
+            print("/api/streaming_logs: record_logs_temp")
+
+    def stop(self):
+        self.stopped.set()
+
+# start listening to selected channel.
+@app.route("/api/streaming_logs", methods=["GET"]) 
+def streaming_logs():
+    global latest_selected_channel # initial value is None
+
+    selected_channel = request.args.get("channel")
+    print("selected streaming channel: ", selected_channel)
+    if selected_channel not in ['sneakylol', 'gosu', 'scarra', 'disguisedtoast', 'trick2g', 'midbeast', 'perkz_lol']:
+
+        # delete the log file of previous selected channel.
+        MongoDBManager().delete_many(selected_channel, "tempChatLogs")
+        print(f"db.tempChatLogs.deleteMany: {selected_channel}")
+        try: 
+            os.remove(os.getcwd()+f"/chat_logs/{selected_channel}.log")
+            print(f"app: temp_delete_log_file: /chat_logs/{selected_channel}.log")
+        except: pass
+
+    with request_param_lock:     
+        print("request_param_lock")       
+        if selected_channel == latest_selected_channel:
+            # doesn't change current process when same channel is selected.
+            pass
+        else: 
+            latest_selected_channel = selected_channel
+
+            # (if not the first request) stop the previous listener and assign a new one.
+            if hasattr(app, 'listener_thread') and app.listener_thread.is_alive():
+                print("Stop a current listener thread")
+                app.listener_thread.stop()
+                app.listener_thread.join()
+
+            # Start a new listener thread
+            print("Start a new listener thread")
+            app.listener_thread = TwitchChatListenerTEMP(selected_channel)
+            app.listener_thread.start()
+
 
 @app.route("/api/historical_data", methods=["GET"]) # query the result of selected live stream to create a chart.s
 def historical_stats():
@@ -94,23 +131,29 @@ def historical_stats():
     started_at = request.args.get("started_at")
     if started_at: 
         started_at = started_at.replace(" ", "+") # request.args.get reads the "+" string as " "
-    logging.warning("getting historical data: started_at", started_at)
+    print("getting historical data: started_at", started_at)
+    # logging.debug("getting historical data: started_at", started_at)
 
     analyser = ViewersReactionAnalyser(channel)
     stats = analyser.query_historical_stats(started_at)
-    if stats == False or stats == []:
-        return f"We haven't seen {analyser.channel} recently."
-    logging.warning("getting historical stats:", stats[-1])
+    print("getting historical stats:", stats)
+    # logging.debug("getting historical stats:", stats)
+    if stats == False:
+        # return f"We haven't seen {analyser.channel} recently."
+        return []
+    elif stats == []:
+        return stats
     
     for doc in stats:
         doc['timestamp'] = datetime.timestamp(doc['timestamp'])
         del doc["_id"]  
-
     schedule = analyser.get_historical_schedule()
     resp_data = {
-        'shedule': schedule,
+        'schedule': schedule,
         'stats' : stats
         }
+    print(resp_data)
+    # logging.debug(resp_data)
     resp_data = json.dumps(resp_data)
     return resp_data
 
@@ -120,13 +163,18 @@ def historical_plot():
     started_at = request.args.get("started_at")
     if started_at: 
         started_at = started_at.replace(" ", "+") # request.args.get reads the "+" string as " "
-    logging.warning("getting historical data: started_at", started_at)
+    print("getting historical data: started_at", started_at)
+    # logging.debug("getting historical data: started_at", started_at)
 
     analyser = ViewersReactionAnalyser(channel)
     stats = analyser.query_historical_stats(started_at)
-    if stats == False or stats == []:
-        return f"We haven't seen {analyser.channel} recently."
-    logging.warning("getting historical stats:", stats[-1])
+    if stats == False:
+        # return f"We haven't seen {analyser.channel} recently."
+        return []
+    elif stats == []:
+        return stats
+    print("getting historical stats:", stats[-1])
+    # logging.debug("getting historical stats:", stats[-1])
     
     for doc in stats:
         doc['timestamp'] = datetime.timestamp(doc['timestamp'])

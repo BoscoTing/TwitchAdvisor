@@ -49,7 +49,7 @@ class TwitchChatListener:
                             format='%(asctime)s — %(message)s',
                             datefmt='%Y-%m-%d_%H:%M:%S',
                             handlers=[logging.FileHandler(os.getcwd() + f'/chat_logs/{self.channel}.log', 
-                                                          mode='a',
+                                                          mode='w', # use 'w' mode to create log file everytime.
                                                           encoding='utf-8')])
         logging.info(resp)
         self.started_at = TwitchDeveloper().detect_living_channel(self.channel)['started_at']
@@ -89,8 +89,7 @@ class TwitchChatListener:
 
     def listen_to_chatroom_temp(self):
         self.connect_chatroom_temp()
-        # while True:
-        #     self.record_logs_temp()
+
     
     def save_start_time(self):
         developer = TwitchDeveloper()

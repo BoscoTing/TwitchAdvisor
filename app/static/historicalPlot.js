@@ -1,30 +1,62 @@
-function updateHistoricalPlot(selectBroadcaster) {
+function updateHistoricalPlot(selectBroadcaster, startedAt) {
+    const loadingOverlay = document.getElementById("loadingOverlayHistorical");
+    loadingOverlay.style.display = "block";
+    
     var xmlHttp = new XMLHttpRequest();
     // selectBroadcaster = document.getElementsByClassName("defaultBroadcasters").value;
     // var host = window.location.host; 
-    xmlHttp.open( "GET", `/api/historical_data?channel=${selectBroadcaster}`, false ); // false for synchronous request
+    if (startedAt) {
+        xmlHttp.open( "GET", `/api/historical_data?channel=${selectBroadcaster}&started_at=${startedAt}`, true );
+    }
+    else {
+        xmlHttp.open( "GET", `/api/historical_data?channel=${selectBroadcaster}`, true );
+    };
     xmlHttp.onload = function () {
+        loadingOverlay.style.display = "none";
         if (xmlHttp.status === 200) {
             var responseHtml = xmlHttp.responseText;
-            // console.log(responseHtml);
             var responseJson = JSON.parse(responseHtml);
-            console.log(responseJson)
-            let shedule = responseJson.shedule; // get the values of started_at
-            console.log(shedule)
-            let stats = responseJson.stats; // get the stats data
-            const channel = stats.channel;
-            // const cheers = stats.cheers;
-            const startedAt = stats.started_at;
-            const timestamp = stats.map(stats => new Date(stats.timestamp*1000));
-            const avgViewerCount = stats.map(stats => stats.metadata.avg_viewer_count);
-            const messageCount = stats.map(stats => stats.metadata.message_count);
-            const chatterCount = stats.map(stats => stats.metadata.chatter_count);
-            const cheer = stats.map(stats => stats.metadata.cheers.length);
-            console.log(cheer)
 
-            // document.querySelector("h1").textContent = `All user count: ${allUserCount}`;
-            // document.querySelector("#view_info").setAttribute("data", JSON.stringify(viewInfoCount));
-            // document.querySelector("#user_info").setAttribute("data", JSON.stringify(userInfoCount));
+            let scheduleArray = responseJson.schedule; // get the values of started_at
+            console.log(scheduleArray);
+            const scheduleHeader = document.getElementById("scheduleHeader");
+
+            const startedAtElements = scheduleHeader.getElementsByClassName("startedAt");
+            while (startedAtElements.length > 0) { // delete schedule when select a default channel
+                scheduleHeader.removeChild(startedAtElements[0]);
+            };
+            console.log(scheduleArray);
+            for (var i = 0; i < scheduleArray.length; i ++) { // create startedDate options
+                console.log(scheduleArray[i]);
+                let startedAt = document.createElement("p");
+                startedAt.setAttribute("class", "startedAt");
+                startedAt.textContent = scheduleArray[i];
+
+                startedAt.addEventListener("click", function () { // set event listener to startedAt
+                    selectedDate = startedAt.textContent;
+                    console.log(selectedDate);
+                    updateHistoricalPlot(selectBroadcaster, selectedDate);
+                });
+
+                scheduleHeader.appendChild(startedAt);
+            }
+
+            let stats = responseJson.stats; // get the stats data
+            console.log(stats.length);
+
+            const channel = stats.map(stats => stats.channel)[0];
+            console.log("selectedBroadcaster: ", channel);
+            const selectedChannelElement = document.getElementById("selectedBroadcaster");
+            selectedChannelElement.textContent = channel;
+
+            // const cheers = stats.cheers;
+            // const startedAt = stats.startedAt;
+            const timestamp = stats.map(stats => new Date(stats.timestamp*1000));
+            const avgViewerCount = stats.map(stats => stats.avgViewerCount);
+            const messageCount = stats.map(stats => stats.messageCount);
+            const chatterCount = stats.map(stats => stats.chatterCount);
+            const cheer = stats.map(stats => stats.cheers.length);
+            console.log(cheer)
 
             const trace1 = {
                 x: timestamp,
@@ -72,7 +104,7 @@ function updateHistoricalPlot(selectBroadcaster) {
                     title: 'Average Viewer Count'
                 }
             };
-            
+
             Plotly.newPlot(
                     'historicalPlot', 
                     [
@@ -82,7 +114,7 @@ function updateHistoricalPlot(selectBroadcaster) {
                         trace4
                     ], 
                     layout
-                );
+                );    
         }
     }
     xmlHttp.send();
@@ -90,10 +122,11 @@ function updateHistoricalPlot(selectBroadcaster) {
 
 const defaultBroadcasters = document.getElementsByClassName("defaultBroadcasters")
 for (var i = 0; i < defaultBroadcasters.length; i++) {
-    let defaultBroadcaster = defaultBroadcasters[i]
+    let defaultBroadcaster = defaultBroadcasters[i];
     defaultBroadcaster.addEventListener("click", function () {
+
         selectBroadcaster = defaultBroadcaster.textContent;
-        console.log(selectBroadcaster);
-        updateHistoricalPlot(selectBroadcaster);
+        updateHistoricalPlot(selectBroadcaster, null); // set startedAt=null when first loading to the page
+
     });
 };

@@ -1,6 +1,7 @@
 from decouple import config
 from datetime import datetime, timedelta
 import logging
+logging.basicConfig(level=logging.ERROR)
 import pytz
 import requests
 import json
@@ -60,7 +61,7 @@ class TwitchDeveloper:
             taipei_time = datetime.fromisoformat(resp_data[0]['started_at'][:-1]) + timedelta(hours=8)
             taipei_isoformat = datetime.isoformat(taipei_time) + "+08:00"
             resp_data[0]['started_at'] = taipei_isoformat
-            print(resp_data[0])
+            # print(resp_data[0])
             logging.info(resp_data[0])
             return resp_data[0]
         else:
@@ -94,5 +95,5 @@ class TwitchDeveloper:
 # use_example
 
 # twitch_api = TwitchDeveloper()
-# result = twitch_api.get_channel_schedule("cowsep")
+# result = twitch_api.detect_living_channel("trick2g")
 # print(result)
