@@ -96,7 +96,6 @@ def streaming_logs():
     selected_channel = request.args.get("channel")
     print("selected streaming channel: ", selected_channel)
     if selected_channel not in ['sneakylol', 'gosu', 'scarra', 'disguisedtoast', 'trick2g', 'midbeast', 'perkz_lol']:
-
         # delete the log file of previous selected channel.
         MongoDBManager().delete_many(selected_channel, "tempChatLogs")
         print(f"db.tempChatLogs.deleteMany: {selected_channel}")

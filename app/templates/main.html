@@ -16,20 +16,21 @@
 
       <!-- channel list -->
       <div id="liveBroadcasters" class="options">
-         <span id="topLiveChannels">Top live channels</span>
+         <span id="topLiveChannels" class="column">Top live channels</span>
       </div>
 
       <!-- selected channel -->
       <h3 id="selectedLiveBroadcaster"></h3>
 
       <!-- average viewers -->
-      <h3 class="avgViewerCount">Average Viewers</h3>
+      <!-- <h3 class="avgViewerCount">Average Viewers</h3> -->
       <p id="avgViewerCount" class="avgViewerCount"></p>
 
       <!-- plot -->
-      <div id="streamingPlot" class="plot"></div>
-      <div class="loadingOverlay" id="loadingOverlayStreaming">
-         <div class="loadingMessage">Entering into Chatroom...</div>
+      <div id="streamingPlot" class="plot">
+         <div class="loadingOverlay" id="loadingOverlayStreaming">
+            <div class="loadingMessage">Entering into Chatroom...</div>
+         </div>
       </div>
    </div>
 
@@ -37,28 +38,31 @@
    <!-- historical -->
    <div class="plotContainer">
 
+      <!-- channel list -->
+      <div id="selectionInfo" class="column">
+
+         <div id="defaultBroadcasters" class="options">
+            <h3>Default Broadcasters</h3>
+               <div>
+                  {% for b in broadcasters %}
+                  <p class="defaultBroadcasters">{{b}}</p>
+                  {% endfor %}  
+               </div>
+         </div>
+
+         <!-- selected channel -->
+         <h3 id="selectedBroadcaster"></h3>
+         <!-- schedule -->
+         <div id="scheduleHeader" class="options">Historical Schedule</div>
+
+      </div>
+
+      <!-- plot -->
+      <div id="historicalPlot" class="plot"></div>
       <div class="loadingOverlay" id="loadingOverlayHistorical">
          <div class="loadingMessage">Loading...</div>
       </div>
 
-      <!-- channel list -->
-      <div id="defaultBroadcasters" class="options">
-         <h3>Broadcasters who we are tracking</h3>
-         <ul>
-            {% for b in broadcasters %}
-            <li class="defaultBroadcasters">{{b}}</li>
-            {% endfor %}  
-         </ul>
-      </div>
-
-      <!-- selected channel -->
-      <h3 id="selectedBroadcaster"></h3>
-
-      <!-- schedule -->
-      <div id="scheduleHeader">Historical Schedule</div>
-
-      <!-- plot -->
-      <div id="historicalPlot" class="plot"></div>
    </div>
 
 
