@@ -56,15 +56,17 @@ function updateHistoricalPlot(selectBroadcaster, startedAt) {
             const messageCount = stats.map(stats => stats.messageCount);
             const chatterCount = stats.map(stats => stats.chatterCount);
             const cheer = stats.map(stats => stats.cheers.length);
-            console.log(cheer)
+
+            const sentiment = stats.map(stats => stats.sentiment);
+            console.log(sentiment);
 
             const trace1 = {
                 x: timestamp,
-                y: avgViewerCount,
+                y: sentiment,
                 type: 'scatter',
                 mode: 'lines',
                 marker: {color: 'red'},
-                name: 'Average Viewers'
+                name: 'Chatroom Sentiment'
             };
 
             const trace2 = {
@@ -73,7 +75,7 @@ function updateHistoricalPlot(selectBroadcaster, startedAt) {
                 type: 'scatter',
                 mode: 'lines',
                 marker: {color: 'blue'},
-                name: 'messages'
+                name: 'Messages'
             };
 
             const trace3 = {
@@ -82,7 +84,7 @@ function updateHistoricalPlot(selectBroadcaster, startedAt) {
                 type: 'scatter',
                 mode: 'lines',
                 marker: {color: 'green'},
-                name: 'chatters'
+                name: 'Chatters'
             };
 
             const trace4 = {
@@ -91,7 +93,7 @@ function updateHistoricalPlot(selectBroadcaster, startedAt) {
                 type: 'scatter',
                 mode: 'lines',
                 marker: {color: 'gray'},
-                name: 'cheer'
+                name: 'Cheers'
             };
             
             // Layout for the chart
@@ -108,9 +110,9 @@ function updateHistoricalPlot(selectBroadcaster, startedAt) {
             Plotly.newPlot(
                     'historicalPlot', 
                     [
-                        // trace1, 
+                        trace1, 
                         trace2, 
-                        // trace3, 
+                        trace3, 
                         trace4
                     ], 
                     layout

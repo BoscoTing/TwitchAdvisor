@@ -143,8 +143,16 @@ def historical_stats():
     elif stats == []:
         return stats
     
+    def avg_sentiment_weighted_by_index(score_list):
+        weighted_scores = []
+        for i in range(len(score_list)):
+            weighted_scores.append(score_list[i] * i)
+            result = sum(weighted_scores) / sum(score_list)
+        return result
+
     for doc in stats:
         doc['timestamp'] = datetime.timestamp(doc['timestamp'])
+        doc['sentiment'] = avg_sentiment_weighted_by_index(doc['sentiment'])
         del doc["_id"]  
     schedule = analyser.get_historical_schedule()
     resp_data = {
@@ -183,6 +191,7 @@ def historical_plot():
     message_count = [entry['metadata']['message_count'] for entry in stats]
     cheers_count = [len(entry['metadata']['cheers']) for entry in stats]
     avg_viewer_count = [ entry['metadata']['message_count'] / entry['metadata']['avg_viewer_count'] * 100 for entry in stats]
+    # avg_viewer_count = [ entry['metadata']['message_count'] / entry['metadata']['avg_viewer_count'] * 100 for entry in stats]
 
     schedule = analyser.get_historical_schedule()
 
