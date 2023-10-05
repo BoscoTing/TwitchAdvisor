@@ -26,19 +26,26 @@ function updateStreamingPlot(selectedChannel) {
             var responseHtml = xmlHttp.responseText;
             var responseJson = JSON.parse(responseHtml);
             let stats = responseJson.stats; // get the stats data
-
-            const avgViewerCount = stats.map(stats => stats.avgViewerCount)[-1];
-            console.log("avgViewerCount: ", avgViewerCount);
-            const avgViewerCountElement = document.getElementById("avgViewerCount");
-            avgViewerCountElement.textContent = avgViewerCount;
-
+            // console.log(stats);
 
             // const startedAt = stats.startedAt;
             const timestamp = stats.map(stats => new Date(stats.timestamp*1000));
+
             const messageCount = stats.map(stats => stats.messageCount);
-            const chatterCount = stats.map(stats => stats.chatterCount);
-            const cheer = stats.map(stats => stats.cheers.length);
             console.log("updating: ", messageCount.length);
+            console.log(messageCount);
+            const chatterCount = stats.map(stats => stats.chatterCount);
+            console.log(chatterCount);
+            const cheerCount = stats.map(stats => stats.cheers.length);
+            console.log(cheerCount);
+            const avgViewerCount = stats.map(stats => stats.averageViewerCount);
+            console.log("avgViewerCount: ", avgViewerCount.at(-1));
+
+            // show the avgViewerCount on streaming plot section
+            const avgViewerCountElement = document.getElementById("avgViewerCount");
+            avgViewerCountElement.textContent = avgViewerCount.at(-1);
+
+
             if (messageCount.length == 0) {
                 const loadingOverlay = document.getElementById("loadingOverlayStreaming");
                 loadingOverlay.style.display = "block";
@@ -77,7 +84,7 @@ function updateStreamingPlot(selectedChannel) {
 
             const trace4 = {
                 x: timestamp,
-                y: cheer,
+                y: cheerCount,
                 type: 'scatter',
                 mode: 'lines',
                 marker: {color: 'gray'},
@@ -91,7 +98,7 @@ function updateStreamingPlot(selectedChannel) {
                     title: 'Timestamp'
                 },
                 yaxis: {
-                    title: 'Average Viewer Count'
+                    title: 'Chatroom Engagement'
                 }
             };
             Plotly.react(

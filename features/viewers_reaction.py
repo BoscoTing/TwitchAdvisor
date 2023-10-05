@@ -203,7 +203,7 @@ class ViewersReactionAnalyser():
                             'message': 1,
                             'cheer': 1,
                             'userName': 1,
-                            'timestamp': 1,
+                            'viewerCount': 1,
                             }
                     },
                     {
@@ -260,32 +260,44 @@ class ViewersReactionAnalyser():
         stats = [row for row in collection.aggregate(query)]
         return stats
 
+    def sort_isodate_schedule(self, schedule_list):
+        def isodate_key(isodate):
+            from datetime import datetime
+            return datetime.fromisoformat(isodate)
+        sorted_schedule_list = sorted(schedule_list, key=isodate_key)
+        return sorted_schedule_list
+
+    def avg_sentiment_weighted_by_index(self, score_list):
+        weighted_scores = []
+        for i in range(len(score_list)):
+            weighted_scores.append(score_list[i] * i)
+            result = sum(weighted_scores) / sum(score_list)
+        return result
+
     def insert_historical_stats(self): # insert all historical stats data right after the live streaming ends using insertmany.
-        started_at = self.get_historical_schedule()[-1]
+        historical_schedule_list = self.get_historical_schedule()
+        print("historical_schedule: ", historical_schedule_list)
+        started_at = self.sort_isodate_schedule(historical_schedule_list)[-1]
+        # started_at = self.get_historical_schedule()[-1]
         print("viewers_reaction: insert_historical_stats", started_at)
-        # logging.debug("viewers_reaction: insert_historical_stats", started_at)
+        print("viewers_reaction: querying historical_stats...")
         stats = deepcopy(self.historical_stats(started_at)) # self.historical_stats() will need self.started_at
         organized_documents = []
         sentiment_analyser = ChatroomSentiment()
+        print("viewers_reaction: calculating sentiment_score...")
         for doc in stats:
             # doc = {}
             doc['timestamp'] = doc['_id']
             doc['sentiment'] = sentiment_analyser.historical_stats_sentiment(doc['messages'])
-            # organized_doc['metadata'] = {
-            #     "channel": self.channel,
-            #     "started_at": self.started_at,
-            #     "avg_viewer_count": doc['avg_viewer_count'],
-            #     "message_count": doc['message_count'],
-            #     "chatter_count": doc['chatter_count'],
-            #     "cheers": doc['cheers']
-            # }
+            doc['sentimentScore'] = self.avg_sentiment_weighted_by_index(doc['sentiment'])
             organized_documents.append(doc)
         try:
+            print("viewers_reaction: trying to insertmany into chatStats...")
             self.db.insertmany_into_collection(organized_documents, collection_name='chatStats')
+            print("successfully insertmany.")
         except Exception as e:
-            # print(e)
+            print(e)
             sleep(5)
-            pass
 
     def query_historical_stats(self, started_at): # the "started_at" here is the argument requested from flask app, which is different from "self.started_at"
         # self.started_at = self.get_historical_schedule()[-1]
@@ -473,7 +485,7 @@ class ViewersReactionAnalyser():
                             'message': 1,
                             'cheer': 1,
                             'userName': 1,
-                            'timestamp': 1,
+                            'viewerCount': 1,
                             }
                     },
                     {
@@ -547,93 +559,5 @@ if __name__ == "__main__":
 #         )
 #     sleep(3)
 
-# [
-#   {
-#     "$match": {
-#       "selectionInfo.startedAt": { "$eq": '2023-09-30T15:16:24+08:00' },
-#       "selectionInfo.channel": { "$eq": 'trick2g' }
-#     }
-#   },
-#   {
-#     "$project": {
-#       "timestamp": 1,
-#       "selectionInfo": 1,
-#       'message': 1,
-#       'cheer': 1,
-#       'userName': 1,
-#       'timestamp': 1,
-#     }
-#   },
-#   {
-#     "$group": {
-#       "_id": {
-#         "$toDate": {
-#           "$subtract": [
-#             { "$toLong": "$timestamp" },
-#             { "$mod": [{ "$toLong": "$timestamp" }, 5000] }
-#           ]
-#         }
-#       },
-#       "messages": { "$addToSet": "$message" },
-#       "messageCount": { "$sum": 1 },
-#       "userNames": { "$addToSet": "$userName" },
-#       "cheers": {
-#         "$addToSet": {
-#           "$cond": {
-#             "if": {
-#               "$ne": ["$cheer", {}]
-#             },
-#             "then": "$cheer",
-#             "else": "$skip"
-#           }
-#         }
-#       },
-#       "averageViewerCount": { "$avg": "$viewerCount" },
-#       "channel": { "$first": "$selectionInfo.channel" },
-#       "startedAt": { "$first": "$selectionInfo.startedAt" }
-#     }
-#   },
-#   {
-#     "$project": {
-#       "timestamp": 1,
-#       "startedAt": 1,
-#       "channel": 1,
-#       "cheers": 1,
-#       "messages": 1,
-#       "messageCount": 1,
-#       "chatterCount": {
-#         "$size": "$userNames"
-#       },
-#       "averageViewerCount": 1
-#     }
-#   },
-#   {
-#     "$sort": { "_id": 1 }
-#   },
-#   {
-#     "$group": {
-#       "_id": "null",
-#       "data": { "$push": "$$ROOT" }
-#     }
-#   },
-#   {
-#     "$replaceRoot": {
-#       "newRoot": {
-#         "$ifNull": [
-#           { "$arrayElemAt": ["$data", 0] },
-#           {
-#             "_id": "null",
-#             "timestamp": "$_id",
-#             "startedAt": "null",
-#             "channel": "null",
-#             "cheers": [],
-#             "messages": [],
-#             "messageCount": 0,
-#             "chatterCount": 0,
-#             "averageViewerCount": 0
-#           }
-#         ]
-#       }
-#     }
-#   }
-# ]
+analyser = ViewersReactionAnalyser("disguisedtoast")
+analyser.insert_historical_stats()
