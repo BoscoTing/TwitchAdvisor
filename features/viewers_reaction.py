@@ -558,6 +558,3 @@ if __name__ == "__main__":
 #         f"/Users/surfgreen/B/AppworksSchool/projects/personal_project/chat_logs/{analyser.channel}.log",
 #         )
 #     sleep(3)
-
-analyser = ViewersReactionAnalyser("disguisedtoast")
-analyser.insert_historical_stats()
