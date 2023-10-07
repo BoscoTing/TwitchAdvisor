@@ -313,7 +313,8 @@ class ViewersReactionAnalyser():
         """
         if started_at in task_records:
             print(f"{self.channel}'s live stream started at {started_at} has been calculated and inserted already.")
-
+            logging.info(f"{self.channel}'s live stream started at {started_at} has been calculated and inserted already.")
+            
         else: # when latest record in chatLogs is not in startedAt records in taskRecord
             print("viewers_reaction: querying historical_stats...")
             stats = deepcopy(self.historical_stats(started_at)) # self.historical_stats() will need self.started_at

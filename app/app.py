@@ -57,6 +57,9 @@ def streaming_stats():
 
     analyser.insert_temp_chat_logs(os.getcwd()+f'/chat_logs/{channel}.log')
     stats = ViewersReactionAnalyser(channel).temp_stats(channel)
+    """
+    'timestamp' is in utc timezone, need to be transformed before showing on application.
+    """
     for doc in stats:
         doc['timestamp'] = datetime.timestamp(doc['_id'])
         del doc["_id"]
@@ -157,7 +160,11 @@ def historical_stats():
 
     schedule = analyser.get_historical_schedule() # startedAt time, which are in +8 timezone
     for i in range(len(schedule)):
-        schedule[i] = schedule[i].replace("T", " ").strip("+08:00")
+        schedule[i] = schedule[i][:-6].replace("T", " ")
+
+    """
+    'timestamp' is in utc timezone, need to be transformed before showing on application.
+    """
     resp_data = {
         'schedule': schedule,
         'stats' : stats
