@@ -83,7 +83,7 @@ one_minute_ago = datetime.now().utcnow() - timedelta(minutes=1)
 
 with DAG(
     "detect_channel_dag",
-    schedule=timedelta(minutes=5), 
+    schedule=timedelta(minutes=15), 
     start_date=one_minute_ago,
     concurrency=1,
     max_active_runs=1
@@ -126,4 +126,9 @@ with DAG(
                 task_id=f"trigger_insert_stats_{offline_channel}",
                 trigger_dag_id=f"insert_stats_{offline_channel}_dag",
             )
-            start_tracking >> start_listening >> start_stats
+    if live_channels == []: # all channels are offline
+        start_tracking >> start_stats
+    elif offline_channels == []: # all channels are live
+        start_tracking >> start_listening
+    else:
+        start_tracking >> start_stats >> start_listening
