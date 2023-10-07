@@ -294,11 +294,10 @@ class ViewersReactionAnalyser():
         try:
             result = [row for row in task_records_collction.aggregate(query)][0]
             task_records = result['taskRecord']
-            print("completed insert_stats tasks: ", task_records)
         except: 
             # result = [row for row in task_records_collction.aggregate(query)]
             task_records = []
-            print("completed insert_stats tasks: ", task_records)
+        print("completed insert_stats tasks: ", task_records)
 
         """
         get the latest startedAt record from chatLog collection.
@@ -354,11 +353,14 @@ class ViewersReactionAnalyser():
                 sleep(5)    
 
     def query_historical_stats(self, started_at): # the "started_at" here is the argument requested from flask app, which is different from "self.started_at"
-        # self.started_at = self.get_historical_schedule()[-1]
+
         collection = self.db.connect_collection("chatStats")
+
+        """
+        started_at can be None.
+        """
         if started_at: # if user chose the schedule date
             print("viewers_reaction.py: query_historical_stats", started_at)
-            # logging.debug("viewers_reaction.py: query_historical_stats", started_at)
             result = [row for row in collection.aggregate([
                 {
                     "$match": {
@@ -374,7 +376,7 @@ class ViewersReactionAnalyser():
                 ])]
             return result
 
-        else: # If user chose the schedule date doesn't select a date. Usually happend when user first get into historical page.
+        else: # When user first get into historical page
             try: 
                 print("viewers_reaction: try get_historical_schedule")
                 schedule = self.get_historical_schedule()
@@ -402,28 +404,30 @@ class ViewersReactionAnalyser():
 
             except Exception as e:
                 print(e)
-                # logging.error("query_historical_stats:", e)
                 return False
 
     
     def get_historical_schedule(self):
-        collection = self.db.connect_collection("chatLogs")
+        """
+        Only show the schedule query from chatStats, which have been organized already.
+        """
+        collection = self.db.connect_collection("chatStats")
         query = [
             {
                 "$match": {
-                    "selectionInfo.channel": {"$eq": self.channel}
+                    "channel": {"$eq": self.channel}
                 }
             },
             {
                 "$project": {
-                    "selectionInfo.startedAt": 1,
+                    "startedAt": 1,
                     "_id": 1
                 }
             },
             {
                 "$group": {
                     "_id": "null", 
-                    "schedule": {"$addToSet": "$selectionInfo.startedAt"}
+                    "schedule": {"$addToSet": "$startedAt"}
                 }
             }
         ]

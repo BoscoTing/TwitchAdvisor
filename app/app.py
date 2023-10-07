@@ -8,13 +8,11 @@ from time import time, sleep
 from datetime import datetime
 from copy import deepcopy
 import threading
-# import logging
 import re
 import json
 import os
 import sys
 sys.path.insert(0, os.getcwd())
-# logging.basicConfig(level=logging.ERROR)
 
 from managers.twitch_api_manager import TwitchDeveloper
 from managers.ircbot_manager import TwitchChatListener
@@ -29,7 +27,7 @@ def main_page():
     return render_template('main.html', broadcasters=broadcasters)
 
 @app.route("/api/viewers_reaction", methods=["GET"])
-def track_viewers_reaction():
+def track_viewers_reaction(): # not in use
     channel = request.args.get("channel") # receive the channel chosen by user
 
 @app.route("/api/update_channels", methods=["GET"])
@@ -95,13 +93,16 @@ def streaming_logs():
 
     selected_channel = request.args.get("channel")
     print("selected streaming channel: ", selected_channel)
+
     if selected_channel not in ['sneakylol', 'gosu', 'scarra', 'disguisedtoast', 'trick2g', 'midbeast', 'perkz_lol']:
-        # delete the log file of previous selected channel.
-        MongoDBManager().delete_many(selected_channel, "tempChatLogs")
+
+        MongoDBManager().delete_many(selected_channel, "tempChatLogs") # delete the log file of previous selected channel.
         print(f"db.tempChatLogs.deleteMany: {selected_channel}")
+
         try: 
             os.remove(os.getcwd()+f"/chat_logs/{selected_channel}.log")
             print(f"app: temp_delete_log_file: /chat_logs/{selected_channel}.log")
+
         except: pass
 
     with request_param_lock:     
@@ -128,36 +129,37 @@ def streaming_logs():
 def historical_stats():
     channel = request.args.get("channel")
     started_at = request.args.get("started_at")
+
     if started_at: 
         started_at = started_at.replace(" ", "+") # request.args.get reads the "+" string as " "
     print("getting historical data: started_at", started_at)
-    # logging.debug("getting historical data: started_at", started_at)
 
     analyser = ViewersReactionAnalyser(channel)
-    stats = analyser.query_historical_stats(started_at)
+    stats = analyser.query_historical_stats(started_at) # started_at can be None if not included in request params
     print("getting historical stats:", stats)
-    # logging.debug("getting historical stats:", stats)
+
     if stats == False:
-        # return f"We haven't seen {analyser.channel} recently."
         return []
     elif stats == []:
         return stats
     
     for doc in stats:
-        doc['timestamp'] = datetime.timestamp(doc['timestamp'])
+        doc['timestamp'] = datetime.timestamp(doc['timestamp']) # (utc time!!) turn bson time into unix timestamp, and convert into date using javascript.
         del doc["_id"]  
-    schedule = analyser.get_historical_schedule()
+
+    schedule = analyser.get_historical_schedule() # startedAt time, which are in +8 timezone
     resp_data = {
         'schedule': schedule,
         'stats' : stats
         }
+    
     print(resp_data)
     # logging.debug(resp_data)
     resp_data = json.dumps(resp_data)
     return resp_data
 
 @app.route("/historical_plot", methods=["GET"]) # query the result of selected live stream to create a chart.s
-def historical_plot():
+def historical_plot(): # not in use
     channel = request.args.get("channel")
     started_at = request.args.get("started_at")
     if started_at: 
