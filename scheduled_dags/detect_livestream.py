@@ -42,7 +42,7 @@ def check_is_paused(dag): # not in use
         return dag_model.is_paused
 
 
-def detect_live_channels():
+def track_live_channels():
     twitch_developer = TwitchDeveloper()
     channels = ['sneakylol', 'gosu', 'scarra', 'disguisedtoast', 'trick2g', 'midbeast', 'perkz_lol']
     for channel in channels:
@@ -58,6 +58,16 @@ def detect_live_channels():
             for downstream_dags in dag_list_streaming:
                 print(f"{channel} is off-line")
                 pause_dag(downstream_dags, is_paused=True)
+
+def detect_live_channels(): 
+    twitch_developer = TwitchDeveloper()
+    channels = ['sneakylol', 'gosu', 'scarra', 'disguisedtoast', 'trick2g', 'midbeast', 'perkz_lol']
+    live_channels = []
+    for channel in channels:
+        living = twitch_developer.detect_living_channel(channel)
+        if living:
+            live_channels.append(channel)
+    return live_channels
 
 def detect_offline_channels(): 
     twitch_developer = TwitchDeveloper()
@@ -80,11 +90,19 @@ with DAG(
 ) as dag:
     start_tracking=PythonOperator(
         task_id="detect_live_channel",
-        python_callable=detect_live_channels,
+        python_callable=track_live_channels,
     )
     # start_tracking
+    live_channels = detect_live_channels()
     offline_channels = detect_offline_channels()
     print(offline_channels)
+
+    for live_channel in live_channels:
+        start_listening=TriggerDagRunOperator(
+            task_id=f"trigger_listen_{live_channel}",
+            trigger_dag_id=f"listen_{live_channel}_dag",
+        )
+
     for offline_channel in offline_channels:
         # trigger insert_stats only when channel is going off-line and insert_stats hasn't been turned on yet.
         # print(
@@ -108,4 +126,4 @@ with DAG(
                 task_id=f"trigger_insert_stats_{offline_channel}",
                 trigger_dag_id=f"insert_stats_{offline_channel}_dag",
             )
-            start_tracking >> start_stats
+            start_tracking >> start_listening >> start_stats
