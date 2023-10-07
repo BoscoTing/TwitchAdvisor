@@ -148,11 +148,13 @@ def historical_stats():
         del doc["_id"]  
 
     schedule = analyser.get_historical_schedule() # startedAt time, which are in +8 timezone
+    for i in range(len(schedule)):
+        schedule[i] = schedule[i].replace("T", " ").strip("+08:00")
     resp_data = {
         'schedule': schedule,
         'stats' : stats
         }
-    
+    datetime.fromtimestamp
     print(resp_data)
     # logging.debug(resp_data)
     resp_data = json.dumps(resp_data)
