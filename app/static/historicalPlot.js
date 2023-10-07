@@ -58,13 +58,16 @@ function updateHistoricalPlot(selectBroadcaster, startedAt) {
             const cheer = stats.map(stats => stats.cheers.length);
             console.log(cheer)
 
+            const sentiment = stats.map(stats => stats.sentiment);
+            console.log(sentiment);
+
             const trace1 = {
                 x: timestamp,
-                y: avgViewerCount,
+                y: sentiment,
                 type: 'scatter',
                 mode: 'lines',
                 marker: {color: 'red'},
-                name: 'Average Viewers'
+                name: 'Chatroom Sentiment'
             };
 
             const trace2 = {
@@ -108,9 +111,9 @@ function updateHistoricalPlot(selectBroadcaster, startedAt) {
             Plotly.newPlot(
                     'historicalPlot', 
                     [
-                        // trace1, 
+                        trace1, 
                         trace2, 
-                        // trace3, 
+                        trace3, 
                         trace4
                     ], 
                     layout

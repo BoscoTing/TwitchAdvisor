@@ -143,8 +143,16 @@ def historical_stats():
     elif stats == []:
         return stats
     
+    def avg_sentiment_weighted_by_index(score_list):
+            weighted_scores = []
+            for i in range(len(score_list)):
+                weighted_scores.append(score_list[i] * i)
+                result = sum(weighted_scores) / sum(score_list)
+            return result
+
     for doc in stats:
         doc['timestamp'] = datetime.timestamp(doc['timestamp']) # (utc time!!) turn bson time into unix timestamp, and convert into date using javascript.
+        doc['sentiment'] = avg_sentiment_weighted_by_index(doc['sentiment'])
         del doc["_id"]  
 
     schedule = analyser.get_historical_schedule() # startedAt time, which are in +8 timezone
