@@ -35,7 +35,7 @@ class TwitchChatListener:
                                                           mode='a',
                                                           encoding='utf-8')])
         logging.info(resp)
-        self.started_at = TwitchDeveloper().detect_living_channel(self.channel)['started_at']
+        self.started_at = TwitchDeveloper().detect_living_channel(self.channel)['started_at'] # already turn timezone to +8 for showing on the chart.
 
     def connect_chatroom_temp(self):
         self.sock = socket.socket()
@@ -56,8 +56,8 @@ class TwitchChatListener:
     
     def record_logs(self):
         resp = self.sock.recv(2048).decode('utf-8')
-        timestamp = datetime.now().strftime('%Y-%m-%d_%H:%M:%S')
-        formatted_resp = f"{timestamp} — {self.started_at} — {demojize(resp)}" # —
+        timestamp = datetime.utcnow().strftime('%Y-%m-%d_%H:%M:%S') # use utc time for insert into mongodb time series collection (which accept utc time). 
+        formatted_resp = f"{timestamp} — {self.started_at} — {demojize(resp)}" 
         if resp.startswith('PING'):
             self.sock.send("PONG\n".encode('utf-8'))
         elif len(resp) > 0:
@@ -70,7 +70,7 @@ class TwitchChatListener:
     
     def record_logs_temp(self):
         resp = self.sock.recv(2048).decode('utf-8')
-        timestamp = datetime.now().strftime('%Y-%m-%d_%H:%M:%S')
+        timestamp = datetime.utcnow().strftime('%Y-%m-%d_%H:%M:%S') # use utc time for insert into mongodb time series collection (which accept utc time). 
         formatted_resp = f"{timestamp} — {self.started_at} — {demojize(resp)}" # —
         if resp.startswith('PING'):
             self.sock.send("PONG\n".encode('utf-8'))
@@ -89,8 +89,7 @@ class TwitchChatListener:
 
     def listen_to_chatroom_temp(self):
         self.connect_chatroom_temp()
-
-    
+ 
     def save_start_time(self):
         developer = TwitchDeveloper()
         db = MongoDBManager()
@@ -100,6 +99,7 @@ class TwitchChatListener:
             "channel": self.channel
             }
         db.insertone_into_collection(doc, "schedules")
+
 # use_example
 
 # if __name__ == "__main__":

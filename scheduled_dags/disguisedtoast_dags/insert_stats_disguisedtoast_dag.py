@@ -14,7 +14,7 @@ channel = "disguisedtoast"
 analyser = ViewersReactionAnalyser(channel)
 one_minute_ago = datetime.now().utcnow() - timedelta(minutes=1)
 
-def pause_dag(dag, is_paused):
+def pause_dag(dag, is_paused): # not in use
     session = airflow.settings.Session()
     try:
         qry = session.query(DagModel).filter(DagModel.dag_id == dag)
@@ -37,13 +37,14 @@ with DAG(
         task_id=f"insert_stats_{channel}",
         python_callable=analyser.insert_historical_stats,
         )
-    pause=PythonOperator(
-        task_id=f"pause_insert_stats_{channel}",
-        python_callable=pause_dag,
-        op_kwargs={
-            "dag": f"insert_stats_{channel}",
-            "is_paused": True
-            }
-        )
+    # pause=PythonOperator(
+    #     task_id=f"pause_insert_stats_{channel}",
+    #     python_callable=pause_dag,
+    #     op_kwargs={
+    #         "dag": f"insert_stats_{channel}",
+    #         "is_paused": True
+    #         }
+    #     )
+
 # when insert_stats done, set the dag is_paused = True to ensure it won't be triggered by detect_channel_dag again.
-insert_stats > pause
+insert_stats # >> pause
