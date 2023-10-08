@@ -67,9 +67,41 @@
 
    </div>
 
+   <!-- overview -->
+   <div class="plotContainer">
+
+      <!-- metric list -->
+      <div id="selectionInfo" class="column">
+
+         <div id="metric" class="options">
+            <h3>Default Broadcasters</h3>
+               <div>
+                  {% for b in broadcasters %}
+                  <p class="defaultMetric">{{b}}</p>
+                  {% endfor %}  
+               </div>
+         </div>
+
+         <!-- selected metric -->
+         <h3 id="selectedMetric"></h3>
+         
+      </div>
+
+      <!-- plot -->
+      <div id="overviewPlot" class="plot"></div>
+      <!-- <div id="radarPlot" class="plot"></div> -->
+
+      <div class="loadingOverlay" id="loadingOverlayOverview">
+         <div class="loadingMessage">Loading...</div>
+      </div>
+
+   </div>
+
 
    <script src="../static/mainPage.js"></script>
    <script src="../static/streamingPlot.js"></script>
    <script src="../static/historicalPlot.js"></script>
+   <script src="../static/overviewPlot.js"></script>
+
 </body>
 </html>

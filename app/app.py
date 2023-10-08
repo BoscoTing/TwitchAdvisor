@@ -17,6 +17,7 @@ sys.path.insert(0, os.getcwd())
 from managers.twitch_api_manager import TwitchDeveloper
 from managers.ircbot_manager import TwitchChatListener
 from features.viewers_reaction import ViewersReactionAnalyser
+from features.channel_overview import Overview
 from managers.mongodb_manager import MongoDBManager
 
 app = Flask(__name__)
@@ -26,9 +27,6 @@ def main_page():
     broadcasters = ['sneakylol', 'gosu', 'disguisedtoast', 'scarra', 'trick2g', 'midbeast', 'perkz_lol']
     return render_template('main.html', broadcasters=broadcasters)
 
-@app.route("/api/viewers_reaction", methods=["GET"])
-def track_viewers_reaction(): # not in use
-    channel = request.args.get("channel") # receive the channel chosen by user
 
 @app.route("/api/update_channels", methods=["GET"])
 def get_channel_list():
@@ -88,7 +86,6 @@ class TwitchChatListenerTEMP(threading.Thread):
 
     def stop(self):
         self.stopped.set()
-
 # start listening to selected channel.
 @app.route("/api/streaming_logs", methods=["GET"]) 
 def streaming_logs():
@@ -175,46 +172,13 @@ def historical_stats():
     resp_data = json.dumps(resp_data)
     return resp_data
 
-@app.route("/historical_plot", methods=["GET"]) # query the result of selected live stream to create a chart.s
-def historical_plot(): # not in use
-    channel = request.args.get("channel")
-    started_at = request.args.get("started_at")
-    if started_at: 
-        started_at = started_at.replace(" ", "+") # request.args.get reads the "+" string as " "
-    print("getting historical data: started_at", started_at)
-    # logging.debug("getting historical data: started_at", started_at)
 
-    analyser = ViewersReactionAnalyser(channel)
-    stats = analyser.query_historical_stats(started_at)
-    if stats == False:
-        # return f"We haven't seen {analyser.channel} recently."
-        return []
-    elif stats == []:
-        return stats
-    print("getting historical stats:", stats[-1])
-    # logging.debug("getting historical stats:", stats[-1])
+@app.route("/api/overview_data", methods=["GET"])
+def overiew_stats():
+    overview = Overview()
+    livestream_schedule = overview.get_livestream_schedule()
+    return livestream_schedule
     
-    for doc in stats:
-        doc['timestamp'] = datetime.timestamp(doc['timestamp'])
-        del doc["_id"]
-    timestamps = [entry['timestamp'] for entry in stats]
-    chatter_count = [entry['metadata']['chatter_count'] for entry in stats]
-    message_count = [entry['metadata']['message_count'] for entry in stats]
-    cheers_count = [len(entry['metadata']['cheers']) for entry in stats]
-    avg_viewer_count = [ entry['metadata']['message_count'] / entry['metadata']['avg_viewer_count'] * 100 for entry in stats]
-
-    schedule = analyser.get_historical_schedule()
-
-    return render_template(
-        'historical_plot.html',
-        channel = channel,
-        timestamps=timestamps,
-        chatter_count=chatter_count,
-        message_count=message_count,
-        cheers_count=cheers_count,
-        avg_viewer_count=avg_viewer_count,
-        schedule = schedule
-    )
 
 if __name__ == "__main__": 
     app.run(debug=True, port='8000', host='0.0.0.0') 

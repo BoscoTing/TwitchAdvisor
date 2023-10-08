@@ -97,7 +97,7 @@ def get_channels():
     html = soup.prettify(resp)
     print(html)
 
-get_channels()
+# get_channels()
 # while True:
 #     viewers_count = get_viewers_count("livekiss")
 #     active_viewers = get_active_viewers("livekiss")
