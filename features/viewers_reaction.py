@@ -54,22 +54,18 @@ class ViewersReactionAnalyser():
         return summary_dict
     
     def parse_chat_logs(self, line): # define the schema of inserted document 
-        print("line: ", line)
 
         """ 
-        in the log file, the first section is datetime string format, 
-        the second section is Bson time format. Both are in timezone of ROC.
+        in the log file, the first section is datetime string format in utc timezone, 
+        the second section is Bson time format in +8 timezone.
         """
         time_logged = line.split('—')[0].strip()
         time_logged = datetime.strptime(time_logged, '%Y-%m-%d_%H:%M:%S') # turn from string to datetime format.
-        print("time_logged", time_logged)
 
         started_at = line.split('—')[1].strip()
-        print("started_at", started_at)
 
         username_message = line.split('—')[2:]
         username_message = '—'.join(username_message).strip()
-        print("username_message", username_message)
 
         username, channel, message = re.search(
             ':(.*)\!.*@.*\.tmi\.twitch\.tv PRIVMSG #(.*) :(.*)', username_message
@@ -88,69 +84,151 @@ class ViewersReactionAnalyser():
         return doc
 
     def insert_chat_logs(self, file): # streaming
-        collection = self.db.connect_collection("chatLogs")
-        latest_doc = [row for row in collection.aggregate([ 
-                    {
-                        "$match":{
-                            "selectionInfo.channel": {"$eq": self.channel}
-                            },
-                    },
-                    { 
-                        "$project": {
-                            "message": 1,
-                            'insertOrder': 1,
-                            'timestamp': 1,
-                            "selectionInfo": 1
-                        }
-                    },
-                    {
-                        "$sort": {
-                            "insertOrder": -1
-                        },
-                    },
-                    {
-                        "$limit": 1
+        """
+        Only triggered after the channel turn into offline.
+        """
+        # collection = self.db.connect_collection("chatLogs")
+        # latest_doc = [row for row in collection.aggregate([ 
+        #             {
+        #                 "$match":{
+        #                     "selectionInfo.channel": {"$eq": self.channel}
+        #                     },
+        #             },
+        #             { 
+        #                 "$project": {
+        #                     "message": 1,
+        #                     'insertOrder': 1,
+        #                     'timestamp': 1,
+        #                     "selectionInfo": 1
+        #                 }
+        #             },
+        #             {
+        #                 "$sort": {
+        #                     "insertOrder": -1
+        #                 },
+        #             },
+        #             {
+        #                 "$limit": 1
+        #             }
+        #             ])]
+        # print("latest_doc:", latest_doc) # find inserted document from last time in .log file
+
+        # if latest_doc == []: # starting from the top if no previous result
+        #     latest_row = 0
+        # else: 
+        #     latest_row = latest_doc[0]['insertOrder'] # find latest inserted row
+        # print("latest_row: ", latest_row)
+        
+        # self.lastest_record = deepcopy(latest_row)
+
+        task_records_collction = self.db.connect_collection("taskRecords") 
+        query = [  
+            {
+                "$match": {
+                    "channel": self.channel,
+                    "taskName": "start_tracking_livestream"}
+            },
+            {
+                "$group": {
+                    "_id": "null",
+                    "taskRecord": {"$addToSet": "$startedAt"}
                     }
-                    ])]
-        print("latest_doc:", latest_doc)
-        if latest_doc == []:
-            latest_row = 0
-        else: 
-            latest_row = latest_doc[0]['insertOrder']
-        print(latest_row)
-        self.lastest_record = deepcopy(latest_row)
+            },
+            {
+                "$project": {
+                    "taskRecord": 1,
+                    "_id": 0
+                }
+            }]
+        try:
+            result = [row for row in task_records_collction.aggregate(query)][0]
+            start_tracking_livestream_records = result['taskRecord']
+        except: 
+            start_tracking_livestream_records = []
+        print("completed 'start_tracking_livestream' tasks: ", start_tracking_livestream_records)
 
-        documents = []
-        with open(file, 'r', encoding='utf-8') as f:
-            lines = f.read().split('\n')
-            new_row = 0
-            viewer_count = self.api.detect_living_channel(self.channel)['viewer_count'] # Since viewerCount in Twitch API is updating in a slow pace, I request it for each iteration in while loop.
-            for line in lines[latest_row+1:]:
-                
-                print("line: ", line)
-                try:
-                    print("parse_line", line)
-                    doc = self.parse_chat_logs(line)
+        query = [  
+            {
+                "$match": {
+                    "channel": self.channel,
+                    "taskName": "insert_logs"} 
+            },
+            {
+                "$group": {
+                    "_id": "null",
+                    "taskRecord": {"$addToSet": "$startedAt"}
+                    }
+            },
+            {
+                "$project": {
+                    "taskRecord": 1,
+                    "_id": 0
+                }
+            }]
+        try:
+            result = [row for row in task_records_collction.aggregate(query)][0]
+            insert_logs_records = result['taskRecord']
+        except: 
+            insert_logs_records = []
+        print("completed 'insert_logs_records' tasks: ", insert_logs_records)
 
-                    print("parsed_doc")
-                    doc['viewerCount'] = viewer_count
 
-                    if new_row >= 1: # skip the log which has already been inserted last time.
+        """
+        compare the start_tracking_livestream_records and insert_logs_records to find 'startedAt' that insert_logs_records is uncompleted
+        """
+        uncompleted_tasks = list(set(start_tracking_livestream_records).difference(insert_logs_records)) # find uncomplete 'insert_logs' tasks
+        print("uncompleted insert_logs tasks: ", uncompleted_tasks)
+
+        for uncompleted_started_at in uncompleted_tasks:
+
+            documents = []
+            with open(
+                os.getcwd() + f"/dags/chat_logs/{uncompleted_started_at}_{self.channel}.log", 
+                'r', 
+                encoding='utf-8'
+                ) as f:
+
+                lines = f.read().split('\n')
+                # new_row = 0
+                # viewer_count = self.api.detect_living_channel(self.channel)['viewer_count'] # Since viewerCount in Twitch API is updating in a slow pace, I request it for each iteration in while loop.
+
+                for line in lines: #[latest_row + 1:]:
+
+                    try:
+                        doc = self.parse_chat_logs(line)
+                        #doc['viewerCount'] = viewer_count
+                        # if new_row >= 1: # skip the log which has already been inserted last time.
+                        #     documents.append(doc)
+                        #     print("appended chat logs")
                         documents.append(doc)
-                        print("appended chat logs")
+                        # new_row += 1
 
-                    new_row += 1
+                    except Exception as e:
+                        print(e)
+                        pass
+                    # self.lastest_record += 1
 
-                except Exception as e:
-                    print(e)
-                    # logging.error("insert_chat_logs:", e)
-                    pass
-                self.lastest_record += 1
-            # print(documents)
-            if documents:
-                self.db.insertmany_into_collection(documents, collection_name="chatLogs")
-                print('inserted')
-                # logging.debug('inserted.')
+                if documents:
+                    print("inserting documents into 'chatLogs' collection...")
+                    self.db.insertmany_into_collection(documents, collection_name="chatLogs")
+                    print('inserted')
+
+                    """
+                    record the completed insert_logs task in taskRecords collection.
+                    """
+                    try:
+                        print("viewers_reaction: trying to insert 'insert_logs' task record into taskRecords...")
+                        task_record_document = {
+                            "channel": self.channel,
+                            "startedAt": self.started_at, # bson format in +8 timezone
+                            "taskName": "insert_logs",
+                            "completeTime": datetime.utcnow() # utc time for timeseries collection index.
+                        }
+                        self.db.insertone_into_collection(task_record_document, collection_name='taskRecords')
+                        print("successfully insert task records.")
+                        
+                    except Exception as e:
+                        print(e)
 
     def query_chat_logs(self): # streaming # need to add new filter to find the doc of selected channel.
         # last_record = self.last_record
@@ -268,6 +346,7 @@ class ViewersReactionAnalyser():
 
     def insert_historical_stats(self): # insert all historical stats data right after the live streaming ends using insertmany.
 
+
         """
         This function is called repeatedly when the channel is off-line.
 
@@ -277,7 +356,10 @@ class ViewersReactionAnalyser():
         task_records_collction = self.db.connect_collection("taskRecords") 
         query = [  
             {
-                "$match": {"channel": self.channel} # check the task records of selected channel.
+                "$match": {
+                    "channel": self.channel,
+                    "taskName": "insert_logs"
+                    }
             },
             {
                 "$group": {
@@ -293,37 +375,64 @@ class ViewersReactionAnalyser():
             }]
         try:
             result = [row for row in task_records_collction.aggregate(query)][0]
-            task_records = result['taskRecord']
+            insert_logs_task_records = result['taskRecord']
         except: 
-            # result = [row for row in task_records_collction.aggregate(query)]
-            task_records = []
-        print("completed insert_stats tasks: ", task_records)
+            insert_logs_task_records = []
+        print("completed insert_logs tasks: ", insert_logs_task_records)
+
 
         """
-        get the latest startedAt record from chatLog collection.
+        get the latest startedAt record from chatStats collection.
         """
-        historical_schedule_list = self.get_historical_schedule()
-        print("historical_schedule: ", historical_schedule_list)
+        # historical_schedule_list = self.get_historical_schedule()
+        # print("historical_schedule: ", historical_schedule_list)
 
-        started_at = self.sort_isodate_schedule(historical_schedule_list)[-1]
-        print("viewers_reaction: insert_historical_stats", started_at)
+        # started_at = self.sort_isodate_schedule(historical_schedule_list)[-1]
+        # print("viewers_reaction: insert_historical_stats", started_at)
+
+        query = [  
+            {
+                "$match": {
+                    "channel": self.channel,
+                    "taskName": "insert_stats"
+                    }
+            },
+            {
+                "$group": {
+                    "_id": "null",
+                    "taskRecord": {"$addToSet": "$startedAt"}
+                    }
+            },
+            {
+                "$project": {
+                    "taskRecord": 1,
+                    "_id": 0
+                }
+            }]
+        try:
+            result = [row for row in task_records_collction.aggregate(query)][0]
+            insert_stats_task_records = result['taskRecord']
+        except: 
+            insert_stats_task_records = []
+        print("completed insert_stats tasks: ", insert_stats_task_records)
+
 
         """
-        Countinue if insert_stats haven't been executed after channel turned off-line.
+        Countinue if insert_stats haven't been executed after channel turned into off-line.
         """
-        if started_at in task_records:
-            print(f"{self.channel}'s live stream started at {started_at} has been calculated and inserted already.")
-            logging.info(f"{self.channel}'s live stream started at {started_at} has been calculated and inserted already.")
-            
-        else: # when latest record in chatLogs is not in startedAt records in taskRecord
+        uncompleted_tasks = list(set(insert_logs_task_records).difference(insert_stats_task_records)) # find uncomplete 'insert_stats' tasks
+        print("uncompleted_tasks: ", uncompleted_tasks)
+        for uncompleted_started_at in uncompleted_tasks:
+            print(f"{self.channel}'s live stream started at {uncompleted_started_at} has been calculated and inserted already.")
+            logging.info(f"{self.channel}'s live stream started at {uncompleted_started_at} has been calculated and inserted already.")
+
             print("viewers_reaction: querying historical_stats...")
-            stats = deepcopy(self.historical_stats(started_at)) # self.historical_stats() will need self.started_at
+            stats = deepcopy(self.historical_stats(uncompleted_started_at)) # calculate chatstats from chatlogs # self.historical_stats() will need self.started_at
             organized_documents = []
             sentiment_analyser = ChatroomSentiment()
             
             print("viewers_reaction: calculating sentiment_score...")
             for doc in stats:
-                # doc = {}
                 doc['timestamp'] = doc['_id']
                 doc['sentiment'] = sentiment_analyser.historical_stats_sentiment(doc['messages'])
                 doc['sentimentScore'] = self.avg_sentiment_weighted_by_index(doc['sentiment'])
@@ -336,14 +445,15 @@ class ViewersReactionAnalyser():
                 print(e)
                 sleep(5)
 
+
             """
             record the insert_stats task in taskRecords collection.
             """
             try:
-                print("viewers_reaction: trying to insert task record into taskRecords...")
+                print("viewers_reaction: trying to insert 'insert_stats' task record into taskRecords...")
                 task_record_document = {
                     "channel": self.channel,
-                    "startedAt": started_at, # bson format in +8 timezone
+                    "startedAt": uncompleted_started_at, # bson format in +8 timezone
                     "taskName": "insert_stats",
                     "completeTime": datetime.utcnow() # utc time for timeseries collection index.
                 }
@@ -608,7 +718,7 @@ if __name__ == "__main__":
 
 # use_example
 
-analyser = ViewersReactionAnalyser("scarra")
+# analyser = ViewersReactionAnalyser("scarra")
 # # analyser.get_historical_schedule()
 # # analyser.insert_historical_stats()
 # # print(analyser.query_historical_stats())
@@ -619,23 +729,23 @@ analyser = ViewersReactionAnalyser("scarra")
 #     sleep(3)
 
 
-task_records = analyser.db.connect_collection("taskRecords")
-query = [
-    {
-        "$match": {"channel": "test"}
-    },
-    {
-        "$group": {
-            "_id": "null",
-            "taskRecord": {"$addToSet": "$startedAt"}
-            }
-    },
-    {
-        "$project": {
-            "taskRecord": 1,
-            "_id": 0
-        }
-    }]
-result = [row for row in task_records.aggregate(query)][0]
-task_records = result['taskRecord']
-print(task_records)
+# task_records = analyser.db.connect_collection("taskRecords")
+# query = [
+#     {
+#         "$match": {"channel": "test"}
+#     },
+#     {
+#         "$group": {
+#             "_id": "null",
+#             "taskRecord": {"$addToSet": "$startedAt"}
+#             }
+#     },
+#     {
+#         "$project": {
+#             "taskRecord": 1,
+#             "_id": 0
+#         }
+#     }]
+# result = [row for row in task_records.aggregate(query)][0]
+# task_records = result['taskRecord']
+# print(task_records)

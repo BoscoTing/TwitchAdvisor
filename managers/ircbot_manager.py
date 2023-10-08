@@ -18,6 +18,7 @@ class TwitchChatListener:
         self.nickname = 'myproject'
         self.token = config('twitch_token')
         self.channel = channel
+        self.db = MongoDBManager()
         # self.started_at = TwitchDeveloper().detect_living_channel(self.channel)
     
     def connect_chatroom(self):
@@ -28,14 +29,34 @@ class TwitchChatListener:
         self.sock.send(f"JOIN {'#' + self.channel}\n".encode('utf-8'))
 
         resp = self.sock.recv(2048).decode('utf-8')
+
+        self.started_at = TwitchDeveloper().detect_living_channel(self.channel)['started_at'] # already turn timezone to +8 for showing on the chart.
+        """
+        record the start_tracking_livestream task in taskRecords collection.
+        """
+        print(f"{self.channel}'s live stream started at {self.started_at}")
+        try:
+            print("ircbot_manager: trying to insert 'start_tracking_livestream' task record into taskRecords...")
+            task_record_document = {
+                "channel": self.channel,
+                "startedAt": self.started_at, # bson format in +8 timezone
+                "taskName": "start_tracking_livestream",
+                "completeTime": datetime.utcnow() # utc time for timeseries collection index.
+            }
+            self.db.insertone_into_collection(task_record_document, collection_name='taskRecords')
+            print("successfully insert task records.")
+
+        except Exception as e:
+            print(e)
+            
         logging.basicConfig(level=logging.DEBUG,
                             format='%(asctime)s — %(message)s',
                             datefmt='%Y-%m-%d_%H:%M:%S',
-                            handlers=[logging.FileHandler(os.getcwd() + f'/dags/chat_logs/{self.channel}.log', 
+                            handlers=[logging.FileHandler(os.getcwd() + f'/dags/chat_logs/{self.started_at}_{self.channel}.log', 
                                                           mode='a',
                                                           encoding='utf-8')])
+        print(f"Writing logs in /dags/chat_logs/{self.started_at}_{self.channel}.log")
         logging.info(resp)
-        self.started_at = TwitchDeveloper().detect_living_channel(self.channel)['started_at'] # already turn timezone to +8 for showing on the chart.
 
     def connect_chatroom_temp(self):
         self.sock = socket.socket()
@@ -62,7 +83,7 @@ class TwitchChatListener:
             self.sock.send("PONG\n".encode('utf-8'))
         elif len(resp) > 0:
             logging.info(demojize(resp))
-            with open(os.getcwd() + f'/dags/chat_logs/{self.channel}.log', 
+            with open(os.getcwd() + f'/dags/chat_logs/{self.started_at}_{self.channel}.log', 
                       'a', 
                       encoding='utf-8') as log_file:
                 log_file.write(formatted_resp)

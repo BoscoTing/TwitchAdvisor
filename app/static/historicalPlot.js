@@ -52,7 +52,7 @@ function updateHistoricalPlot(selectBroadcaster, startedAt) {
             // const cheers = stats.cheers;
             // const startedAt = stats.startedAt;
             const timestamp = stats.map(stats => new Date(stats.timestamp*1000));
-            const avgViewerCount = stats.map(stats => stats.avgViewerCount);
+            // const avgViewerCount = stats.map(stats => stats.avgViewerCount);
             const messageCount = stats.map(stats => stats.messageCount);
             const chatterCount = stats.map(stats => stats.chatterCount);
             const cheer = stats.map(stats => stats.cheers.length);
