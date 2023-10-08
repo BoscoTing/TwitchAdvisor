@@ -46,7 +46,7 @@ def track_live_channels():
     twitch_developer = TwitchDeveloper()
     channels = ['sneakylol', 'gosu', 'scarra', 'disguisedtoast', 'trick2g', 'midbeast', 'perkz_lol']
     for channel in channels:
-        dag_list_streaming = [f"insert_logs_{channel}_dag", f"listen_{channel}_dag"]
+        dag_list_streaming = [f"listen_{channel}_dag"]
         living = twitch_developer.detect_living_channel(channel) 
         # find the living channels
         if living: 
@@ -83,7 +83,7 @@ one_minute_ago = datetime.now().utcnow() - timedelta(minutes=1)
 
 with DAG(
     "detect_channel_dag",
-    schedule=timedelta(minutes=15), 
+    schedule=timedelta(minutes=3), 
     start_date=one_minute_ago,
     concurrency=1,
     max_active_runs=1
@@ -104,31 +104,18 @@ with DAG(
         )
 
     for offline_channel in offline_channels:
-        # trigger insert_stats only when channel is going off-line and insert_stats hasn't been turned on yet.
-        # print(
-        #     "paused or not",
-        #     f"insert_logs_{offline_channel}_dag:", check_is_paused(f"insert_logs_{offline_channel}_dag"),
-        #     f"listen_{offline_channel}_dag:", check_is_paused(f"listen_{offline_channel}_dag"),
-        #     f"insert_stats_{offline_channel}_dag:", check_is_paused(f"insert_stats_{offline_channel}_dag")
-        # )
+        start_logs=TriggerDagRunOperator(
+            task_id=f"trigger_insert_logs_{offline_channel}",
+            trigger_dag_id=f"insert_logs_{offline_channel}_dag",
+        )
+        start_stats=TriggerDagRunOperator(
+            task_id=f"trigger_insert_stats_{offline_channel}",
+            trigger_dag_id=f"insert_stats_{offline_channel}_dag",
+        )
 
-        # if (
-        #     check_is_paused(f"insert_logs_{offline_channel}_dag")==False & 
-        #     check_is_paused(f"listen_{offline_channel}_dag")==False & 
-        #     # for channels whose insert_stats has already been unpaused and triggered, doesn't trigger it again.
-        #     check_is_paused(f"insert_stats_{offline_channel}_dag")==False
-        # ):
-        #     # unpause and trigger insert_stats dag for channels which are turning off-line.
-        #     pause_dag(f"insert_stats_{offline_channel}_dag", is_paused=False)
-        #     print(f"unpause insert_stats_{offline_channel}_dag")
-
-            start_stats=TriggerDagRunOperator(
-                task_id=f"trigger_insert_stats_{offline_channel}",
-                trigger_dag_id=f"insert_stats_{offline_channel}_dag",
-            )
-    if live_channels == []: # all channels are offline
-        start_tracking >> start_stats
-    elif offline_channels == []: # all channels are live
-        start_tracking >> start_listening
-    else:
-        start_tracking >> start_stats >> start_listening
+if live_channels == []: # all channels are offline
+    start_tracking >> start_logs >> start_stats
+elif offline_channels == []: # all channels are live
+    start_tracking >> start_listening
+else:
+    start_tracking >> start_logs >> start_stats >> start_listening
