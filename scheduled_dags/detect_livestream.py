@@ -79,14 +79,18 @@ def detect_offline_channels():
             offline_channels.append(channel)
     return offline_channels
 
-one_minute_ago = datetime.now().utcnow() - timedelta(minutes=1)
+def skip():
+    print("No dags need to be triggered")
+
+# one_minute_ago = datetime.now().utcnow() - timedelta(minutes=10)
 
 with DAG(
     "detect_channel_dag",
-    schedule=timedelta(minutes=3), 
-    start_date=one_minute_ago,
+    schedule=timedelta(minutes=15), 
+    start_date=datetime(2023, 10, 1, 0, 0),
     concurrency=1,
-    max_active_runs=1
+    max_active_runs=1,
+    catchup=False
 ) as dag:
     start_tracking=PythonOperator(
         task_id="detect_live_channel",
@@ -97,6 +101,24 @@ with DAG(
     offline_channels = detect_offline_channels()
     print(offline_channels)
 
+
+    """
+    Set start_listening, start_stats to do nothing in default.
+    Prevent from no tasks were assigned.
+    """
+    start_listening=PythonOperator(
+        task_id="default_skip_listening",
+        python_callable=skip,
+    ) 
+
+    start_stats=PythonOperator(
+        task_id="default_skip_stats",
+        python_callable=skip,
+    ) 
+
+    """
+    if there are live_channels or offline_channels, assign TriggerDagRunOperator to tasks.
+    """
     for live_channel in live_channels:
         start_listening=TriggerDagRunOperator(
             task_id=f"trigger_listen_{live_channel}",
@@ -113,9 +135,10 @@ with DAG(
             trigger_dag_id=f"insert_stats_{offline_channel}_dag",
         )
 
-if live_channels == []: # all channels are offline
-    start_tracking >> start_logs >> start_stats
-elif offline_channels == []: # all channels are live
-    start_tracking >> start_listening
-else:
-    start_tracking >> start_logs >> start_stats >> start_listening
+    # if live_channels == []: # all channels are offline
+    #     start_tracking >> start_logs >> start_stats
+    # elif offline_channels == []: # all channels are live
+    #     start_tracking >> start_listening
+    # else:
+    
+start_tracking >> start_logs >> start_stats >> start_listening
