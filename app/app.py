@@ -25,7 +25,12 @@ app = Flask(__name__)
 @app.route("/") # main page
 def main_page():
     broadcasters = ['sneakylol', 'gosu', 'disguisedtoast', 'scarra', 'trick2g', 'midbeast', 'perkz_lol']
-    return render_template('main.html', broadcasters=broadcasters)
+    week_options = ['Week 1', 'Week 2', 'Week 3', 'Week 4', 'Week 5']
+    return render_template(
+        'main.html', 
+        broadcasters=broadcasters,
+        week_options=week_options
+    )
 
 
 @app.route("/api/update_channels", methods=["GET"])
@@ -175,8 +180,22 @@ def historical_stats():
 
 @app.route("/api/overview_data", methods=["GET"])
 def overiew_stats():
+    week = request.args.get("week")
+    print(f'flask: request.args.get("week") = {week}')
+
+    # now_month = datetime.now().month
+    now_date = datetime.now().day
+    # now_weekday = datetime.now().weekday()
+
     overview = Overview()
-    livestream_schedule = overview.get_livestream_schedule()
+    if week:
+        week = int(week)
+        livestream_schedule = overview.get_livestream_schedule(week)
+    else: 
+        week = (now_date - 1) // 7 + 1
+        print('default week:', week)
+        livestream_schedule = overview.get_livestream_schedule(week)
+
     return livestream_schedule
     
 

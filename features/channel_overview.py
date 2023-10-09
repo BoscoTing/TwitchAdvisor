@@ -17,7 +17,8 @@ class Overview:
     def __init__(self):
         self.db = MongoDBManager()
 
-    def get_livestream_schedule(self):
+    def get_livestream_schedule(self, week):
+        print(f'channel_overview.py: get_livestream_schedule({week})')
         task_records = self.db.connect_collection("chatStats")
         query = [
             {
@@ -52,20 +53,21 @@ class Overview:
         livestream_schedule = [row for row in result]
 
         processed_data = []
+        for doc in livestream_schedule:
 
-        for entry in livestream_schedule:
-            # Convert 'startedAt' to datetime object
-            entry['startedAtDatetime'] = datetime.strptime(entry['startedAt'], "%Y-%m-%dT%H:%M:%S%z")
+            started_at_date = datetime.fromisoformat(doc['startedAt'])
+            doc['startedAtUnixTimestamp'] = datetime.fromisoformat(doc['startedAt']).timestamp()
 
-            # Extract week of the month and day of the week
-            week_of_month = (entry['startedAtDatetime'].day - 1) // 7 + 1
-            day_of_week = entry['startedAtDatetime'].strftime("%A")
+            doc['year'] = started_at_date.year
+            doc['month'] = started_at_date.month
+            doc['dayOfMonth'] = started_at_date.day
+            doc['weekDay'] = started_at_date.weekday()
+            doc['weekOfMonth'] = (doc['dayOfMonth'] - 1) // 7 + 1
 
-            entry['weekOfMonth'] = week_of_month
-            entry['dayOfWeek'] = day_of_week
+            weekday_names = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday']
+            doc['weekDayName'] = weekday_names[doc['weekDay']]
 
-            processed_data.append(entry)
+            if week == doc['weekOfMonth']:
+                processed_data.append(doc)
 
         return processed_data
-    
-# print(Overview().get_livestream_schedule())

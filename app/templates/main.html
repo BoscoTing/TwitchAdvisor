@@ -73,14 +73,23 @@
       <!-- metric list -->
       <div id="selectionInfo" class="column">
 
-         <div id="metric" class="options">
+         <div id="weekOptions" class="options">
+            <h3>Week Options</h3>
+               <div>
+                  {% for b in week_options %}
+                  <p class="weekOptions">{{b}}</p>
+                  {% endfor %}  
+               </div>
+         </div>
+
+         <!-- <div id="metric" class="options">
             <h3>Default Broadcasters</h3>
                <div>
                   {% for b in broadcasters %}
                   <p class="defaultMetric">{{b}}</p>
                   {% endfor %}  
                </div>
-         </div>
+         </div> -->
 
          <!-- selected metric -->
          <h3 id="selectedMetric"></h3>
