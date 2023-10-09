@@ -1,14 +1,14 @@
 /* Example CSS styles */
 body {
     font-family: Arial, sans-serif;
-    background-color: rgba(0, 0, 0, 0.1);
+    background-color: rgba(0, 0, 0, 0.843);
     margin: 0% 1%; /* Remove default body margin */
 }
 
 #title{
     display: inline-block;
     padding: 5px;
-    background-color: #b546bdcf;
+    background-color: #801888cf;
     text-shadow: 5px 5px 5px 5px #000000;
     color: #fff;
 }
@@ -18,7 +18,7 @@ body {
     max-width: 100%; /* Ensure it doesn't exceed the viewport width */
     display: flex; /* Use flexbox to align elements */
     flex-wrap: wrap; /* Allow wrapping of elements if needed */
-    background-color: #fff;
+    background-color: #ffffff;
     border-radius: 5px;
     box-shadow: 0 0 5px rgba(0, 0, 0, 0.1);
     padding: 20px;
