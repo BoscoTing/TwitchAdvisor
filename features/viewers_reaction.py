@@ -220,7 +220,7 @@ class ViewersReactionAnalyser():
                         print("viewers_reaction: trying to insert 'insert_logs' task record into taskRecords...")
                         task_record_document = {
                             "channel": self.channel,
-                            "startedAt": self.started_at, # bson format in +8 timezone
+                            "startedAt": uncompleted_started_at, # bson format in +8 timezone
                             "taskName": "insert_logs",
                             "completeTime": datetime.utcnow() # utc time for timeseries collection index.
                         }
@@ -423,8 +423,8 @@ class ViewersReactionAnalyser():
         uncompleted_tasks = list(set(insert_logs_task_records).difference(insert_stats_task_records)) # find uncomplete 'insert_stats' tasks
         print("uncompleted_tasks: ", uncompleted_tasks)
         for uncompleted_started_at in uncompleted_tasks:
-            print(f"{self.channel}'s live stream started at {uncompleted_started_at} has been calculated and inserted already.")
-            logging.info(f"{self.channel}'s live stream started at {uncompleted_started_at} has been calculated and inserted already.")
+            print(f"{self.channel}'s live stream started at {uncompleted_started_at} has not been calculated and inserted.")
+            logging.info(f"{self.channel}'s live stream started at {uncompleted_started_at} has not been calculated and inserted.")
 
             print("viewers_reaction: querying historical_stats...")
             stats = deepcopy(self.historical_stats(uncompleted_started_at)) # calculate chatstats from chatlogs # self.historical_stats() will need self.started_at
