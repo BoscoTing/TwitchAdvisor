@@ -1,14 +1,14 @@
-function updateHistoricalPlot(selectBroadcaster, startedAt) {
+function updateHistoricalPlot(convertSelectedBroadcaster, startedAt) {
     const loadingOverlay = document.getElementById("loadingOverlayHistorical");
     loadingOverlay.style.display = "block";
     
     var xmlHttp = new XMLHttpRequest();
 
     if (startedAt) {
-        xmlHttp.open( "GET", `/api/historical_data?channel=${selectBroadcaster}&started_at=${startedAt}`, true );
+        xmlHttp.open( "GET", `/api/historical_data?channel=${convertSelectedBroadcaster}&started_at=${startedAt}`, true );
     }
     else {
-        xmlHttp.open( "GET", `/api/historical_data?channel=${selectBroadcaster}`, true );
+        xmlHttp.open( "GET", `/api/historical_data?channel=${convertSelectedBroadcaster}`, true );
     };
     xmlHttp.onload = function () {
         loadingOverlay.style.display = "none";
@@ -54,8 +54,8 @@ function updateHistoricalPlot(selectBroadcaster, startedAt) {
             const channel = stats.map(stats => stats.channel)[0];
             console.log("selectedBroadcaster: ", channel);
             const selectedChannelElement = document.getElementById("selectedBroadcaster");
-            selectedChannelElement.textContent = `${channel}'s channel`;
-            selectedChannelElement.appendChild(scheduleHeader);
+            selectedChannelElement.textContent = `${selectedBroadcaster}`;
+            // selectedChannelElement.appendChild(scheduleHeader);
 
             const timestamp = stats.map(stats => new Date(stats.timestamp*1000));
             // const avgViewerCount = stats.map(stats => stats.avgViewerCount);
@@ -105,9 +105,14 @@ function updateHistoricalPlot(selectBroadcaster, startedAt) {
             
             // Layout for the chart
             const layout = {
-                title: 'Average Viewer Count Over Time',
+                
+                title: `${selectedBroadcaster}'s Live Stream Records`,
+                font: {
+                    family: 'Verdana',
+                    size: 15,
+                },
                 xaxis: {
-                    title: 'Timestamp'
+                    title: 'Time'
                 },
                 yaxis: {
                     title: 'Average Viewer Count'
@@ -134,8 +139,9 @@ for (var i = 0; i < defaultBroadcasters.length; i++) {
     let defaultBroadcaster = defaultBroadcasters[i];
     defaultBroadcaster.addEventListener("click", function () {
 
-        selectBroadcaster = defaultBroadcaster.textContent;
-        updateHistoricalPlot(selectBroadcaster, null); // set startedAt=null when first loading to the page
+        selectedBroadcaster = defaultBroadcaster.textContent;
+        convertSelectedBroadcaster = selectedBroadcaster.toLowerCase().replace(/\s+/g, '_');
+        updateHistoricalPlot(convertSelectedBroadcaster, null); // set startedAt=null when first loading to the page
 
     });
 };

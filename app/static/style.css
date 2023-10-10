@@ -1,6 +1,6 @@
 /* Example CSS styles */
 body {
-    font-family: Arial, sans-serif;
+    font-family: Verdana, sans-serif;
     background-color: rgba(0, 0, 0, 0.843);
     margin: 0% 1%; /* Remove default body margin */
 }
@@ -8,7 +8,7 @@ body {
 #title{
     display: inline-block;
     padding: 5px;
-    background-color: #801888cf;
+    background-color: #8a2691cf;
     text-shadow: 5px 5px 5px 5px #000000;
     color: #fff;
 }
@@ -30,7 +30,7 @@ body {
     flex: 1; /* Take up available space */
     display: flexbox; /* Nested flex container */
     background-color: #fff;
-    justify-content: space-between;
+    /* justify-content: space-between; */
     padding: 10px; /* Adjust padding as needed */
     /* margin-left: 50px; */
 }
@@ -49,13 +49,19 @@ h1, h3 {
     color: #333;
 }
 
-/* .options ul {
-    list-style: none;
-    padding: 0;
+/* h2 {
+    display: inline;
+    margin: auto;
+    text-align: left;
 } */
 
+.options ul {
+    list-style: none;
+    padding: 0;
+}
+
 .options {
-    margin: 0% 5% 0% 0%;
+    margin: 0% 10% 0% 0%;
 }
 
 #selectionInfo {
@@ -94,7 +100,32 @@ h1, h3 {
 
 /* Add styles for loadingMessage within loadingOverlay */
 .plotContainer .loadingMessage {
+    margin: 1%;
     font-size: 1.5rem;
     color: #333;
     position: absolute;
+}
+
+
+#searchBarContainer {
+    font-size: 36px;
+    text-align: center;
+    padding-bottom: 10%;
+}
+
+#avgViewerCountHeader {
+    font-size: 26px;
+    text-align: center;
+}
+#avgViewerCount {
+    font-size: 30px;
+    text-align: center;
+}
+
+/* #scheduleHeader {
+    display: none;
+} */
+
+#week {
+    text-align: center;
 }

@@ -23,7 +23,7 @@ function updateOverviewPlot(selectedWeek, selectedYear) {
             console.log("channels: ", channels);
 
             // Create an array of all weekdays
-            const weekdays = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
+            const weekdays = ['Mon.', 'Tue.', 'Wed.', 'Thu.', 'Fri.', 'Sat.', 'Sun.'];
 
             // Create data traces for each channel
             const traces = channels.map(channel => {
@@ -49,8 +49,12 @@ function updateOverviewPlot(selectedWeek, selectedYear) {
 
             // Create the layout
             const layout = {
+                font: {
+                    family: 'Verdana',
+                    size: 15,
+                },
                 xaxis: {
-                    title: 'Day of the Week'
+                    // title: 'Weekdays'
                 },
                 yaxis: {
                     title: 'Average Message Count'

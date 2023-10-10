@@ -70,7 +70,7 @@ function updateStreamingPlot(selectedChannel) {
                 type: 'scatter',
                 mode: 'lines',
                 marker: {color: 'blue'},
-                name: 'messages'
+                name: 'Messages'
             };
 
             const trace3 = {
@@ -79,7 +79,7 @@ function updateStreamingPlot(selectedChannel) {
                 type: 'scatter',
                 mode: 'lines',
                 marker: {color: 'green'},
-                name: 'chatters'
+                name: 'Chatters'
             };
 
             const trace4 = {
@@ -88,14 +88,19 @@ function updateStreamingPlot(selectedChannel) {
                 type: 'scatter',
                 mode: 'lines',
                 marker: {color: 'gray'},
-                name: 'cheer'
+                name: 'Cheers'
             };
             
             // Layout for the chart
             const layout = {
-                title: `${selectedChannel}'s chatroom`,
+                title: `${selectedChannel}'s Live Stream`,
+                font: {
+                    // family:'Times New Roman'
+                    family: 'Verdana',
+                    size: 15,
+                },
                 xaxis: {
-                    title: 'Timestamp'
+                    title: 'Time'
                 },
                 yaxis: {
                     title: 'Chatroom Engagement'
@@ -106,7 +111,7 @@ function updateStreamingPlot(selectedChannel) {
                     [
                         // trace1, 
                         trace2, 
-                        // trace3, 
+                        trace3, 
                         trace4
                     ], 
                     layout

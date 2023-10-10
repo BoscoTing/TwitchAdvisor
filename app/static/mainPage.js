@@ -17,6 +17,7 @@ function updateLiveChannels() {
             const ulElement = document.createElement("div"); // create a list under this title
             ulElement.setAttribute("id", "updateLiveChannels");
             ulElement.setAttribute("class", "channels");
+            ulElement.setAttribute("class", "columns");
 
             // console.log("topLiveChannels.childElementCount:", topLiveChannels.childElementCount)
             if (topLiveChannels.childElementCount > 0) { // clear the channels under "Top Live Channels" before updating results.
