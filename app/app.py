@@ -134,7 +134,7 @@ def streaming_logs():
 def historical_stats():
     channel = request.args.get("channel")
     started_at = request.args.get("started_at")
-
+    print("flask historical_stats: started_at", started_at)
     if started_at: 
         started_at = started_at.replace(" ", "+") # request.args.get reads the "+" string as " "
     print("flask historical_stats: started_at", started_at)
@@ -143,10 +143,8 @@ def historical_stats():
     print("flask query_historical_stats: started_at", started_at)
     stats = analyser.query_historical_stats(started_at) # started_at can be None if not included in request params
 
-    if stats == False:
+    if stats == False or stats == []:
         return []
-    elif stats == []:
-        return stats
     
     def avg_sentiment_weighted_by_index(score_list):
             weighted_scores = []
@@ -179,9 +177,7 @@ def historical_stats():
         'schedule': schedule,
         'stats' : stats
         }
-    # datetime.fromtimestamp
-    # print(resp_data)
-    # logging.debug(resp_data)
+
     resp_data = json.dumps(resp_data)
     return resp_data
 

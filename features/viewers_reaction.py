@@ -470,7 +470,7 @@ class ViewersReactionAnalyser():
         started_at can be None.
         """
         if started_at: # if user chose the schedule date
-            print("viewers_reaction.py - query_historical_stats", started_at)
+            print("viewers_reaction.py - query_historical_stats - started_at", started_at)
             result = [row for row in collection.aggregate([
                 {
                     "$match": {
@@ -484,6 +484,7 @@ class ViewersReactionAnalyser():
                     }
                 }
                 ])]
+            print("viewers_reaction.py - query_historical_stats - result[-1]", result[-1])
             return result
 
         else: # When user first get into historical page
@@ -510,6 +511,7 @@ class ViewersReactionAnalyser():
                     ])]
                 
                 if result!=False and result!=[]:
+                    print("viewers_reaction.py - query_historical_stats - result[-1]", result[-1])
                     return result
 
             except Exception as e:
