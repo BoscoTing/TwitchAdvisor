@@ -65,7 +65,7 @@ class Overview:
             doc['weekOfMonth'] = (doc['dayOfMonth'] - 1) // 7 + 1
             doc['weekOfYear'] = started_at_date.isocalendar().week
 
-            weekday_names = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday']
+            weekday_names = ['Mon.', 'Tue.', 'Wed.', 'Thu.', 'Fri.', 'Sat.', 'Sun.']
             doc['weekDayName'] = weekday_names[doc['weekDay']]
 
             if week == doc['weekOfYear'] and year == doc['year']:
