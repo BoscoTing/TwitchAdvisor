@@ -116,7 +116,6 @@ function updateStreamingPlot(selectedChannel) {
     xmlHttp.send();
 };
 
-
 const liveChannels = document.getElementsByClassName("liveChannels");
 
 function updateAfterSelectingChannel() {
@@ -124,7 +123,6 @@ function updateAfterSelectingChannel() {
         updateStreamingPlot(selectedChannel);
     }
 ;}
-
 function startUpdateInterval() {
     updateInterval = setInterval(updateAfterSelectingChannel, 5000);
 };
@@ -146,3 +144,32 @@ for (var i = 0; i < liveChannels.length; i++) {
 
     });
 };
+
+
+// search bar which receives value by pressing enter
+
+const searchBtn = document.getElementById("searchBotton");
+const searchBar = document.getElementById("searchBar");
+let searchQuery;
+
+searchBar.addEventListener("keydown", (e) => {
+    if (e.key == "Enter" && searchBar.value != "") {
+        searchQuery = searchBar.value;
+        console.log(searchQuery);
+
+        const url = new URL('https://www.twitch.tv/lolworldchampionship');
+        const channelName = url.pathname.split('/').pop();
+        console.log(channelName); // This will output 'lolworldchampionship'
+        
+        selectedChannel = channelName; // assign selectedChannel in a broader scope
+
+        console.log("latest selected channel: ", selectedChannel);
+        clearInterval(updateInterval); // stop updating previous selected channel
+        console.log("clear the update interval for previous selected channel.")
+
+        trackStreamingChat(selectedChannel);
+        updateStreamingPlot(selectedChannel);
+        startUpdateInterval();
+    }
+
+});
