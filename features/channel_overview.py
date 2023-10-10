@@ -63,6 +63,7 @@ class Overview:
             doc['dayOfMonth'] = started_at_date.day
             doc['weekDay'] = started_at_date.weekday()
             doc['weekOfMonth'] = (doc['dayOfMonth'] - 1) // 7 + 1
+            doc['weekOfYear'] = started_at_date.isocalendar().week
 
             weekday_names = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday']
             doc['weekDayName'] = weekday_names[doc['weekDay']]
