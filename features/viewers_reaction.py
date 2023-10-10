@@ -220,7 +220,7 @@ class ViewersReactionAnalyser():
                         print("viewers_reaction: trying to insert 'insert_logs' task record into taskRecords...")
                         task_record_document = {
                             "channel": self.channel,
-                            "startedAt": self.started_at, # bson format in +8 timezone
+                            "startedAt": uncompleted_started_at, # bson format in +8 timezone
                             "taskName": "insert_logs",
                             "completeTime": datetime.utcnow() # utc time for timeseries collection index.
                         }
@@ -332,7 +332,6 @@ class ViewersReactionAnalyser():
 
     def sort_isodate_schedule(self, schedule_list):
         def isodate_key(isodate):
-            from datetime import datetime
             return datetime.fromisoformat(isodate)
         sorted_schedule_list = sorted(schedule_list, key=isodate_key)
         return sorted_schedule_list
@@ -423,8 +422,8 @@ class ViewersReactionAnalyser():
         uncompleted_tasks = list(set(insert_logs_task_records).difference(insert_stats_task_records)) # find uncomplete 'insert_stats' tasks
         print("uncompleted_tasks: ", uncompleted_tasks)
         for uncompleted_started_at in uncompleted_tasks:
-            print(f"{self.channel}'s live stream started at {uncompleted_started_at} has been calculated and inserted already.")
-            logging.info(f"{self.channel}'s live stream started at {uncompleted_started_at} has been calculated and inserted already.")
+            print(f"{self.channel}'s live stream started at {uncompleted_started_at} has not been calculated and inserted.")
+            logging.info(f"{self.channel}'s live stream started at {uncompleted_started_at} has not been calculated and inserted.")
 
             print("viewers_reaction: querying historical_stats...")
             stats = deepcopy(self.historical_stats(uncompleted_started_at)) # calculate chatstats from chatlogs # self.historical_stats() will need self.started_at
@@ -471,7 +470,7 @@ class ViewersReactionAnalyser():
         started_at can be None.
         """
         if started_at: # if user chose the schedule date
-            print("viewers_reaction.py: query_historical_stats", started_at)
+            print("viewers_reaction.py - query_historical_stats - started_at", started_at)
             result = [row for row in collection.aggregate([
                 {
                     "$match": {
@@ -485,33 +484,35 @@ class ViewersReactionAnalyser():
                     }
                 }
                 ])]
+            print("viewers_reaction.py - query_historical_stats - result[-1]", result[-1])
             return result
 
         else: # When user first get into historical page
             try: 
-                print("viewers_reaction: try get_historical_schedule")
+                print("viewers_reaction.py - query_historical_stats: trying to get schedule")
                 schedule = self.get_historical_schedule()
-                for i in range(len(schedule)): # find startedAt which has data in chatStats
-                    most_current = schedule[i]
-                    print("viewers_reaction.py: query_historical_stats most_current", most_current)
-                    print("viewers_reaction.py: query_historical_stats self.channel", self.channel)
 
-                    result = [row for row in collection.aggregate([
-                        {
-                            "$match": {
-                                "startedAt": most_current,
-                                "channel": self.channel
-                            }
-                        },
-                        {
-                            "$sort": {
-                                "timestamp": -1
-                            }
+                most_current = schedule[-1]
+                print("viewers_reaction.py: query_historical_stats most_current", most_current)
+                print("viewers_reaction.py: query_historical_stats self.channel", self.channel)
+
+                result = [row for row in collection.aggregate([
+                    {
+                        "$match": {
+                            "startedAt": most_current,
+                            "channel": self.channel
                         }
-                        ])]
-                    
-                    if result!=False and result!=[]:
-                        return result
+                    },
+                    {
+                        "$sort": {
+                            "timestamp": -1
+                        }
+                    }
+                    ])]
+                
+                if result!=False and result!=[]:
+                    print("viewers_reaction.py - query_historical_stats - result[-1]", result[-1])
+                    return result
 
             except Exception as e:
                 print(e)
@@ -522,7 +523,7 @@ class ViewersReactionAnalyser():
         """
         Only show the schedule query from chatStats, which have been organized already.
         """
-        collection = self.db.connect_collection("chatStats")
+        collection = self.db.connect_collection("taskRecords")
         query = [
             {
                 "$match": {
@@ -544,9 +545,10 @@ class ViewersReactionAnalyser():
         ]
 
         schedule = [row['schedule'] for row in collection.aggregate(query)][0]
-        print("viewers_reaction: historical schedule", schedule)
-        # logging.debug("viewers_reaction: historical schedule", schedule)
-        return schedule
+        sorted_schedule = self.sort_isodate_schedule(schedule)
+        print("viewers_reaction.py - query_historical_stats - sorted_schedule:", sorted_schedule)
+        print("viewers_reaction: historical sorted_schedule", sorted_schedule)
+        return sorted_schedule
 
     def parse_temp_chat_logs(self, line): # define the schema of inserted document 
         logging.debug("line: ", line)
