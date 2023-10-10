@@ -157,7 +157,15 @@ def historical_stats():
 
     for doc in stats:
         doc['timestamp'] = datetime.timestamp(doc['timestamp']) # (utc time!!) turn bson time into unix timestamp, and convert into date using javascript.
-        doc['sentiment'] = avg_sentiment_weighted_by_index(doc['sentiment'])
+
+        """
+        If the historical stats have calculated the 'sentiment', then process them and pass to javascipt.
+        """
+        try: 
+            doc['sentiment'] = avg_sentiment_weighted_by_index(doc['sentiment'])
+        except:
+            pass
+
         del doc["_id"]  
 
     schedule = analyser.get_historical_schedule() # startedAt time, which are in +8 timezone
