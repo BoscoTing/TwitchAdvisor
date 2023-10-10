@@ -26,19 +26,26 @@ function updateStreamingPlot(selectedChannel) {
             var responseHtml = xmlHttp.responseText;
             var responseJson = JSON.parse(responseHtml);
             let stats = responseJson.stats; // get the stats data
-
-            const avgViewerCount = stats.map(stats => stats.avgViewerCount)[-1];
-            console.log("avgViewerCount: ", avgViewerCount);
-            const avgViewerCountElement = document.getElementById("avgViewerCount");
-            avgViewerCountElement.textContent = avgViewerCount;
-
+            // console.log(stats);
 
             // const startedAt = stats.startedAt;
             const timestamp = stats.map(stats => new Date(stats.timestamp*1000));
+
             const messageCount = stats.map(stats => stats.messageCount);
-            const chatterCount = stats.map(stats => stats.chatterCount);
-            const cheer = stats.map(stats => stats.cheers.length);
             console.log("updating: ", messageCount.length);
+            console.log(messageCount);
+            const chatterCount = stats.map(stats => stats.chatterCount);
+            console.log(chatterCount);
+            const cheerCount = stats.map(stats => stats.cheers.length);
+            console.log(cheerCount);
+            const avgViewerCount = stats.map(stats => stats.averageViewerCount);
+            console.log("avgViewerCount: ", avgViewerCount.at(-1));
+
+            // show the avgViewerCount on streaming plot section
+            const avgViewerCountElement = document.getElementById("avgViewerCount");
+            avgViewerCountElement.textContent = avgViewerCount.at(-1);
+
+
             if (messageCount.length == 0) {
                 const loadingOverlay = document.getElementById("loadingOverlayStreaming");
                 loadingOverlay.style.display = "block";
@@ -77,7 +84,7 @@ function updateStreamingPlot(selectedChannel) {
 
             const trace4 = {
                 x: timestamp,
-                y: cheer,
+                y: cheerCount,
                 type: 'scatter',
                 mode: 'lines',
                 marker: {color: 'gray'},
@@ -91,7 +98,7 @@ function updateStreamingPlot(selectedChannel) {
                     title: 'Timestamp'
                 },
                 yaxis: {
-                    title: 'Average Viewer Count'
+                    title: 'Chatroom Engagement'
                 }
             };
             Plotly.react(
@@ -109,7 +116,6 @@ function updateStreamingPlot(selectedChannel) {
     xmlHttp.send();
 };
 
-
 const liveChannels = document.getElementsByClassName("liveChannels");
 
 function updateAfterSelectingChannel() {
@@ -117,7 +123,6 @@ function updateAfterSelectingChannel() {
         updateStreamingPlot(selectedChannel);
     }
 ;}
-
 function startUpdateInterval() {
     updateInterval = setInterval(updateAfterSelectingChannel, 5000);
 };
@@ -139,3 +144,32 @@ for (var i = 0; i < liveChannels.length; i++) {
 
     });
 };
+
+
+// search bar which receives value by pressing enter
+
+const searchBtn = document.getElementById("searchBotton");
+const searchBar = document.getElementById("searchBar");
+let searchQuery;
+
+searchBar.addEventListener("keydown", (e) => {
+    if (e.key == "Enter" && searchBar.value != "") {
+        searchQuery = searchBar.value;
+        console.log(searchQuery);
+
+        const url = new URL('https://www.twitch.tv/lolworldchampionship');
+        const channelName = url.pathname.split('/').pop();
+        console.log(channelName); // This will output 'lolworldchampionship'
+        
+        selectedChannel = channelName; // assign selectedChannel in a broader scope
+
+        console.log("latest selected channel: ", selectedChannel);
+        clearInterval(updateInterval); // stop updating previous selected channel
+        console.log("clear the update interval for previous selected channel.")
+
+        trackStreamingChat(selectedChannel);
+        updateStreamingPlot(selectedChannel);
+        startUpdateInterval();
+    }
+
+});

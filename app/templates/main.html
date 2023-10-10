@@ -4,7 +4,7 @@
    <meta charset="UTF-8">
    <meta name="viewport" content="width=device-width, initial-scale=1.0">
    <link rel="stylesheet" type="text/css" href="../static/style.css">
-   <link rel="stylesheet" type="text/css" href="../static/dropdown.css">
+   <!-- <link rel="stylesheet" type="text/css" href="../static/dropdown.css"> -->
    <title>TwitchAdvisor</title>
    <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
 </head>
@@ -19,11 +19,18 @@
          <span id="topLiveChannels" class="column">Top live channels</span>
       </div>
 
+      <div id="searchBarContainer">
+         <span>Search By Your URL</span>
+         <input type="text" placeholder="Press Enter to search:" id="searchBar">
+         <!-- <button type="submit"><i id="searchButton">Go</i></button> -->
+      </div>
+       
+
       <!-- selected channel -->
       <h3 id="selectedLiveBroadcaster"></h3>
 
       <!-- average viewers -->
-      <!-- <h3 class="avgViewerCount">Average Viewers</h3> -->
+      <h3 class="avgViewerCount">Average Viewers</h3>
       <p id="avgViewerCount" class="avgViewerCount"></p>
 
       <!-- plot -->
@@ -67,9 +74,50 @@
 
    </div>
 
+   <!-- overview -->
+   <div class="plotContainer">
+
+      <!-- metric list -->
+      <div id="selectionInfo" class="column">
+
+         <div id="weekOptions" class="options">
+            <h3>Week Options</h3>
+               <div>
+                  {% for b in week_options %}
+                  <p class="weekOptions">{{b}}</p>
+                  {% endfor %}  
+               </div>
+         </div>
+
+         <!-- <div id="metric" class="options">
+            <h3>Default Broadcasters</h3>
+               <div>
+                  {% for b in broadcasters %}
+                  <p class="defaultMetric">{{b}}</p>
+                  {% endfor %}  
+               </div>
+         </div> -->
+
+         <!-- selected metric -->
+         <h3 id="selectedMetric"></h3>
+         
+      </div>
+
+      <!-- plot -->
+      <div id="overviewPlot" class="plot"></div>
+      <!-- <div id="radarPlot" class="plot"></div> -->
+
+      <div class="loadingOverlay" id="loadingOverlayOverview">
+         <div class="loadingMessage">Loading...</div>
+      </div>
+
+   </div>
+
 
    <script src="../static/mainPage.js"></script>
    <script src="../static/streamingPlot.js"></script>
    <script src="../static/historicalPlot.js"></script>
+   <script src="../static/overviewPlot.js"></script>
+
 </body>
 </html>

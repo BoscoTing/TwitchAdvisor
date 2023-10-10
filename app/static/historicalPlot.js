@@ -3,8 +3,7 @@ function updateHistoricalPlot(selectBroadcaster, startedAt) {
     loadingOverlay.style.display = "block";
     
     var xmlHttp = new XMLHttpRequest();
-    // selectBroadcaster = document.getElementsByClassName("defaultBroadcasters").value;
-    // var host = window.location.host; 
+
     if (startedAt) {
         xmlHttp.open( "GET", `/api/historical_data?channel=${selectBroadcaster}&started_at=${startedAt}`, true );
     }
@@ -18,7 +17,7 @@ function updateHistoricalPlot(selectBroadcaster, startedAt) {
             var responseJson = JSON.parse(responseHtml);
 
             let scheduleArray = responseJson.schedule; // get the values of started_at
-            console.log(scheduleArray);
+            console.log("scheduleArray:", scheduleArray);
             const scheduleHeader = document.getElementById("scheduleHeader");
 
             const startedAtElements = document.getElementsByClassName("startedAt");
@@ -27,15 +26,23 @@ function updateHistoricalPlot(selectBroadcaster, startedAt) {
             };
             console.log(scheduleArray);
             for (var i = 0; i < scheduleArray.length; i ++) { // create startedDate options
-                console.log(scheduleArray[i]);
+
                 let startedAt = document.createElement("p");
                 startedAt.setAttribute("class", "startedAt");
                 startedAt.textContent = scheduleArray[i];
 
+                // parse the textContent of the selectedDate into the bson format which is required by flask.
                 startedAt.addEventListener("click", function () { // set event listener to startedAt
                     selectedDate = startedAt.textContent;
-                    console.log(selectedDate);
-                    updateHistoricalPlot(selectBroadcaster, selectedDate);
+                    console.log("selectedDate:", selectedDate);
+
+                    const parts = selectedDate.split(' ');
+                    const datePart = parts[0];
+                    const timePart = parts[1];
+                    const formattedDate = `${datePart}T${timePart}+08:00`;
+                    console.log("formattedDate:", formattedDate);
+
+                    updateHistoricalPlot(selectBroadcaster, formattedDate);
                 });
 
                 scheduleHeader.appendChild(startedAt);
@@ -49,16 +56,16 @@ function updateHistoricalPlot(selectBroadcaster, startedAt) {
             const selectedChannelElement = document.getElementById("selectedBroadcaster");
             selectedChannelElement.textContent = `${channel}'s channel`;
             selectedChannelElement.appendChild(scheduleHeader);
-            // const cheers = stats.cheers;
-            // const startedAt = stats.startedAt;
+
             const timestamp = stats.map(stats => new Date(stats.timestamp*1000));
-            const avgViewerCount = stats.map(stats => stats.avgViewerCount);
+            // const avgViewerCount = stats.map(stats => stats.avgViewerCount);
             const messageCount = stats.map(stats => stats.messageCount);
             const chatterCount = stats.map(stats => stats.chatterCount);
             const cheer = stats.map(stats => stats.cheers.length);
+            // console.log(cheer)
 
             const sentiment = stats.map(stats => stats.sentiment);
-            console.log(sentiment);
+            // console.log(sentiment);
 
             const trace1 = {
                 x: timestamp,
