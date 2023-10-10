@@ -68,6 +68,16 @@ function updateOverviewPlot(selectedWeek) {
 
 updateOverviewPlot();
 
+// const weekControl = document.querySelector('input[type="week"]');
+function handleWeekSelection() {
+
+    const weekInput = document.getElementById("week");
+    const selectedWeek = weekInput.value;
+    console.log("selectedWeek:", selectedWeek);
+    
+}
+
+
 const weekOptions = document.getElementsByClassName("weekOptions")
 for (var i = 0; i < weekOptions.length; i++) {
     let weekOption = weekOptions[i];
