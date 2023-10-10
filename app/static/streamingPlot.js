@@ -157,7 +157,7 @@ searchBar.addEventListener("keydown", (e) => {
         searchQuery = searchBar.value;
         console.log(searchQuery);
 
-        const url = new URL('https://www.twitch.tv/lolworldchampionship');
+        const url = new URL(searchQuery);
         const channelName = url.pathname.split('/').pop();
         console.log(channelName); // This will output 'lolworldchampionship'
         

@@ -23,7 +23,7 @@ function updateOverviewPlot(selectedWeek, selectedYear) {
             console.log("channels: ", channels);
 
             // Create an array of all weekdays
-            const weekdays = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+            const weekdays = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
 
             // Create data traces for each channel
             const traces = channels.map(channel => {
