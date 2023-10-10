@@ -8,38 +8,54 @@
    <title>TwitchAdvisor</title>
    <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
 </head>
+
 <body>
+
+   
    <h1 id="title">TwitchAdvisor</h1>
 
    <!-- streaming -->
    <div class="plotContainer"> 
 
       <!-- channel list -->
-      <div id="liveBroadcasters" class="options">
-         <span id="topLiveChannels" class="column">Top live channels</span>
+      <!-- <div id="liveBroadcasters" class="options"> -->
+      <div id="liveBroadcasters" class="column">
+
+         <!-- <h2>TwitchAdvisor</h2> -->
+
+         <div id="searchBarContainer">
+            <!-- <span>Search by URL:</span> -->
+            <input type="text" placeholder="Enter Your URL Here" id="searchBar">
+            <!-- <button type="submit"><i id="searchButton">Go</i></button> -->
+         </div>
+
+         <!-- average viewers -->
+         <div id="avgViewerCountContainer">
+            <h3 id="avgViewerCountHeader" class="avgViewerCount">Total Viewers</h3>
+            <p id="avgViewerCount" class="avgViewerCount"></p>
+         </div>
+
+         <!-- <h3 id="topLiveChannelHeader">Top live channels</h3>
+         <span id="topLiveChannels"></span> -->
+
+
+         <!-- selected channel -->
+         <!-- <h3 id="selectedLiveBroadcaster"></h3> -->
       </div>
 
-      <div id="searchBarContainer">
-         <span>Search By Your URL</span>
-         <input type="text" placeholder="Press Enter to search:" id="searchBar">
-         <!-- <button type="submit"><i id="searchButton">Go</i></button> -->
-      </div>
-       
 
-      <!-- selected channel -->
-      <h3 id="selectedLiveBroadcaster"></h3>
-
-      <!-- average viewers -->
-      <h3 class="avgViewerCount">Average Viewers</h3>
-      <p id="avgViewerCount" class="avgViewerCount"></p>
 
       <!-- plot -->
       <div id="streamingPlot" class="plot">
          <div class="loadingOverlay" id="loadingOverlayStreaming">
             <div class="loadingMessage">Entering into Chatroom...</div>
          </div>
+
       </div>
+
    </div>
+
+   
 
 
    <!-- historical -->
@@ -49,7 +65,7 @@
       <div id="selectionInfo" class="column">
 
          <div id="defaultBroadcasters" class="options">
-            <h3>Default Broadcasters</h3>
+            <h3>Tracked Broadcasters</h3>
                <div>
                   {% for b in broadcasters %}
                   <p class="defaultBroadcasters">{{b}}</p>
@@ -60,7 +76,7 @@
          <!-- selected channel -->
          <h3 id="selectedBroadcaster"></h3>
          <!-- schedule -->
-         <div id="scheduleHeader" class="options">Historical Schedule</div>
+         <div id="scheduleHeader" class="options">Live Stream History</div>
 
       </div>
 
@@ -80,29 +96,8 @@
       <!-- metric list -->
       <div id="selectionInfo" class="column">
 
-         <label for="week">Selet a week</label>
-         <input id="week" type="week" name="week" onchange="handleWeekSelection()"/>
-
-         <!-- <div id="weekOptions" class="options">
-            <h3>Week Options</h3>
-               <div>
-                  {% for b in week_options %}
-                  <p class="weekOptions">{{b}}</p>
-                  {% endfor %}  
-               </div>
-         </div> -->
-
-         <!-- <div id="metric" class="options">
-            <h3>Default Broadcasters</h3>
-               <div>
-                  {% for b in broadcasters %}
-                  <p class="defaultMetric">{{b}}</p>
-                  {% endfor %}  
-               </div>
-         </div> -->
-
-         <!-- selected metric -->
-         <h3 id="selectedMetric"></h3>
+         <h3>Week Selector</h3>
+         <input id="week" type="week" name="week" lang="en" onchange="handleWeekSelection()">
          
       </div>
 

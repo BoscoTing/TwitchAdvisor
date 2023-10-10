@@ -21,12 +21,13 @@ app = Flask(__name__)
 
 @app.route("/") # main page
 def main_page():
-    broadcasters = ['sneakylol', 'gosu', 'disguisedtoast', 'scarra', 'trick2g', 'midbeast', 'perkz_lol']
-    week_options = ['Week 1', 'Week 2', 'Week 3', 'Week 4', 'Week 5']
+    broadcasters = ['SneakyLOL', 'Gosu', 'DisguisedToast', 'Scarra', 'Trick2g', 'Midbeast', 'Perkz LOL']
+    # broadcasters = ['sneakylol', 'gosu', 'disguisedtoast', 'scarra', 'trick2g', 'midbeast', 'perkz_lol']
+    # week_options = ['Week 1', 'Week 2', 'Week 3', 'Week 4', 'Week 5']
     return render_template(
         'main.html', 
         broadcasters=broadcasters,
-        week_options=week_options
+        # week_options=week_options
     )
 
 
