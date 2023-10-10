@@ -18,9 +18,11 @@ function updateLiveChannels() {
             ulElement.setAttribute("id", "updateLiveChannels");
             ulElement.setAttribute("class", "channels");
 
-            if (ulElement.childElementCount > 0) { // clear the channels under "Top Live Channels" before updating results.
+            // console.log("topLiveChannels.childElementCount:", topLiveChannels.childElementCount)
+            if (topLiveChannels.childElementCount > 0) { // clear the channels under "Top Live Channels" before updating results.
                 let oldUlElement = document.getElementById("updateLiveChannels");
                 document.getElementById("topLiveChannels").removeChild(oldUlElement); 
+                console.log("clear previous topLiveChannels")
             };
 
             for (var i = 0; i < leagueOfLegends.length; i++) { // update live channel list.
