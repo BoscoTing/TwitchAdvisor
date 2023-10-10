@@ -1,12 +1,9 @@
 from flask import (Flask, 
                    render_template, 
                    request, 
-                   redirect, 
-                   url_for, 
-                   jsonify)
-from time import time, sleep
-from datetime import datetime
-from copy import deepcopy
+                   )
+import pytz
+from datetime import datetime, timedelta
 import threading
 import re
 import json
@@ -64,7 +61,10 @@ def streaming_stats():
     'timestamp' is in utc timezone, need to be transformed before showing on application.
     """
     for doc in stats:
-        doc['timestamp'] = datetime.timestamp(doc['_id'])
+        # print(doc['_id'])
+        # "2023-10-10 05:00:55"
+        datetime_taipei = doc['_id'] + timedelta(hours=8)
+        doc['timestamp'] = datetime.timestamp(datetime_taipei)
         del doc["_id"]
     resp_data = {
     'stats' : stats
