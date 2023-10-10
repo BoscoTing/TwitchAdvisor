@@ -97,18 +97,18 @@ def streaming_logs():
     global latest_selected_channel # initial value is None
 
     selected_channel = request.args.get("channel")
-    print("selected streaming channel: ", selected_channel)
+    print("app.py -- selected streaming channel: ", selected_channel)
 
-    if selected_channel not in ['sneakylol', 'gosu', 'scarra', 'disguisedtoast', 'trick2g', 'midbeast', 'perkz_lol']:
+    # if selected_channel not in ['sneakylol', 'gosu', 'scarra', 'disguisedtoast', 'trick2g', 'midbeast', 'perkz_lol']:
 
-        MongoDBManager().delete_many(selected_channel, "tempChatLogs") # delete the log file of previous selected channel.
-        print(f"db.tempChatLogs.deleteMany: {selected_channel}")
+    MongoDBManager().delete_many(selected_channel, "tempChatLogs") # delete the log file of previous selected channel.
+    print(f"app.py -- db.tempChatLogs.deleteMany: {selected_channel}")
 
-        try: 
-            os.remove(os.getcwd()+f"/chat_logs/{selected_channel}.log")
-            print(f"app: temp_delete_log_file: /chat_logs/{selected_channel}.log")
-
-        except: pass
+    try: 
+        os.remove(os.getcwd()+f"/chat_logs/{selected_channel}.log")
+        print(f"app.py -- temp_delete_log_file: /chat_logs/{selected_channel}.log")
+    except: 
+        pass
 
     with request_param_lock:     
         print("request_param_lock")       
