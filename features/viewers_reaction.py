@@ -281,11 +281,102 @@ class ViewersReactionAnalyser():
             # }
             organized_documents.append(doc)
         try:
+<<<<<<< Updated upstream
             self.db.insertmany_into_collection(organized_documents, collection_name='chatStats')
         except Exception as e:
             # print(e)
             sleep(5)
             pass
+=======
+            result = [row for row in task_records_collction.aggregate(query)][0]
+            insert_logs_task_records = result['taskRecord']
+        except: 
+            insert_logs_task_records = []
+        print("completed insert_logs tasks: ", insert_logs_task_records)
+
+
+        """
+        get the latest startedAt record from chatStats collection.
+        """
+        # historical_schedule_list = self.get_historical_schedule()
+        # print("historical_schedule: ", historical_schedule_list)
+
+        # started_at = self.sort_isodate_schedule(historical_schedule_list)[-1]
+        # print("viewers_reaction: insert_historical_stats", started_at)
+
+        query = [  
+            {
+                "$match": {
+                    "channel": self.channel,
+                    "taskName": "insert_stats"
+                    }
+            },
+            {
+                "$group": {
+                    "_id": "null",
+                    "taskRecord": {"$addToSet": "$startedAt"}
+                    }
+            },
+            {
+                "$project": {
+                    "taskRecord": 1,
+                    "_id": 0
+                }
+            }]
+        try:
+            result = [row for row in task_records_collction.aggregate(query)][0]
+            insert_stats_task_records = result['taskRecord']
+        except: 
+            insert_stats_task_records = []
+        print("completed insert_stats tasks: ", insert_stats_task_records)
+
+
+        """
+        Countinue if insert_stats haven't been executed after channel turned into off-line.
+        """
+        uncompleted_tasks = list(set(insert_logs_task_records).difference(insert_stats_task_records)) # find uncomplete 'insert_stats' tasks
+        print("uncompleted_tasks: ", uncompleted_tasks)
+        for uncompleted_started_at in uncompleted_tasks:
+            print(f"{self.channel}'s live stream started at {uncompleted_started_at} has not been calculated and inserted.")
+            logging.info(f"{self.channel}'s live stream started at {uncompleted_started_at} has not been calculated and inserted.")
+
+            print("viewers_reaction: querying historical_stats...")
+            stats = deepcopy(self.historical_stats(uncompleted_started_at)) # calculate chatstats from chatlogs # self.historical_stats() will need self.started_at
+            organized_documents = []
+            # sentiment_analyser = ChatroomSentiment()
+            
+            print("(skipped)viewers_reaction: calculating sentiment_score...")
+            for doc in stats:
+                doc['timestamp'] = doc['_id']
+                # doc['sentiment'] = sentiment_analyser.historical_stats_sentiment(doc['messages'])
+                # doc['sentimentScore'] = self.avg_sentiment_weighted_by_index(doc['sentiment'])
+                organized_documents.append(doc)
+            try:
+                print("viewers_reaction: trying to insertmany into chatStats...")
+                self.db.insertmany_into_collection(organized_documents, collection_name='chatStats')
+                print("successfully insert historical stats.")
+            except Exception as e:
+                print(e)
+                sleep(5)
+
+
+            """
+            record the insert_stats task in taskRecords collection.
+            """
+            try:
+                print("viewers_reaction: trying to insert 'insert_stats' task record into taskRecords...")
+                task_record_document = {
+                    "channel": self.channel,
+                    "startedAt": uncompleted_started_at, # bson format in +8 timezone
+                    "taskName": "insert_stats",
+                    "completeTime": datetime.utcnow() # utc time for timeseries collection index.
+                }
+                self.db.insertone_into_collection(task_record_document, collection_name='taskRecords')
+                print("successfully insert task records.")
+            except Exception as e:
+                print(e)
+                sleep(5)    
+>>>>>>> Stashed changes
 
     def query_historical_stats(self, started_at): # the "started_at" here is the argument requested from flask app, which is different from "self.started_at"
         # self.started_at = self.get_historical_schedule()[-1]
