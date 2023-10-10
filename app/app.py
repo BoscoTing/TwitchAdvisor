@@ -185,20 +185,26 @@ def historical_stats():
 @app.route("/api/overview_data", methods=["GET"])
 def overiew_stats():
     week = request.args.get("week")
+    year = request.args.get("year")
+
     print(f'flask: request.args.get("week") = {week}')
+    print(f'flask: request.args.get("year") = {year}')
 
     # now_month = datetime.now().month
     now_date = datetime.now().day
     # now_weekday = datetime.now().weekday()
+    now_year = datetime.now().year
 
     overview = Overview()
-    if week:
+    if week and year:
         week = int(week)
-        livestream_schedule = overview.get_livestream_schedule(week)
+        year = int(year)
+        livestream_schedule = overview.get_livestream_schedule(week, year)
     else: 
         week = (now_date - 1) // 7 + 1
-        print('default week:', week)
-        livestream_schedule = overview.get_livestream_schedule(week)
+        year = now_year
+        print('default week/year:', f"{week}/{year}")
+        livestream_schedule = overview.get_livestream_schedule(week, year)
 
     return livestream_schedule
     

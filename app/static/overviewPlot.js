@@ -1,11 +1,11 @@
-function updateOverviewPlot(selectedWeek) {
+function updateOverviewPlot(selectedWeek, selectedYear) {
     const loadingOverlay = document.getElementById("loadingOverlayOverview");
     loadingOverlay.style.display = "block";
     
     var xmlHttp = new XMLHttpRequest();
-    if (selectedWeek) {
-        xmlHttp.open( "GET", `/api/overview_data?week=${selectedWeek}`, true );
-        console.log("GET", `/api/overview_data?week=${selectedWeek}`);
+    if (selectedWeek && selectedYear) {
+        xmlHttp.open( "GET", `/api/overview_data?week=${selectedWeek}&year=${selectedYear}`, true );
+        console.log("GET", `/api/overview_data?week=${selectedWeek}&year=${selectedYear}`);
     }
     else {
         xmlHttp.open( "GET", `/api/overview_data`, true ); // use default week in flask
@@ -53,7 +53,7 @@ function updateOverviewPlot(selectedWeek) {
                     title: 'Day of the Week'
                 },
                 yaxis: {
-                    title: 'Metric'
+                    title: 'Average Message Count'
                 },
                 // barmode: 'group'
             };
@@ -68,30 +68,41 @@ function updateOverviewPlot(selectedWeek) {
 
 updateOverviewPlot();
 
-// const weekControl = document.querySelector('input[type="week"]');
+
+// add event listener on week selector of html.
 function handleWeekSelection() {
 
     const weekInput = document.getElementById("week");
     const selectedWeek = weekInput.value;
     console.log("selectedWeek:", selectedWeek);
+    const regex = /(\d+)-W(\d+)/;
+    const match = selectedWeek.match(regex);
+    if (match) {
+        const year = match[1];
+        const week = match[2];
+        console.log(`Year: ${year}, Week: ${week}`);
+        updateOverviewPlot(week, year);
+    } else {
+        console.log('No match found.');
+    };
     
 }
 
 
-const weekOptions = document.getElementsByClassName("weekOptions")
-for (var i = 0; i < weekOptions.length; i++) {
-    let weekOption = weekOptions[i];
-    weekOption.addEventListener("click", function () {
+// const weekOptions = document.getElementsByClassName("weekOptions")
+// for (var i = 0; i < weekOptions.length; i++) {
+//     let weekOption = weekOptions[i];
+//     weekOption.addEventListener("click", function () {
 
-        const weekText = weekOption.textContent;
-        const match = weekText.match(/\d+/);
-        if (match) {
-            // Extracted week number
-            const selectedWeek = match[0];
-            console.log('selectedWeek:', selectedWeek);
-            updateOverviewPlot(selectedWeek, null);
-        } else {
-            console.log('Week number not found in text:', weekText);
-        };
-    });
-};
+//         const weekText = weekOption.textContent;
+//         const match = weekText.match(/\d+/);
+//         if (match) {
+//             // Extracted week number
+//             const selectedWeek = match[0];
+//             console.log('selectedWeek:', selectedWeek);
+//             updateOverviewPlot(selectedWeek, null);
+//         } else {
+//             console.log('Week number not found in text:', weekText);
+//         };
+//     });
+// };
