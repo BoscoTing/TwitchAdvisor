@@ -82,7 +82,7 @@ function updateHistoricalPlot(selectBroadcaster, startedAt) {
                 type: 'scatter',
                 mode: 'lines',
                 marker: {color: 'blue'},
-                name: 'messages'
+                name: 'Messages'
             };
 
             const trace3 = {
@@ -91,7 +91,7 @@ function updateHistoricalPlot(selectBroadcaster, startedAt) {
                 type: 'scatter',
                 mode: 'lines',
                 marker: {color: 'green'},
-                name: 'chatters'
+                name: 'Chatters'
             };
 
             const trace4 = {
@@ -100,7 +100,7 @@ function updateHistoricalPlot(selectBroadcaster, startedAt) {
                 type: 'scatter',
                 mode: 'lines',
                 marker: {color: 'gray'},
-                name: 'cheer'
+                name: 'Cheers'
             };
             
             // Layout for the chart
