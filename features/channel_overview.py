@@ -17,8 +17,8 @@ class Overview:
     def __init__(self):
         self.db = MongoDBManager()
 
-    def get_livestream_schedule(self, week):
-        print(f'channel_overview.py: get_livestream_schedule({week})')
+    def get_livestream_schedule(self, week, year):
+        print(f'channel_overview.py: get_livestream_schedule({week}, {year})')
         task_records = self.db.connect_collection("chatStats")
         query = [
             {
@@ -63,11 +63,12 @@ class Overview:
             doc['dayOfMonth'] = started_at_date.day
             doc['weekDay'] = started_at_date.weekday()
             doc['weekOfMonth'] = (doc['dayOfMonth'] - 1) // 7 + 1
+            doc['weekOfYear'] = started_at_date.isocalendar().week
 
             weekday_names = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday']
             doc['weekDayName'] = weekday_names[doc['weekDay']]
 
-            if week == doc['weekOfMonth']:
+            if week == doc['weekOfYear'] and year == doc['year']:
                 processed_data.append(doc)
 
         return processed_data
