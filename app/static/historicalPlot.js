@@ -41,8 +41,9 @@ function updateHistoricalPlot(convertSelectedBroadcaster, startedAt) {
                     const timePart = parts[1];
                     const formattedDate = `${datePart}T${timePart}+08:00`;
                     console.log("formattedDate:", formattedDate);
-
-                    updateHistoricalPlot(selectBroadcaster, formattedDate);
+                    
+                    // use convertSelectedBroadcaster to select by snake case name
+                    updateHistoricalPlot(convertSelectedBroadcaster, formattedDate);
                 });
 
                 scheduleHeader.appendChild(startedAt);
