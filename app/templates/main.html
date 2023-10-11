@@ -1,30 +1,121 @@
 <!DOCTYPE html>
 <html>
 <head>
+   <meta charset="UTF-8">
+   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+   <link rel="stylesheet" type="text/css" href="../static/style.css">
+   <!-- <link rel="stylesheet" type="text/css" href="../static/dropdown.css"> -->
    <title>TwitchAdvisor</title>
    <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
 </head>
+
 <body>
+
+   
    <h1 id="title">TwitchAdvisor</h1>
 
-   <div id="defaultBroadcasters">
-      <h3>Broadcasters who we are tracking</h2>
-      <ul>
-         {% for b in broadcasters %}
-         <li class="defaultBroadcasters">{{b}}</li>
-         {% endfor %}  
-      </ul>
+   <!-- streaming -->
+   <div class="plotContainer"> 
+
+      <!-- channel list -->
+      <!-- <div id="liveBroadcasters" class="options"> -->
+      <div id="liveBroadcasters" class="column">
+
+         <!-- <h2>TwitchAdvisor</h2> -->
+
+         <div id="searchBarContainer">
+            <!-- <span>Search by URL:</span> -->
+            <input type="text" placeholder="Enter Your URL Here" id="searchBar">
+            <!-- <button type="submit"><i id="searchButton">Go</i></button> -->
+         </div>
+
+         <!-- average viewers -->
+         <div id="avgViewerCountContainer">
+            <h3 id="avgViewerCountHeader" class="avgViewerCount">Total Viewers</h3>
+            <p id="avgViewerCount" class="avgViewerCount"></p>
+         </div>
+
+         <!-- <h3 id="topLiveChannelHeader">Top live channels</h3>
+         <span id="topLiveChannels"></span> -->
+
+
+         <!-- selected channel -->
+         <!-- <h3 id="selectedLiveBroadcaster"></h3> -->
+      </div>
+
+
+
+      <!-- plot -->
+      <div id="streamingPlot" class="plot">
+         <div class="loadingOverlay" id="loadingOverlayStreaming">
+            <div class="loadingMessage">Entering into Chatroom...</div>
+         </div>
+
+      </div>
+
    </div>
 
-   <div id="streamingPlot"></div>
    
-   <div id="historicalPlot"></div>
 
-   <div id="liveBroadcasters"></div>
-      <h3 id="topLiveChannels">Top live channels</h3>
+
+   <!-- historical -->
+   <div class="plotContainer">
+
+      <!-- channel list -->
+      <div id="selectionInfo" class="column">
+
+         <div id="defaultBroadcasters" class="options">
+            <h3>Tracked Broadcasters</h3>
+               <div>
+                  {% for b in broadcasters %}
+                  <p class="defaultBroadcasters">{{b}}</p>
+                  {% endfor %}  
+               </div>
+         </div>
+
+         <!-- selected channel -->
+         <h3 id="selectedBroadcaster"></h3>
+         <!-- schedule -->
+         <div id="scheduleHeader" class="options">Live Stream History</div>
+
+      </div>
+
+      <!-- plot -->
+      <div id="historicalPlot" class="plot"></div>
+      <!-- <div id="radarPlot" class="plot"></div> -->
+
+      <div class="loadingOverlay" id="loadingOverlayHistorical">
+         <div class="loadingMessage">Loading...</div>
+      </div>
+
+   </div>
+
+   <!-- overview -->
+   <div class="plotContainer">
+
+      <!-- metric list -->
+      <div id="selectionInfo" class="column">
+
+         <h3>Week Selector</h3>
+         <input id="week" type="week" name="week" lang="en" onchange="handleWeekSelection()">
+         
+      </div>
+
+      <!-- plot -->
+      <div id="overviewPlot" class="plot"></div>
+      <!-- <div id="radarPlot" class="plot"></div> -->
+
+      <div class="loadingOverlay" id="loadingOverlayOverview">
+         <div class="loadingMessage">Loading...</div>
+      </div>
+
+   </div>
+
 
    <script src="../static/mainPage.js"></script>
    <script src="../static/streamingPlot.js"></script>
    <script src="../static/historicalPlot.js"></script>
+   <script src="../static/overviewPlot.js"></script>
+
 </body>
 </html>

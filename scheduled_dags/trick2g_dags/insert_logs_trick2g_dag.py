@@ -6,7 +6,7 @@ import sys
 sys.path.insert(0, os.getcwd())
 
 from features.viewers_reaction import ViewersReactionAnalyser
-channel = "scarra"
+channel = "trick2g"
 analyser = ViewersReactionAnalyser(channel)
 one_minute_ago = datetime.now().utcnow() - timedelta(minutes=1)
 with DAG(

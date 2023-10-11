@@ -9,7 +9,7 @@ sys.path.insert(0, os.getcwd())
 
 from features.viewers_reaction import ViewersReactionAnalyser
 
-channel = "scarra"
+channel = "perkz_lol"
 
 analyser = ViewersReactionAnalyser(channel)
 one_minute_ago = datetime.now().utcnow() - timedelta(minutes=1)

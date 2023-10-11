@@ -29,6 +29,13 @@ class ChatroomSentiment:
         
         return score_list
     
+    def historical_stats_sentiment(self, message_set):
+        score_list = [0, 0, 0] # [count(neg), count(neu), count(pos)]
+        for msg in message_set:
+            score_list[self.analyser.sentiment_score(msg)] += 1 # sentiment_score: 0(negative), 1(neutral), 2(positive)
+        
+        return score_list
+    
     # def insert_stats_result(self):
     #     organized_data = deepcopy(self.stats) # prevent from changing 'self.stats'
     #     organized_data['started_at'] = self.start_at

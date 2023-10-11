@@ -8,12 +8,12 @@ sys.path.insert(0, os.getcwd())
 
 from managers.ircbot_manager import TwitchChatListener
 
-listener = TwitchChatListener("sneakylol")
+listener = TwitchChatListener("trick2g")
 
 one_minute_ago = datetime.now().utcnow() - timedelta(minutes=1)
 
 with DAG(
-    "listen_to_chatroom_dag",
+    "listen_trick2g_dag",
     schedule="@once", 
     start_date=one_minute_ago,
     concurrency=1,

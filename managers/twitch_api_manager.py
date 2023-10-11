@@ -1,6 +1,7 @@
 from decouple import config
 from datetime import datetime, timedelta
 import logging
+logging.basicConfig(level=logging.ERROR)
 import pytz
 import requests
 import json
@@ -48,21 +49,25 @@ class TwitchDeveloper:
         return channel_dict
         
     def detect_living_channel(self, channel):
+        
         url = f'https://api.twitch.tv/helix/streams?user_login={channel}'
         headers = {
             'Client-ID' : config('twitch_app_id'),
             'Authorization' :  "Bearer " + self.get_token()
         }
-        # logging.warn(channel)
-        # logging.warn(requests.get(url, headers=headers).json())
         resp_data = requests.get(url, headers=headers).json()['data']
+
         if resp_data:
+            """
+            turn startedAt into +8 timezone. 
+            startedAt will be recorded in log file and then inserted into chatLogs collection.
+            """
             taipei_time = datetime.fromisoformat(resp_data[0]['started_at'][:-1]) + timedelta(hours=8)
             taipei_isoformat = datetime.isoformat(taipei_time) + "+08:00"
             resp_data[0]['started_at'] = taipei_isoformat
-            print(resp_data[0])
             logging.info(resp_data[0])
             return resp_data[0]
+        
         else:
             return False
     
@@ -94,5 +99,5 @@ class TwitchDeveloper:
 # use_example
 
 # twitch_api = TwitchDeveloper()
-# result = twitch_api.get_channel_schedule("cowsep")
+# result = twitch_api.detect_living_channel("trick2g")
 # print(result)

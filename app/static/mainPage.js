@@ -1,4 +1,3 @@
-
 function updateLiveChannels() {
     var xmlHttp = new XMLHttpRequest();
     var host = window.location.host; 
@@ -14,16 +13,22 @@ function updateLiveChannels() {
             let music = category.music;
 
             const topLiveChannels = document.querySelector("#topLiveChannels"); // title of "Top Live Channels"
-            const ulElement = document.createElement("ul"); // create a list under this title
-            ulElement.setAttribute("id", "updateLiveChannels")
 
+            const ulElement = document.createElement("div"); // create a list under this title
+            ulElement.setAttribute("id", "updateLiveChannels");
+            ulElement.setAttribute("class", "channels");
+            ulElement.setAttribute("class", "columns");
+
+            // console.log("topLiveChannels.childElementCount:", topLiveChannels.childElementCount)
             if (topLiveChannels.childElementCount > 0) { // clear the channels under "Top Live Channels" before updating results.
                 let oldUlElement = document.getElementById("updateLiveChannels");
                 document.getElementById("topLiveChannels").removeChild(oldUlElement); 
+                console.log("clear previous topLiveChannels")
             };
 
             for (var i = 0; i < leagueOfLegends.length; i++) { // update live channel list.
-                const liElement = document.createElement("li");
+                
+                const liElement = document.createElement("p");
                 liElement.textContent = leagueOfLegends[i];
                 liElement.setAttribute("class", "liveChannels")
                 ulElement.appendChild(liElement);
@@ -32,6 +37,7 @@ function updateLiveChannels() {
         }
     }
     xmlHttp.send();
+    console.log("Update live channels")
 };
 
 updateLiveChannels();

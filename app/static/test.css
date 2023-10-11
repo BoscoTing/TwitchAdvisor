@@ -1,0 +1,81 @@
+.plotContainer {
+    position: relative;
+    max-width: 100%;
+    display: flex; 
+    flex-wrap: wrap; 
+    background-color: #ffffff;
+    border-radius: 5px;
+    box-shadow: 0 0 5px rgba(0, 0, 0, 0.1);
+    padding: 20px;
+    margin: 0px 0px 2% 0px;
+    min-height: 600px; 
+}
+
+/* .options {
+    flex:1;
+    display: flexbox; 
+    margin: 0% 5% 0% 0%;
+} */
+
+.column1 {
+    display: flexbox;
+    flex: 0.5;
+}
+
+.plot {
+    flex: 3; /* Take up more available space */
+    background-color: #fff;
+    border-radius: 5px;
+    box-shadow: 0 0 5px rgba(0, 0, 0, 0.1);
+    padding: 20px;
+    min-height: 600px; /* Set a minimum height for the container */
+    margin: 10px 0 0 0; /* Adjust margin as needed */
+}
+
+.loadingOverlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(255, 255, 255, 0.8); /* Semi-transparent white background */
+    display: none; /* Initially hidden */
+    justify-content: center;
+    align-items: center;
+    z-index: 100; /* Make sure it appears above other content */
+}
+
+.loadingMessage {
+    margin: 1%;
+    font-size: 1.5rem;
+    color: #333;
+    position: absolute;
+}
+
+#liveBroadcasters {
+    /* Take up available space */
+    /* flex: 1; */
+    display: flexbox; /* Nested flex container */
+    background-color: #fff;
+    justify-content: space-between;
+    padding: 10px; /* Adjust padding as needed */
+    /* margin-left: 50px; */
+}
+
+#updateLiveChannels {
+    /* position: relative; */
+    /* display: flexbox; */
+    padding: 0%;
+    /* border: 1%; */
+    margin: 0%;
+    /* background-color: rgb(171, 171, 171); */
+}
+
+
+/* #searchBarContainer {
+    background-color: rgb(142, 142, 142);
+} */
+/* 
+.avgViewerCount {
+
+} */
