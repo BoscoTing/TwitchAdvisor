@@ -93,7 +93,7 @@ function updateStreamingPlot(selectedChannel) {
             
             // Layout for the chart
             const layout = {
-                title: `${selectedChannel}'s Live Stream`,
+                title: `Your Live Stream`,
                 font: {
                     // family:'Times New Roman'
                     family: 'Verdana',
