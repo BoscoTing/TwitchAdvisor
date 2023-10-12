@@ -70,6 +70,21 @@ class TwitchDeveloper:
         
         else:
             return False
+        
+    def get_total_viewers(self, channel):
+        
+        url = f'https://api.twitch.tv/helix/streams?user_login={channel}'
+        headers = {
+            'Client-ID' : config('twitch_app_id'),
+            'Authorization' :  "Bearer " + self.get_token()
+        }
+        resp_data = requests.get(url, headers=headers).json()['data']
+
+        if resp_data:
+            return resp_data[0]['viewer_count']
+        
+        else:
+            return False
     
     def get_broadcaster_id(self, channel):
         url = f'https://api.twitch.tv/helix/streams?user_login={channel}'

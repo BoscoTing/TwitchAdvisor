@@ -1,7 +1,5 @@
 from airflow import DAG
-from airflow.operators.trigger_dagrun import TriggerDagRunOperator
 from airflow.operators.python_operator import PythonOperator
-from airflow.models import DagRun
 from airflow.api.client.local_client import Client
 client = Client(api_base_url='http://localhost:8080')
 from datetime import datetime, timedelta

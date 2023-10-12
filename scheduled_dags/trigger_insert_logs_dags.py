@@ -35,7 +35,7 @@ print("current_tracking_channels: ", tracked_channels_list)
 
 with DAG(
     "start_insert_logs_dag",
-    schedule=timedelta(hours=6), 
+    schedule=timedelta(hours=3), 
     start_date=datetime(2023, 10, 1, 0, 0),
     concurrency=1,
     max_active_runs=1,

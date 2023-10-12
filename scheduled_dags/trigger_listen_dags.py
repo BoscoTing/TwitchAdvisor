@@ -1,5 +1,6 @@
 from airflow import DAG
 from airflow.operators.trigger_dagrun import TriggerDagRunOperator
+from airflow.operators.python_operator import PythonOperator
 from airflow.models import DagRun
 from airflow.api.client.local_client import Client
 client = Client(api_base_url='http://localhost:8080')
@@ -33,6 +34,31 @@ result = tracked_channels_collection.aggregate(query)
 tracked_channels_list = [row['channels'] for row in result][0]
 print("current_tracking_channels: ", tracked_channels_list)
 
+def stop_dag_run(dag_id):
+    dag_run = DagRun.find(dag_id=dag_id, state='running')
+    """
+    dag_run[0] will get the format like:
+        <DagRun gosu_listen_dag @ 2023-10-01 00:00:00+00:00: scheduled__2023-10-01T00:00:00+00:00, state:running, queued_at: 2023-10-12 03:28:42.738369+00:00. externally triggered: False>
+    Use dag_run[0].run_id to get "scheduled__2023-10-01T00:00:00+00:00", which is the unique dag_run_id.
+    """
+
+
+    if dag_run:
+        print(f"DAG '{dag_id}' is currently running.")
+
+        dag_run_id = dag_run[0].run_id # prepare dag_id and dag_run_id
+        print(f"DAG run ID for DAG '{dag_id}' is {dag_run_id}.")
+
+        try:
+            dag_run[0].set_state('failed') # set dag run state to 'success'
+            print(f"Successfully Stopped DAG run {dag_run_id} for DAG {dag_id}.")
+            
+        except Exception as e:
+            print(f"Error: {e}")
+
+    else:
+        print(f"No running DAG runs found for DAG '{dag_id}'.")
+
 
 with DAG(
     "start_listen_dag",
@@ -47,14 +73,20 @@ with DAG(
     for channel in tracked_channels_list:
         living = twitch_developer.detect_living_channel(channel) 
 
+        dag_id = f'{channel}_listen_dag'
+
         if living:
+            """
+            3. Trigger listen_dags for online channels.
+            """
+
             print(f"{channel} is online.")
 
-            dag_id = f'{channel}_listen_dag'
-            dag_runs = DagRun.find(dag_id=dag_id, state='running')
-            print("dag_runs: ", dag_runs)
+            # dag_id = f'{channel}_listen_dag'
+            dag_run = DagRun.find(dag_id=dag_id, state='running')
+            print("dag_runs: ", dag_run)
 
-            if dag_runs:
+            if dag_run:
                 print(f"DAG '{dag_id}' is currently running.")
             else:
                 print(f"DAG '{dag_id}' is not running, trigger {dag_id}")
@@ -62,3 +94,15 @@ with DAG(
                     task_id=f"trigger_{channel}_listen_task",
                     trigger_dag_id=f"{channel}_listen_dag",
                 )
+        
+
+        else: 
+            """
+            4. Terminate listen_dags for offline channels.
+            """
+
+            stop_dag_run_task=PythonOperator(
+                task_id=f"stop_{channel}_listen_task",
+                python_callable=stop_dag_run,
+                op_kwargs= {"dag_id": f'{channel}_listen_dag'}
+            )

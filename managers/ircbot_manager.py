@@ -1,6 +1,9 @@
 from decouple import config
 from datetime import datetime
 from emoji import demojize
+from threading import Thread, Event
+
+import time
 import socket
 import logging
 import os
@@ -19,9 +22,10 @@ class TwitchChatListener:
         self.token = config('twitch_token')
         self.channel = channel
         self.db = MongoDBManager()
-        # self.started_at = TwitchDeveloper().detect_living_channel(self.channel)
+        self.developer = TwitchDeveloper()
     
     def connect_chatroom(self):
+        
         self.sock = socket.socket()
         self.sock.connect((self.server, self.port))
         self.sock.send(f"PASS {self.token}\n".encode('utf-8'))
@@ -49,10 +53,17 @@ class TwitchChatListener:
         except Exception as e:
             print(e)
             
+        # logging.basicConfig(level=logging.DEBUG,
+        #                     format='%(asctime)s — %(message)s',
+        #                     datefmt='%Y-%m-%d_%H:%M:%S',
+        #                     handlers=[logging.FileHandler(os.getcwd() + f'/dags/chat_logs/{self.started_at}_{self.channel}.log', 
+        #                                                   mode='a',
+        #                                                   encoding='utf-8')])
+        
         logging.basicConfig(level=logging.DEBUG,
                             format='%(asctime)s — %(message)s',
                             datefmt='%Y-%m-%d_%H:%M:%S',
-                            handlers=[logging.FileHandler(os.getcwd() + f'/dags/chat_logs/{self.started_at}_{self.channel}.log', 
+                            handlers=[logging.FileHandler(os.getcwd() + f'/chat_logs/{self.started_at}_{self.channel}.log', 
                                                           mode='a',
                                                           encoding='utf-8')])
         print(f"Writing logs in /dags/chat_logs/{self.started_at}_{self.channel}.log")
@@ -83,11 +94,16 @@ class TwitchChatListener:
             self.sock.send("PONG\n".encode('utf-8'))
         elif len(resp) > 0:
             logging.info(demojize(resp))
-            with open(os.getcwd() + f'/dags/chat_logs/{self.started_at}_{self.channel}.log', 
-                      'a', 
-                      encoding='utf-8') as log_file:
+            # with open(os.getcwd() + f'/dags/chat_logs/{self.started_at}_{self.channel}.log', 
+            #           'a', 
+            #           encoding='utf-8') as log_file:
+            #     log_file.write(formatted_resp)
+            with open(os.getcwd() + f'/chat_logs/{self.started_at}_{self.channel}.log', 
+                    'a', 
+                    encoding='utf-8') as log_file:
                 log_file.write(formatted_resp)
         return demojize(resp)
+
     
     def record_logs_temp(self):
         resp = self.sock.recv(2048).decode('utf-8')
@@ -102,11 +118,56 @@ class TwitchChatListener:
                       encoding='utf-8') as log_file:
                 log_file.write(formatted_resp)
         return demojize(resp)
-    
+            
+
+    """
+    1.create two threads to run a while loop.
+        (1) get_total_viewers_thread: In every 30 seconds, send request to get total_viewers.
+        (2) while_loop_record_logs_thread: Connect to socket, then insert and return the 'resp' until chatroom got new message.
+    2. Start two threads in 'listen_to_chatroom' function.
+    3. If total_viewers == False, the live stream might be offline.
+    4. When livestream go offline, set keep_listening = False to exit the while loop.
+    5. close the socket in case that while_loop_record_logs_thread is still waiting for new message.
+    """
+
+    def get_total_viewers_thread(self):
+        self.keep_listening = True
+        while self.keep_listening:
+            if int(time.monotonic()) % 30 == 0:
+                self.total_viewers = self.developer.get_total_viewers(self.channel)
+                # print(time.monotonic())
+                print("total_viewers:", self.total_viewers)
+
+                if not self.total_viewers: # total_viewers will be False when the stream is not alive,
+                    print("leave chatroom")
+                    self.keep_listening = False
+                    print("set event.is_set()")
+                    self.sock.close()
+
+    def while_loop_record_logs_thread(self):
+        while self.keep_listening:
+            try:
+                print(self.record_logs())
+            except:
+                print("set sock.close()")
+
     def listen_to_chatroom(self):
         self.connect_chatroom()
-        while True:
-            self.record_logs()
+        self.total_viewers_thread = Thread(target=self.get_total_viewers_thread)
+        self.record_logs_thread = Thread(target=self.while_loop_record_logs_thread)
+
+        self.total_viewers_thread.start()
+        print("start total_viewers_thread")
+
+        self.record_logs_thread.start()
+        print("start record_logs_thread")
+
+        self.record_logs_thread.join()
+        print("join record_logs_thread")
+
+        self.total_viewers_thread.join()
+        print("join total_viewers_thread")
+
 
     def listen_to_chatroom_temp(self):
         self.connect_chatroom_temp()
@@ -115,7 +176,7 @@ class TwitchChatListener:
         developer = TwitchDeveloper()
         db = MongoDBManager()
         self.started_time = developer.detect_living_channel(self.channel)
-        doc = {
+        doc = { 
             "started_time": self.started_time,
             "channel": self.channel
             }
@@ -123,7 +184,7 @@ class TwitchChatListener:
 
 # use_example
 
-# if __name__ == "__main__":
-#     chat_listener = TwitchChatListener("scarra")
-#     chat_listener.save_start_time()
-#     chat_listener.listen_to_chatroom() 
+if __name__ == "__main__":
+    chat_listener = TwitchChatListener("trumporbiden2024")
+    chat_listener.save_start_time()
+    chat_listener.listen_to_chatroom() 
