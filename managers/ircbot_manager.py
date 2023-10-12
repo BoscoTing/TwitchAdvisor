@@ -29,7 +29,7 @@ class TwitchChatListener:
         self.sock.send(f"JOIN {'#' + self.channel}\n".encode('utf-8'))
 
         resp = self.sock.recv(2048).decode('utf-8')
-
+        print(f"getting 'startedAt' for {self.channel}'s live stream...")
         self.started_at = TwitchDeveloper().detect_living_channel(self.channel)['started_at'] # already turn timezone to +8 for showing on the chart.
         """
         record the start_tracking_livestream task in taskRecords collection.

@@ -83,7 +83,7 @@ class ViewersReactionAnalyser():
             }
         return doc
 
-    def insert_chat_logs(self, file): # streaming
+    def insert_chat_logs(self): # streaming
         """
         Only triggered after the channel turn into offline.
         """

@@ -16,6 +16,8 @@ with DAG(
     concurrency=1,
     max_active_runs=1
 ) as dag:
-    insert=PythonOperator(task_id=f"insert_logs_{channel}_logs",
-                          python_callable=analyser.insert_chat_logs,
-                          op_kwargs={"file": os.getcwd()+ f'/dags/chat_logs/{channel}.log'})
+    insert=PythonOperator(
+        task_id=f"insert_logs_{channel}_logs",
+        python_callable=analyser.insert_chat_logs,
+        # op_kwargs={"file": os.getcwd()+ f'/dags/chat_logs/{channel}.log'}
+        )

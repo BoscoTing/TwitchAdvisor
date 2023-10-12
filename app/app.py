@@ -182,6 +182,31 @@ def historical_stats():
     resp_data = json.dumps(resp_data)
     return resp_data
 
+@app.route("api/record_tracking_channels", methods=["GET"])
+def record_tracking_channels():
+    added_channel = request.args.get("added_channel")
+    db = MongoDBManager()
+    tracking_channels_collection = db.connect_collection("trackingChannels")
+    query = [
+        {
+            "$sort":{"addedTime": -1}
+            }, 
+        {
+            "$limit": 1
+            }
+    ]
+    result = tracking_channels_collection.aggregate(query)
+    current_tracking_channels = [row['channels'] for row in result][0]
+    print("current_tracking_channels: ", current_tracking_channels)
+
+    current_tracking_channels.append(added_channel)
+    print("current_tracking_channels: ", current_tracking_channels)
+    doc = {
+        "channel": current_tracking_channels,
+        "addedTime": datetime.now(),
+        # "identity": "added"
+    }
+    tracking_channels_collection.insert_one(doc)
 
 @app.route("/api/overview_data", methods=["GET"])
 def overiew_stats():
