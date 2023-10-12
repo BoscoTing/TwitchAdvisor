@@ -53,19 +53,19 @@ class TwitchChatListener:
         except Exception as e:
             print(e)
             
-        # logging.basicConfig(level=logging.DEBUG,
-        #                     format='%(asctime)s — %(message)s',
-        #                     datefmt='%Y-%m-%d_%H:%M:%S',
-        #                     handlers=[logging.FileHandler(os.getcwd() + f'/dags/chat_logs/{self.started_at}_{self.channel}.log', 
-        #                                                   mode='a',
-        #                                                   encoding='utf-8')])
-        
         logging.basicConfig(level=logging.DEBUG,
                             format='%(asctime)s — %(message)s',
                             datefmt='%Y-%m-%d_%H:%M:%S',
-                            handlers=[logging.FileHandler(os.getcwd() + f'/chat_logs/{self.started_at}_{self.channel}.log', 
+                            handlers=[logging.FileHandler(os.getcwd() + f'/dags/chat_logs/{self.started_at}_{self.channel}.log', 
                                                           mode='a',
                                                           encoding='utf-8')])
+        
+        # logging.basicConfig(level=logging.DEBUG,
+        #                     format='%(asctime)s — %(message)s',
+        #                     datefmt='%Y-%m-%d_%H:%M:%S',
+        #                     handlers=[logging.FileHandler(os.getcwd() + f'/chat_logs/{self.started_at}_{self.channel}.log', 
+        #                                                   mode='a',
+        #                                                   encoding='utf-8')])
         print(f"Writing logs in /dags/chat_logs/{self.started_at}_{self.channel}.log")
         logging.info(resp)
 
@@ -94,14 +94,14 @@ class TwitchChatListener:
             self.sock.send("PONG\n".encode('utf-8'))
         elif len(resp) > 0:
             logging.info(demojize(resp))
-            # with open(os.getcwd() + f'/dags/chat_logs/{self.started_at}_{self.channel}.log', 
-            #           'a', 
-            #           encoding='utf-8') as log_file:
-            #     log_file.write(formatted_resp)
-            with open(os.getcwd() + f'/chat_logs/{self.started_at}_{self.channel}.log', 
-                    'a', 
-                    encoding='utf-8') as log_file:
+            with open(os.getcwd() + f'/dags/chat_logs/{self.started_at}_{self.channel}.log', 
+                      'a', 
+                      encoding='utf-8') as log_file:
                 log_file.write(formatted_resp)
+            # with open(os.getcwd() + f'/chat_logs/{self.started_at}_{self.channel}.log', 
+            #         'a', 
+            #         encoding='utf-8') as log_file:
+            #     log_file.write(formatted_resp)
         return demojize(resp)
 
     
@@ -147,7 +147,7 @@ class TwitchChatListener:
     def while_loop_record_logs_thread(self):
         while self.keep_listening:
             try:
-                print(self.record_logs())
+                self.record_logs()
             except:
                 print("set sock.close()")
 

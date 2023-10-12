@@ -34,7 +34,7 @@ result = tracked_channels_collection.aggregate(query)
 tracked_channels_list = [row['channels'] for row in result][0]
 print("current_tracking_channels: ", tracked_channels_list)
 
-def stop_dag_run(dag_id):
+def stop_dag_run(dag_id): # doesn't work
     dag_run = DagRun.find(dag_id=dag_id, state='running')
     """
     dag_run[0] will get the format like:
@@ -95,14 +95,14 @@ with DAG(
                     trigger_dag_id=f"{channel}_listen_dag",
                 )
         
+        else: # pass
+            pass
+            # """
+            # 4. Terminate listen_dags for offline channels.
+            # """
 
-        else: 
-            """
-            4. Terminate listen_dags for offline channels.
-            """
-
-            stop_dag_run_task=PythonOperator(
-                task_id=f"stop_{channel}_listen_task",
-                python_callable=stop_dag_run,
-                op_kwargs= {"dag_id": f'{channel}_listen_dag'}
-            )
+            # stop_dag_run_task=PythonOperator(
+            #     task_id=f"stop_{channel}_listen_task",
+            #     python_callable=stop_dag_run,
+            #     op_kwargs= {"dag_id": f'{channel}_listen_dag'}
+            # )
