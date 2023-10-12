@@ -47,7 +47,7 @@ print("current_tracking_channels: ", tracked_channels_list)
 """    
 for tracked_channel in tracked_channels_list:
 
-    @dag(dag_id=f"{tracked_channel}_listen_dag", start_date=datetime(2023, 10, 1), schedule="@once", catchup=False)
+    @dag(dag_id=f"{tracked_channel}_listen_dag", start_date=datetime(2023, 10, 1), schedule="@once", catchup=False, max_active_runs=1)
     def dynamic_generated_listen_dag():
         channel = tracked_channel # prevent from using wrong 'tracked_channel' for 'listen_to_channel_task' due to for loop
         @task
@@ -56,7 +56,7 @@ for tracked_channel in tracked_channels_list:
             listener.listen_to_chatroom()
         listen_to_channel_task()
 
-    @dag(dag_id=f"{tracked_channel}_insert_logs_dag", start_date=datetime(2023, 10, 1), schedule="@once", catchup=False)
+    @dag(dag_id=f"{tracked_channel}_insert_logs_dag", start_date=datetime(2023, 10, 1), schedule="@once", catchup=False, max_active_runs=1)
     def dynamic_generated_insert_logs_dag():
         channel = tracked_channel # prevent from using wrong 'tracked_channel' for 'listen_to_channel_task' due to for loop
         @task
@@ -65,7 +65,7 @@ for tracked_channel in tracked_channels_list:
             analyser.insert_chat_logs()
         insert_logs_task()
 
-    @dag(dag_id=f"{tracked_channel}_insert_stats_dag", start_date=datetime(2023, 10, 1), schedule="@once", catchup=False)
+    @dag(dag_id=f"{tracked_channel}_insert_stats_dag", start_date=datetime(2023, 10, 1), schedule="@once", catchup=False,  max_active_runs=1)
     def dynamic_generated_insert_stats_dag():
         channel = tracked_channel # prevent from using wrong 'tracked_channel' for 'listen_to_channel_task' due to for loop
         @task

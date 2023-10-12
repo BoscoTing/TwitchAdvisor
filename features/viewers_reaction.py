@@ -372,13 +372,14 @@ class ViewersReactionAnalyser():
                     "_id": 0
                 }
             }]
+        print(f"trying to check uncompleted tasks for {self.channel}...")
+        """
+        get the latest startedAt record of 'insert_logs' task.
+        """
         try:
-            self.db.insertmany_into_collection(organized_documents, collection_name='chatStats')
-        except Exception as e:
-            # print(e)
-            sleep(5)
-            pass
-
+        #     self.db.insertmany_into_collection(organized_documents, collection_name='chatStats')
+        # except Exception as e:
+        #     print(e)
             result = [row for row in task_records_collction.aggregate(query)][0]
             insert_logs_task_records = result['taskRecord']
         except: 
@@ -387,7 +388,7 @@ class ViewersReactionAnalyser():
 
 
         """
-        get the latest startedAt record from chatStats collection.
+        get the latest startedAt record of 'insert_stats' task.
         """
         # historical_schedule_list = self.get_historical_schedule()
         # print("historical_schedule: ", historical_schedule_list)
