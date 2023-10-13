@@ -182,7 +182,7 @@ def historical_stats():
     resp_data = json.dumps(resp_data)
     return resp_data
 
-@app.route("api/record_tracking_channels", methods=["GET"])
+@app.route("/api/record_tracking_channels", methods=["GET"])
 def record_tracking_channels():
     added_channel = request.args.get("added_channel")
     db = MongoDBManager()
