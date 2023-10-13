@@ -64,7 +64,7 @@ class ViewersReactionAnalyser():
 
         started_at = line.split('—')[1].strip()
 
-        viewer_count = line.split('—')[2].strip()
+        viewer_count = int(line.split('—')[2].strip())
 
         username_message = line.split('—')[3:]
         username_message = '—'.join(username_message).strip()
@@ -186,7 +186,9 @@ class ViewersReactionAnalyser():
 
             documents = []
             with open(
-                os.getcwd() + f"/dags/chat_logs/{uncompleted_started_at}_{self.channel}.log", 
+                # os.getcwd() + f"/dags/chat_logs/{uncompleted_started_at}_{self.channel}.log", 
+                os.getcwd() + f"/chat_logs/{uncompleted_started_at}_{self.channel}.log", 
+
                 'r', 
                 encoding='utf-8'
                 ) as f:
@@ -440,7 +442,7 @@ class ViewersReactionAnalyser():
             organized_documents = []
             # sentiment_analyser = ChatroomSentiment()
             
-            print("(skipped)viewers_reaction: calculating sentiment_score...")
+            print("(skipped) viewers_reaction: calculating sentiment_score...")
             for doc in stats:
                 doc['timestamp'] = doc['_id']
                 # doc['sentiment'] = sentiment_analyser.historical_stats_sentiment(doc['messages'])
@@ -730,10 +732,11 @@ if __name__ == "__main__":
 
 # use_example
 
-# analyser = ViewersReactionAnalyser("scarra")
-# # analyser.get_historical_schedule()
-# # analyser.insert_historical_stats()
-# # print(analyser.query_historical_stats())
+# analyser = ViewersReactionAnalyser("caedrel")
+# analyser.insert_historical_stats()
+# analyser.get_historical_schedule()
+# analyser.insert_historical_stats()
+# print(analyser.query_historical_stats())
 # while True:
 #     analyser.insert_chat_logs(
 #         f"/Users/surfgreen/B/AppworksSchool/projects/personal_project/chat_logs/{analyser.channel}.log",

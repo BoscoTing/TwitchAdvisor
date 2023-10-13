@@ -1,7 +1,7 @@
 from decouple import config
 from datetime import datetime
 from emoji import demojize
-from threading import Thread, Event
+from threading import Thread
 
 import time
 import socket
@@ -193,6 +193,6 @@ class TwitchChatListener:
 # use_example
 
 # if __name__ == "__main__":
-#     chat_listener = TwitchChatListener("doublelift")
+#     chat_listener = TwitchChatListener("caedrel")
 #     chat_listener.save_start_time()
 #     chat_listener.listen_to_chatroom() 
