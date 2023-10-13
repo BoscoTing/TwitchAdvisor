@@ -86,10 +86,15 @@ class TwitchChatListener:
         logging.info(resp)
         self.started_at = TwitchDeveloper().detect_living_channel(self.channel)['started_at']
     
-    def record_logs(self):
+    """
+    1. In 'listen_to_chatroom' function, 'get_total_viewers_thread' function for threading collect 'viewer_count' at the same time.
+    2. 'get_total_viewers_thread' pass 'self.viewer_count' to 'record_logs' function in 'while_loop_record_logs_thread'
+    3. Add {viewer_count} to the doc, then insert them into "chatLogs" collection.
+    """
+    def record_logs(self, viewer_count): # add 'viewer_count' param
         resp = self.sock.recv(2048).decode('utf-8')
         timestamp = datetime.utcnow().strftime('%Y-%m-%d_%H:%M:%S') # use utc time for insert into mongodb time series collection (which accept utc time). 
-        formatted_resp = f"{timestamp} — {self.started_at} — {demojize(resp)}" 
+        formatted_resp = f"{timestamp} — {self.started_at} — {viewer_count} — {demojize(resp)}" 
         if resp.startswith('PING'):
             self.sock.send("PONG\n".encode('utf-8'))
         elif len(resp) > 0:
@@ -132,8 +137,9 @@ class TwitchChatListener:
 
     def get_total_viewers_thread(self):
         self.keep_listening = True
+        self.total_viewers = self.developer.get_total_viewers(self.channel) # request the total_viewer at first
         while self.keep_listening:
-            if int(time.monotonic()) % 30 == 0:
+            if int(time.monotonic()) % 60 == 0: # send requests less frequently to avoid from arriving the limit
                 self.total_viewers = self.developer.get_total_viewers(self.channel)
                 # print(time.monotonic())
                 print("total_viewers:", self.total_viewers)
@@ -147,7 +153,7 @@ class TwitchChatListener:
     def while_loop_record_logs_thread(self):
         while self.keep_listening:
             try:
-                self.record_logs()
+                self.record_logs(self.total_viewers) # record the total_viewer too
             except:
                 print("set sock.close()")
 
@@ -158,6 +164,8 @@ class TwitchChatListener:
 
         self.total_viewers_thread.start()
         print("start total_viewers_thread")
+
+        time.sleep(10) # prevent from closing the socket accidentally, wait for sending request to get viewer_count
 
         self.record_logs_thread.start()
         print("start record_logs_thread")
@@ -184,7 +192,7 @@ class TwitchChatListener:
 
 # use_example
 
-if __name__ == "__main__":
-    chat_listener = TwitchChatListener("trumporbiden2024")
-    chat_listener.save_start_time()
-    chat_listener.listen_to_chatroom() 
+# if __name__ == "__main__":
+#     chat_listener = TwitchChatListener("doublelift")
+#     chat_listener.save_start_time()
+#     chat_listener.listen_to_chatroom() 

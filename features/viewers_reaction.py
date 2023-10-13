@@ -64,7 +64,9 @@ class ViewersReactionAnalyser():
 
         started_at = line.split('—')[1].strip()
 
-        username_message = line.split('—')[2:]
+        viewer_count = line.split('—')[2].strip()
+
+        username_message = line.split('—')[3:]
         username_message = '—'.join(username_message).strip()
 
         username, channel, message = re.search(
@@ -73,6 +75,7 @@ class ViewersReactionAnalyser():
         doc = {
             'message': message,
             'cheer': self.recognize_cheers(line),
+            'viewerCount': viewer_count,
             'userName': username,
             'insertOrder': self.lastest_record,
             'timestamp': time_logged, # datetime format in timezone of ROC
