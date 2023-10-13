@@ -434,13 +434,13 @@ class ViewersReactionAnalyser():
             print("viewers_reaction: querying historical_stats...")
             stats = deepcopy(self.historical_stats(uncompleted_started_at)) # calculate chatstats from chatlogs # self.historical_stats() will need self.started_at
             organized_documents = []
-            # sentiment_analyser = ChatroomSentiment()
+            sentiment_analyser = ChatroomSentiment()
             
             print("(skipped)viewers_reaction: calculating sentiment_score...")
             for doc in stats:
                 doc['timestamp'] = doc['_id']
-                # doc['sentiment'] = sentiment_analyser.historical_stats_sentiment(doc['messages'])
-                # doc['sentimentScore'] = self.avg_sentiment_weighted_by_index(doc['sentiment'])
+                doc['sentiment'] = sentiment_analyser.historical_stats_sentiment(doc['messages'])
+                doc['sentimentScore'] = self.avg_sentiment_weighted_by_index(doc['sentiment'])
                 organized_documents.append(doc)
             try:
                 print("viewers_reaction: trying to insertmany into chatStats...")
