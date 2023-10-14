@@ -91,6 +91,7 @@ class TwitchChatListenerTEMP(threading.Thread):
             print("/api/streaming_logs: record_logs_temp")
 
     def stop(self):
+        # self.sock.close()
         self.stopped.set()
 # start listening to selected channel.
 @app.route("/api/streaming_logs", methods=["GET"]) 

@@ -1,7 +1,7 @@
 function trackStreamingChat(selectedChannel) {
     const loadingOverlay = document.getElementById("loadingOverlayStreaming");
-    loadingOverlay.style.display = "block";
-    console.log("streaming_logs:", loadingOverlay.style.display);
+    loadingOverlay.style.display = "block"; // block the screen when ircbot are connecting
+    console.log("streaming_logs:", "block the screen when ircbot are connecting");
 
     var xmlHttp = new XMLHttpRequest();
     xmlHttp.open( "GET", `/api/streaming_logs?channel=${selectedChannel}`, false ); 
@@ -11,7 +11,7 @@ function trackStreamingChat(selectedChannel) {
         }
     }
     xmlHttp.send();
-    console.log(`listen to ${selectedChannel}'s chatroom`);
+    console.log(`listening to ${selectedChannel}'s chatroom`);
 }
 
 function updateStreamingPlot(selectedChannel) {
@@ -19,7 +19,6 @@ function updateStreamingPlot(selectedChannel) {
     var xmlHttp = new XMLHttpRequest();
     xmlHttp.open( "GET", `/api/streaming_stats?channel=${selectedChannel}`, true ); 
     // xmlHttp.setRequestHeader('Connection', 'keep-alive');
-
 
     xmlHttp.onload = function () {
         if (xmlHttp.status === 200) {
@@ -33,26 +32,27 @@ function updateStreamingPlot(selectedChannel) {
 
             const messageCount = stats.map(stats => stats.messageCount);
             console.log("updating: ", messageCount.length);
-            console.log(messageCount);
+            // console.log(messageCount);
             const chatterCount = stats.map(stats => stats.chatterCount);
-            console.log(chatterCount);
+            // console.log(chatterCount);
             const cheerCount = stats.map(stats => stats.cheers.length);
-            console.log(cheerCount);
+            // console.log(cheerCount);
             const avgViewerCount = stats.map(stats => stats.averageViewerCount);
-            console.log("avgViewerCount: ", avgViewerCount.at(-1));
+            // console.log("avgViewerCount: ", avgViewerCount.at(-1));
 
             // show the avgViewerCount on streaming plot section
             const avgViewerCountElement = document.getElementById("avgViewerCount");
             avgViewerCountElement.textContent = avgViewerCount.at(-1);
 
 
-            if (messageCount.length == 0) {
+            if (messageCount.length == 0) { // wait for data to draw a chart
                 const loadingOverlay = document.getElementById("loadingOverlayStreaming");
                 loadingOverlay.style.display = "block";
+                console.log("streaming_logs:", "block the screen when waiting for messages");
             }
             else {
                 const loadingOverlay = document.getElementById("loadingOverlayStreaming");
-                loadingOverlay.style.display = "none";
+                loadingOverlay.style.display = "none"; 
             }
 
             const trace1 = {
@@ -132,9 +132,20 @@ function startUpdateInterval() {
     updateInterval = setInterval(updateAfterSelectingChannel, 5000);
 };
 
+function DeleteTraces () {
+    let graphD = document.getElementById("streamingPlot");
+    if (graphD.data) {
+        while (graphD.data.length){
+            console.log("DeleteTraces...");
+            Plotly.deleteTraces(streamingPlot, [0]);
+        }
+    }
+}
+
 for (var i = 0; i < liveChannels.length; i++) {
     let liveChannel = liveChannels[i]
     liveChannel.addEventListener("click", function () {
+        
         selectedChannel = liveChannel.textContent;
         console.log("latest selected channel: ", selectedChannel);
 
@@ -159,12 +170,12 @@ let searchQuery;
 
 searchBar.addEventListener("keydown", (e) => {
     if (e.key == "Enter" && searchBar.value != "") {
+        DeleteTraces();           
+        
         searchQuery = searchBar.value;
-        console.log(searchQuery);
 
         const url = new URL(searchQuery);
         const channelName = url.pathname.split('/').pop();
-        console.log(channelName); // This will output 'lolworldchampionship'
         
         selectedChannel = channelName; // assign selectedChannel in a broader scope
 
@@ -173,8 +184,11 @@ searchBar.addEventListener("keydown", (e) => {
         console.log("clear the update interval for previous selected channel.")
 
         trackStreamingChat(selectedChannel);
-        updateStreamingPlot(selectedChannel);
-        startUpdateInterval();
+        console.log("trackStreamingChat")
+
+        startUpdateInterval(); //set or reset startUpdateInterval and execute updateStreamingPlot
+        console.log("startUpdateInterval") 
+
     }
 
 });
