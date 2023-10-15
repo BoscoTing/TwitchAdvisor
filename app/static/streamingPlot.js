@@ -1,12 +1,9 @@
 let currentRequestLogs = null;
-// let previousRequest = null;
 
 function trackStreamingChat(selectedChannel) {
     const loadingOverlay = document.getElementById("loadingOverlayStreaming");
     loadingOverlay.style.display = "block"; // Block the screen when ircbot is connecting
     console.log("streaming_logs:", "Blocking the screen when ircbot is connecting");
-
-
 
     // Check if there's an ongoing request and abort it
     if (currentRequestLogs) {
@@ -18,13 +15,6 @@ function trackStreamingChat(selectedChannel) {
     var xmlHttp = new XMLHttpRequest();
     currentRequestLogs = xmlHttp; // Store the current request
 
-    // if (previousRequest && currentRequest !== previousRequest) {
-    //     console.log(previousRequest);
-    //     previousRequest.abort();
-    //     console.log("Cancelled the previous request.");
-    // }
-    // previousRequest = currentRequest;
-
     xmlHttp.open("GET", `/api/streaming_logs?channel=${selectedChannel}`, true);
     // Flask API streaming_logs: will start a while loop and won't respond
     // Set true to make the request asynchronous to do other things:
@@ -35,7 +25,7 @@ function trackStreamingChat(selectedChannel) {
         if (xmlHttp.status === 200) {
             console.log(xmlHttp.status);
         }
-        currentRequestLogs = null; // Reset the current request when it's completed, but the requests of /api/streaming_logs are aborted while switching channels 
+        currentRequestLogs = null; // Reset the current request when it's completed (but here we are going to abort the requests of /api/streaming_logs while switching channels so this line might not works)
     };
 
     xmlHttp.send();
@@ -202,7 +192,7 @@ let searchQuery;
 searchBar.addEventListener("keydown", (e) => {
     if (e.key == "Enter" && searchBar.value != "") {
 
-        if (currentRequestStats) { // currentRequestStats is assigned in 'updateStreamingPlot' function. If the socket connection is still waiting for messages, we quit the request.
+        if (currentRequestStats) { // currentRequestStats is assigned in 'updateStreamingPlot' function. If the socket connection is still waiting for messages, we quit that request.
             console.log(currentRequestStats);
             currentRequestStats.abort();
             console.log("Cancelled the uncompleted stats request.");
@@ -227,4 +217,36 @@ searchBar.addEventListener("keydown", (e) => {
 
     }
 
+});
+
+
+window.addEventListener('beforeunload', function () {
+    console.log('beforeunload');
+    var xmlHttp = new XMLHttpRequest();
+    xmlHttp.open("GET", `/api/streaming_logs?event=beforeunload`, true);
+    xmlHttp.onload = function () {
+        if (xmlHttp.status === 200) {
+            console.log(xmlHttp.status);
+        }
+    };
+    xmlHttp.send();
+});
+
+// window.addEventListener('unload', function () {
+//     // This code will be executed when the user is leaving the page (e.g., closing the tab/window).
+//     // You can make an AJAX request to your Flask API here.
+//     console.log('unload');
+//     var xmlHttp = new XMLHttpRequest();
+//     xmlHttp.open("GET", `/api/streaming_logs?event=unload`, true);
+//     xmlHttp.onload = function () {
+//         if (xmlHttp.status === 200) {
+//             console.log(xmlHttp.status);
+//         }
+//     };
+//     xmlHttp.send();
+// });
+
+window.addEventListener('unload', function () {
+    var data = JSON.stringify({ message: 'Page is closing' });
+    navigator.sendBeacon(`/api/streaming_logs?event=unload`, data);
 });

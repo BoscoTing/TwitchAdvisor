@@ -4,7 +4,6 @@ from flask import (Flask,
                    )
 import pytz
 from datetime import datetime, timedelta
-import threading
 import re
 import json
 import os
@@ -60,14 +59,7 @@ class StreamingLogsRoute:
         pass
 stream_logs_route = StreamingLogsRoute()
 
-# if latest_selected_channel:
-#     listener = TwitchChatListener(channel=latest_selected_channel)
-#     print(f"use TwitchChatListener({latest_selected_channel})")
-#     listener.listen_to_chatroom_temp()
-#     print("trying listen_to_chatroom_temp: ", latest_selected_channel)
-
-# lock = threading.Lock()
-@app.route("/api/streaming_logs", methods=["GET"]) 
+@app.route("/api/streaming_logs", methods=["GET", "POST"]) 
 def streaming_logs():
     global stream_logs_route
     # global latest_selected_channel # initial value is None
@@ -105,11 +97,25 @@ def streaming_logs():
         stream_logs_route.latest_selected_channel = selected_channel
         print("latest_selected_channel: ", stream_logs_route.latest_selected_channel)
 
-        # stream_logs_route.listener.sock.close()
-        # print(f"use TwitchChatListener({latest_selected_channel})")
-        # listener = TwitchChatListener(channel=latest_selected_channel) # assign latest_selected_channel to self.channel
-        # print("trying listen_to_chatroom_temp: ", latest_selected_channel)
-        # listener.listen_to_chatroom_temp()
+
+    """
+    When javascript detecting onload or beforeunload, receive the request from js and stop the while loop and socket connection in 'streaming_logs'
+    """
+    event = request.args.get("event")
+    print('event listener:', event)
+    if event and stream_logs_route:
+        try:
+            stream_logs_route.listener.sock.close()
+            print('closed the socket')
+        except Exception as e:
+            print(e)
+        stream_logs_route.keep_listening_temp = False
+        print('stopped the while loop')
+
+    else:
+        pass
+    return 'The while loop and socket are turned off.'
+
 
 @app.route("/api/streaming_stats", methods=["GET"]) # start querying and drawing the chart of selected channel.
 def streaming_stats():
