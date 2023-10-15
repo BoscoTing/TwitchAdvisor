@@ -56,16 +56,27 @@ function updateStreamingPlot(selectedChannel) {
             const messageCount = stats.map(stats => stats.messageCount);
             console.log("updating: ", messageCount.length);
             // console.log(messageCount);
+
             const chatterCount = stats.map(stats => stats.chatterCount);
             // console.log(chatterCount);
+
             const cheerCount = stats.map(stats => stats.cheers.length);
             // console.log(cheerCount);
+
             const avgViewerCount = stats.map(stats => stats.averageViewerCount);
             // console.log("avgViewerCount: ", avgViewerCount.at(-1));
 
             // show the avgViewerCount on streaming plot section
             const avgViewerCountElement = document.getElementById("avgViewerCount");
             avgViewerCountElement.textContent = avgViewerCount.at(-1);
+
+            const totalCheersElement = document.getElementById("totalCheers");
+            if (cheerCount) {
+                let totalCheers = cheerCount.reduce(function(a, b){
+                    return a + b;
+                  });
+                totalCheersElement.textContent = totalCheers;
+            }
 
 
             if (messageCount.length == 0) { // wait for data to draw a chart

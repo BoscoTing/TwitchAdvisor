@@ -265,8 +265,9 @@ def overiew_stats():
     print(f'flask: request.args.get("year") = {year}')
 
     # now_month = datetime.now().month
-    now_date = datetime.now().day
+    # now_date = datetime.now().day
     # now_weekday = datetime.now().weekday()
+    now_week_of_year = datetime.now().isocalendar().week
     now_year = datetime.now().year
 
     overview = Overview()
@@ -274,8 +275,9 @@ def overiew_stats():
         week = int(week)
         year = int(year)
         livestream_schedule = overview.get_livestream_schedule(week, year)
-    else: 
-        week = (now_date - 1) // 7 + 1
+    else: # when first load the page, show data this week in overviewPlot
+        # week = (now_date - 1) // 7 + 1
+        week = now_week_of_year
         year = now_year
         print('default week/year:', f"{week}/{year}")
         livestream_schedule = overview.get_livestream_schedule(week, year)
