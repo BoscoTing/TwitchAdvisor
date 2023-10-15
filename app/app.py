@@ -34,14 +34,25 @@ def main_page():
 
     tracked_channels_list = [row['channels'] for row in result][0]
     broadcasters = [" ".join(i.split("_")).title() for i in tracked_channels_list]
+
+    """
+    1. set default week number for overviewPlot.
+    2. query min/max week number.
+    """
     now_week_of_year=datetime.now().isocalendar().week
     now_year = datetime.now().year
     week_value = f"{now_year}-W{now_week_of_year}"
 
+    overview = Overview()
+    schedule_week_range = overview.get_schedule_week_range()
+    start_week = schedule_week_range[0]
+    end_week = schedule_week_range[1]
     return render_template(
         'main.html', 
         broadcasters=broadcasters,
-        week_value=week_value
+        week_value=week_value,
+        start_week=start_week,
+        end_week=end_week
     )
 
 
@@ -296,7 +307,6 @@ def overiew_stats():
         year = now_year
         print('default week/year:', f"{week}/{year}")
         livestream_schedule = overview.get_livestream_schedule(week, year)
-        print(livestream_schedule[0].keys())
 
     return livestream_schedule
     
