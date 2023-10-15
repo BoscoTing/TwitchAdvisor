@@ -33,9 +33,8 @@ function trackStreamingChat(selectedChannel) {
 }
 
 
-
 let currentRequestStats = null;
-
+let previousMessageCountLength = null;
 function updateStreamingPlot(selectedChannel) {
 
     var xmlHttp = new XMLHttpRequest();
@@ -69,24 +68,42 @@ function updateStreamingPlot(selectedChannel) {
             // show the avgViewerCount on streaming plot section
             const avgViewerCountElement = document.getElementById("avgViewerCount");
             avgViewerCountElement.textContent = avgViewerCount.at(-1);
+            console.log(avgViewerCount.at(-1));
 
             const totalCheersElement = document.getElementById("totalCheers");
-            if (cheerCount) {
+            if (cheerCount.length >= 1) {
                 let totalCheers = cheerCount.reduce(function(a, b){
                     return a + b;
                   });
                 totalCheersElement.textContent = totalCheers;
             }
 
+            const loadingOverlay = document.getElementById("loadingOverlayStreaming");
+            const waitingMessage = document.getElementById("waitingMessage");
 
-            if (messageCount.length == 0) { // wait for data to draw a chart
-                const loadingOverlay = document.getElementById("loadingOverlayStreaming");
-                loadingOverlay.style.display = "block";
-                console.log("streaming_logs:", "block the screen when waiting for messages");
+            if (messageCount.length >= 0) { 
+                // loadingOverlay.style.display = "block";
+                // console.log("streaming_logs:", "block the screen when waiting for messages");
+                loadingOverlay.style.display = "none"; 
+
+                if (messageCount.length == previousMessageCountLength || messageCount.length <= 1) { // wait for new data to update the chart
+                    waitingMessage.style.display = "block";
+                    console.log("streaming_logs:", "show 'waiting' notification when waiting for new messages");
+                }
+                else if (messageCount.length > previousMessageCountLength) {
+                    waitingMessage.style.display = "none";
+                    // console.log("streaming_logs:", "show waitingMessage when waiting for messages");
+                }
+
+                previousMessageCountLength = messageCount.length;
+
             }
             else {
-                const loadingOverlay = document.getElementById("loadingOverlayStreaming");
-                loadingOverlay.style.display = "none"; 
+                const waitingMessage = document.getElementById("waitingMessage");
+                waitingMessage.style.display = "none";
+
+                // const loadingOverlay = document.getElementById("loadingOverlayStreaming");
+                // loadingOverlay.style.display = "none"; 
             }
 
             const trace1 = {
