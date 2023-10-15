@@ -106,6 +106,10 @@ h1, h3 {
     position: absolute;
 }
 
+#waitingMessage {
+    display: none; /* Initially hidden */
+}
+
 
 #searchBarContainer {
     font-size: 36px;
