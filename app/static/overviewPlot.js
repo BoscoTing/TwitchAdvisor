@@ -1,3 +1,5 @@
+let option = 'Average Message Count' // set default option 'Average Message Count'
+
 function updateOverviewPlot(selectedWeek, selectedYear) {
     const loadingOverlay = document.getElementById("loadingOverlayOverview");
     loadingOverlay.style.display = "block";
@@ -31,10 +33,21 @@ function updateOverviewPlot(selectedWeek, selectedYear) {
                 const xValues = weekdays;
                 const yValues = weekdays.map(weekday => {
                     const entry = channelData.find(dataEntry => dataEntry.weekDayName === weekday);
+                    console.log(entry);
                     if (entry) {
                         console.log("entry: ", entry)
                     };
-                    return entry ? entry.avgMessageCount : 0;
+
+                    if (option == 'Average Message Count') {
+                        return entry ? entry.avgMessageCount : 0;
+                    }
+                    else if (option == 'Max Message Count') {
+                        return entry ? entry.maxMessageCount : 0;
+                    }
+                    else if (option == 'Average Sentiment Score') {
+                        return entry ? entry.avgSentimentScore : 0;
+                    }
+
                 });
 
                 return {
@@ -62,7 +75,6 @@ function updateOverviewPlot(selectedWeek, selectedYear) {
                 // barmode: 'group'
             };
 
-            // Create the chart
             Plotly.react('overviewPlot', traces, layout);
         }
     };
@@ -71,7 +83,6 @@ function updateOverviewPlot(selectedWeek, selectedYear) {
 
 
 updateOverviewPlot();
-
 
 // add event listener on week selector of html.
 function handleWeekSelection() {
