@@ -135,7 +135,7 @@ function updateStreamingPlot(selectedChannel) {
                         // trace1, 
                         trace2, 
                         trace3, 
-                        trace4
+                        // trace4
                     ], 
                     layout
                 );
@@ -165,6 +165,8 @@ function DeleteTraces () {
     }
 }
 
+let updateInterval = null; // assign updateInterval in initial
+
 for (var i = 0; i < liveChannels.length; i++) {
     let liveChannel = liveChannels[i]
     liveChannel.addEventListener("click", function () {
@@ -182,9 +184,7 @@ for (var i = 0; i < liveChannels.length; i++) {
     });
 };
 
-
 // search bar which receives value by pressing enter
-
 const searchBtn = document.getElementById("searchBotton");
 const searchBar = document.getElementById("searchBar");
 let searchQuery;
@@ -206,8 +206,11 @@ searchBar.addEventListener("keydown", (e) => {
         selectedChannel = channelName; // assign selectedChannel in a broader scope
 
         console.log("latest selected channel: ", selectedChannel);
-        clearInterval(updateInterval); // stop updating previous selected channel
-        console.log("clear the update interval for previous selected channel.")
+
+        if (updateInterval) {
+            clearInterval(updateInterval); // stop updating previous selected channel
+            console.log("clear the update interval for previous selected channel.")
+        };
 
         trackStreamingChat(selectedChannel);
         console.log("trackStreamingChat")

@@ -70,15 +70,6 @@ function updateHistoricalPlot(convertSelectedBroadcaster, startedAt) {
 
             const trace1 = {
                 x: timestamp,
-                y: sentiment,
-                type: 'scatter',
-                mode: 'lines',
-                marker: {color: 'red'},
-                name: 'Chatroom Sentiment'
-            };
-
-            const trace2 = {
-                x: timestamp,
                 y: messageCount,
                 type: 'scatter',
                 mode: 'lines',
@@ -86,7 +77,7 @@ function updateHistoricalPlot(convertSelectedBroadcaster, startedAt) {
                 name: 'Messages'
             };
 
-            const trace3 = {
+            const trace2 = {
                 x: timestamp,
                 y: chatterCount,
                 type: 'scatter',
@@ -95,13 +86,24 @@ function updateHistoricalPlot(convertSelectedBroadcaster, startedAt) {
                 name: 'Chatters'
             };
 
+            const trace3 = {
+                x: timestamp,
+                y: sentiment,
+                type: 'scatter',
+                mode: 'lines',
+                marker: {color: 'red'},
+                name: 'Chatroom Sentiment',
+                visible: 'legendonly'
+            };
+
             const trace4 = {
                 x: timestamp,
                 y: cheer,
                 type: 'scatter',
                 mode: 'lines',
                 marker: {color: 'gray'},
-                name: 'Cheers'
+                name: 'Cheers',
+                visible: 'legendonly'
             };
             
             // Layout for the chart
@@ -117,7 +119,7 @@ function updateHistoricalPlot(convertSelectedBroadcaster, startedAt) {
                 },
                 yaxis: {
                     title: 'Average Viewer Count'
-                }
+                },
             };
 
             Plotly.newPlot(
