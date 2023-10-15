@@ -40,5 +40,5 @@ function updateLiveChannels() {
     console.log("Update live channels")
 };
 
-updateLiveChannels();
-var updateInterval = setInterval(updateLiveChannels, 60000); // update in every 1 minutes.
+// updateLiveChannels();
+// var updateInterval = setInterval(updateLiveChannels, 60000); // update in every 1 minutes.

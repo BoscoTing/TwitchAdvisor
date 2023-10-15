@@ -1,5 +1,4 @@
-<<<<<<< Updated upstream
-=======
+
 let option = 'Average Message Count' // set default option 'Average Message Count'
 
 currentDate = new Date();
@@ -10,7 +9,6 @@ var days = Math.floor((currentDate - startDate) /
 let week = Math.ceil(days / 7); // calculate week of year
 let year = null;
 
->>>>>>> Stashed changes
 function updateOverviewPlot(selectedWeek, selectedYear) {
     const loadingOverlay = document.getElementById("loadingOverlayOverview");
     loadingOverlay.style.display = "block";
@@ -44,10 +42,21 @@ function updateOverviewPlot(selectedWeek, selectedYear) {
                 const xValues = weekdays;
                 const yValues = weekdays.map(weekday => {
                     const entry = channelData.find(dataEntry => dataEntry.weekDayName === weekday);
+                    console.log(entry);
                     if (entry) {
                         console.log("entry: ", entry)
                     };
-                    return entry ? entry.avgMessageCount : 0;
+
+                    if (option == 'Average Message Count') {
+                        return entry ? entry.avgMessageCount : 0;
+                    }
+                    else if (option == 'Max Message Count') {
+                        return entry ? entry.maxMessageCount : 0;
+                    }
+                    else if (option == 'Average Sentiment Score') {
+                        return entry ? entry.avgSentimentScore : 0;
+                    }
+
                 });
 
                 return {
@@ -76,20 +85,12 @@ function updateOverviewPlot(selectedWeek, selectedYear) {
                 // barmode: 'group'
             };
 
-            // Create the chart
             Plotly.react('overviewPlot', traces, layout);
         }
     };
     xmlHttp.send();
 }
 
-
-<<<<<<< Updated upstream
-updateOverviewPlot();
-
-
-=======
->>>>>>> Stashed changes
 // add event listener on week selector of html.
 function handleWeekSelection() {
 
@@ -116,6 +117,5 @@ for (var i = 0; i < overviewMetricsElements.length; i++) {
         updateOverviewPlot(week, year);
     })
 }
-
 
 updateOverviewPlot();
