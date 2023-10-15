@@ -618,13 +618,13 @@ class ViewersReactionAnalyser():
                         "$limit": 1
                     }
                     ])]
-        print("latest_doc:", latest_doc)
+        # print("latest_doc:", latest_doc)
         if latest_doc == []:
             latest_row = 0
         else: 
             latest_row = latest_doc[0]['insertOrder']
         self.lastest_record = deepcopy(latest_row)
-        print("latest_row:", latest_row)
+        # print("latest_row:", latest_row)
 
         documents = []
         with open(file, 'r', encoding='utf-8') as f:
@@ -636,16 +636,16 @@ class ViewersReactionAnalyser():
                 print("line: ", line)
                 # logging.debug("line: ", line)
                 try:
-                    print("try parse_temp_chat_logs")
+                    # print("try parse_temp_chat_logs")
                     doc = self.parse_temp_chat_logs(line)
-                    print("parsed_doc")
+                    # print("parsed_doc")
                     doc['viewerCount'] = viewer_count
                     if new_row >= 1: # skip the log which has already been inserted last time.
                         documents.append(doc)
-                        print("appended temporary chat logs")
+                        # print("appended temporary chat logs")
                     new_row += 1
                 except Exception as e:
-                    print(e)
+                    # print(e)
                     pass
                 self.lastest_record += 1
             if documents:

@@ -117,7 +117,7 @@ class TwitchChatListener:
         if resp.startswith('PING'):
             self.sock.send("PONG\n".encode('utf-8'))
         elif len(resp) > 0:
-            logging.info(demojize(resp))
+            # logging.info(demojize(resp))
             with open(os.getcwd() + f'/chat_logs/{self.channel}.log', 
                       'a', 
                       encoding='utf-8') as log_file:
@@ -178,7 +178,15 @@ class TwitchChatListener:
 
 
     def listen_to_chatroom_temp(self):
+        self.keep_listening_temp = True
         self.connect_chatroom_temp()
+        print("connect_chatroom_temp")
+        while self.keep_listening_temp:
+            # print("record_logs_temp")
+            self.record_logs_temp()
+
+        return False
+
  
     def save_start_time(self):
         developer = TwitchDeveloper()
