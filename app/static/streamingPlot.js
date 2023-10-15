@@ -1,22 +1,55 @@
+let currentRequest = null;
+let previousRequest = null;
+
 function trackStreamingChat(selectedChannel) {
     const loadingOverlay = document.getElementById("loadingOverlayStreaming");
-    loadingOverlay.style.display = "block"; // block the screen when ircbot are connecting
-    console.log("streaming_logs:", "block the screen when ircbot are connecting");
+    loadingOverlay.style.display = "block"; // Block the screen when ircbot is connecting
+    console.log("streaming_logs:", "Blocking the screen when ircbot is connecting");
+
+
+
+    // Check if there's an ongoing request and abort it
+    if (currentRequest) {
+        console.log(currentRequest);
+        currentRequest.abort();
+        console.log("Cancelled the current request.");
+    }
 
     var xmlHttp = new XMLHttpRequest();
-    xmlHttp.open( "GET", `/api/streaming_logs?channel=${selectedChannel}`, false ); 
+    currentRequest = xmlHttp; // Store the current request
+
+    if (previousRequest && currentRequest !== previousRequest) {
+        console.log(previousRequest);
+        previousRequest.abort();
+        console.log("Cancelled the previous request.");
+    }
+    previousRequest = currentRequest;
+
+    xmlHttp.open("GET", `/api/streaming_logs?channel=${selectedChannel}`, true);
+    // Flask API streaming_logs: will start a while loop and won't respond
+    // Set true to make the request asynchronous to do other things:
+    // 1. Block the screen
+    // 2. startUpdateInterval to updateStreamingPlot
+
     xmlHttp.onload = function () {
         if (xmlHttp.status === 200) {
             console.log(xmlHttp.status);
         }
-    }
+        currentRequest = null; // Reset the current request when it's completed
+    };
+
     xmlHttp.send();
-    console.log(`listening to ${selectedChannel}'s chatroom`);
+    console.log(`Listening to ${selectedChannel}'s chatroom`);
 }
+
+
+
+
 
 function updateStreamingPlot(selectedChannel) {
 
     var xmlHttp = new XMLHttpRequest();
+    // currentRequestStats = xmlHttp;
     xmlHttp.open( "GET", `/api/streaming_stats?channel=${selectedChannel}`, true ); 
     // xmlHttp.setRequestHeader('Connection', 'keep-alive');
 
@@ -154,8 +187,6 @@ for (var i = 0; i < liveChannels.length; i++) {
 
         trackStreamingChat(selectedChannel);
 
-        updateStreamingPlot(selectedChannel);
-
         startUpdateInterval();
 
     });
@@ -170,7 +201,6 @@ let searchQuery;
 
 searchBar.addEventListener("keydown", (e) => {
     if (e.key == "Enter" && searchBar.value != "") {
-        DeleteTraces();           
         
         searchQuery = searchBar.value;
 
