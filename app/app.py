@@ -21,13 +21,28 @@ app = Flask(__name__)
 
 @app.route("/") # main page
 def main_page():
-    broadcasters = ['SneakyLOL', 'Gosu', 'DisguisedToast', 'Scarra', 'Trick2g', 'Midbeast', 'Perkz LOL']
-    # broadcasters = ['sneakylol', 'gosu', 'disguisedtoast', 'scarra', 'trick2g', 'midbeast', 'perkz_lol']
-    # week_options = ['Week 1', 'Week 2', 'Week 3', 'Week 4', 'Week 5']
+    db = MongoDBManager()
+    tracked_channels_collection = db.connect_collection("trackedChannels") # query from "trackingChannels" collection
+    query = [
+            {
+                "$sort":{"addedTime": -1}
+                }, 
+            {
+                "$limit": 1
+                }
+        ] # the query to get the tracked channels 
+    result = tracked_channels_collection.aggregate(query)
+
+    tracked_channels_list = [row['channels'] for row in result][0]
+    broadcasters = [" ".join(i.split("_")).title() for i in tracked_channels_list]
+    now_week_of_year=datetime.now().isocalendar().week
+    now_year = datetime.now().year
+    week_value = f"{now_year}-W{now_week_of_year}"
+
     return render_template(
         'main.html', 
         broadcasters=broadcasters,
-        # week_options=week_options
+        week_value=week_value
     )
 
 
@@ -206,6 +221,7 @@ def overiew_stats():
         year = now_year
         print('default week/year:', f"{week}/{year}")
         livestream_schedule = overview.get_livestream_schedule(week, year)
+        print(livestream_schedule[0].keys())
 
     return livestream_schedule
     

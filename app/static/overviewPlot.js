@@ -1,3 +1,16 @@
+<<<<<<< Updated upstream
+=======
+let option = 'Average Message Count' // set default option 'Average Message Count'
+
+currentDate = new Date();
+startDate = new Date(currentDate.getFullYear(), 0, 1);
+var days = Math.floor((currentDate - startDate) /
+    (24 * 60 * 60 * 1000));
+
+let week = Math.ceil(days / 7); // calculate week of year
+let year = null;
+
+>>>>>>> Stashed changes
 function updateOverviewPlot(selectedWeek, selectedYear) {
     const loadingOverlay = document.getElementById("loadingOverlayOverview");
     loadingOverlay.style.display = "block";
@@ -49,6 +62,7 @@ function updateOverviewPlot(selectedWeek, selectedYear) {
 
             // Create the layout
             const layout = {
+                title: `Overview of ${option} at Week ${week}`,
                 font: {
                     family: 'Verdana',
                     size: 15,
@@ -57,7 +71,7 @@ function updateOverviewPlot(selectedWeek, selectedYear) {
                     // title: 'Weekdays'
                 },
                 yaxis: {
-                    title: 'Average Message Count'
+                    title: option
                 },
                 // barmode: 'group'
             };
@@ -70,9 +84,12 @@ function updateOverviewPlot(selectedWeek, selectedYear) {
 }
 
 
+<<<<<<< Updated upstream
 updateOverviewPlot();
 
 
+=======
+>>>>>>> Stashed changes
 // add event listener on week selector of html.
 function handleWeekSelection() {
 
@@ -82,31 +99,23 @@ function handleWeekSelection() {
     const regex = /(\d+)-W(\d+)/;
     const match = selectedWeek.match(regex);
     if (match) {
-        const year = match[1];
-        const week = match[2];
+        year = match[1];
+        week = match[2];
         console.log(`Year: ${year}, Week: ${week}`);
         updateOverviewPlot(week, year);
     } else {
         console.log('No match found.');
     };
-    
+}
+
+const overviewMetricsElements = document.getElementsByClassName("overviewMetrics")
+for (var i = 0; i < overviewMetricsElements.length; i++) {
+    let overviewMetricsElement = overviewMetricsElements[i];
+    overviewMetricsElement.addEventListener ("click", function () {
+        option = overviewMetricsElement.textContent;
+        updateOverviewPlot(week, year);
+    })
 }
 
 
-// const weekOptions = document.getElementsByClassName("weekOptions")
-// for (var i = 0; i < weekOptions.length; i++) {
-//     let weekOption = weekOptions[i];
-//     weekOption.addEventListener("click", function () {
-
-//         const weekText = weekOption.textContent;
-//         const match = weekText.match(/\d+/);
-//         if (match) {
-//             // Extracted week number
-//             const selectedWeek = match[0];
-//             console.log('selectedWeek:', selectedWeek);
-//             updateOverviewPlot(selectedWeek, null);
-//         } else {
-//             console.log('Week number not found in text:', weekText);
-//         };
-//     });
-// };
+updateOverviewPlot();
