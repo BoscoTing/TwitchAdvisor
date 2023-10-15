@@ -72,3 +72,36 @@ class Overview:
                 processed_data.append(doc)
 
         return processed_data
+    
+    def get_schedule_week_range(self):
+        task_records = self.db.connect_collection("chatStats")
+        query = [
+            {
+                '$group': {
+                    '_id': {
+                        'channel': '$channel', 
+                        'startedAt': '$startedAt'
+                    }
+                }
+            }, {
+                '$project': {
+                    '_id': False, 
+                    'channel': '$_id.channel', 
+                    'startedAt': '$_id.startedAt', 
+                }
+            }
+        ]
+        
+        result = task_records.aggregate(query)
+        livestream_schedule = [row for row in result]
+        sorted_startedAt  = sorted([datetime.fromisoformat(doc['startedAt']) for doc in livestream_schedule])
+        min = sorted_startedAt[0]
+        max = sorted_startedAt[-1]
+        print(f"schedule_range: {min} to {max}")
+        # max = sorted_startedAt[-1].timestamp()
+        schedule_range_list = [
+            f"{min.year}-W{min.isocalendar().week}",
+            f"{max.year}-W{max.isocalendar().week}"
+            ]
+
+        return schedule_range_list

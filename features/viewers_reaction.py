@@ -631,6 +631,9 @@ class ViewersReactionAnalyser():
             lines = f.read().split('\n')
             new_row = 0
             # if latest_row == 0 or latest_row % 10 == 0:
+            """
+            request viewer_count from Twitch API and show on streamingPlot section.
+            """
             viewer_count = self.api.detect_living_channel(self.channel)['viewer_count'] # Since viewerCount in Twitch API is updating in a slow pace, I request it for each iteration in while loop.
             for line in lines[latest_row+1:]:
                 print("line: ", line)

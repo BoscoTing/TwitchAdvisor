@@ -25,6 +25,11 @@ function trackStreamingChat(selectedChannel) {
         if (xmlHttp.status === 200) {
             console.log(xmlHttp.status);
         }
+        else if (xmlHttp.status === 404) {
+            loadingOverlay.style.display = "none"; // unblock when entering into chatroom failed.
+            alert("Channel is offline.");
+            return null;
+        }
         currentRequestLogs = null; // Reset the current request when it's completed (but here we are going to abort the requests of /api/streaming_logs while switching channels so this line might not works)
     };
 
@@ -47,8 +52,11 @@ function updateStreamingPlot(selectedChannel) {
             var responseHtml = xmlHttp.responseText;
             var responseJson = JSON.parse(responseHtml);
             let stats = responseJson.stats; // get the stats data
-            // console.log(stats);
-
+            if (stats == null){
+                clearInterval(updateInterval);
+                console.log('channel is offline, clear update interval.')
+                return null
+            };
             // const startedAt = stats.startedAt;
             const timestamp = stats.map(stats => new Date(stats.timestamp*1000));
 

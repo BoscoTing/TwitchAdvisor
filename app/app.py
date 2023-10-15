@@ -34,14 +34,25 @@ def main_page():
 
     tracked_channels_list = [row['channels'] for row in result][0]
     broadcasters = [" ".join(i.split("_")).title() for i in tracked_channels_list]
+
+    """
+    1. set default week number for overviewPlot.
+    2. query min/max week number.
+    """
     now_week_of_year=datetime.now().isocalendar().week
     now_year = datetime.now().year
     week_value = f"{now_year}-W{now_week_of_year}"
 
+    overview = Overview()
+    schedule_week_range = overview.get_schedule_week_range()
+    start_week = schedule_week_range[0]
+    end_week = schedule_week_range[1]
     return render_template(
         'main.html', 
         broadcasters=broadcasters,
-        week_value=week_value
+        week_value=week_value,
+        start_week=start_week,
+        end_week=end_week
     )
 
 
@@ -131,8 +142,11 @@ def streaming_logs():
 
         stream_logs_route.latest_selected_channel = selected_channel # after doing those and before starting running, record latest_selected_channel
         print("latest_selected_channel: ", stream_logs_route.latest_selected_channel)
-
-        stream_logs_route.listener.listen_to_chatroom_temp()
+        
+        try:
+            stream_logs_route.listener.listen_to_chatroom_temp()
+        except:
+            return json.dumps({"error": "channel is offline"}), 404
 
 
 
@@ -175,8 +189,25 @@ def event_listener():
 def streaming_stats():
     channel = request.args.get("channel")
     analyser = ViewersReactionAnalyser(channel)
+    try:
+        analyser.insert_temp_chat_logs(os.getcwd()+f'/chat_logs/{channel}.log')
+    except Exception as e:
+        print(e, "channel seleted is offline")
 
-    analyser.insert_temp_chat_logs(os.getcwd()+f'/chat_logs/{channel}.log')
+        global stream_logs_route
+        if stream_logs_route:
+            print("trying to stop streaming_logs process...")
+            try:
+                stream_logs_route.listener.sock.close()
+                print('closed the socket')
+            except Exception as e:
+                print(e)
+
+            stream_logs_route.keep_listening_temp = False
+            print('stopped the while loop')
+        stream_logs_route.keep_listening_temp = False
+
+        return json.dumps({'error': 'channel is offline'})
     stats = analyser.temp_stats(channel)
     """
     'timestamp' is in utc timezone, need to be transformed before showing on application.
@@ -296,7 +327,6 @@ def overiew_stats():
         year = now_year
         print('default week/year:', f"{week}/{year}")
         livestream_schedule = overview.get_livestream_schedule(week, year)
-        print(livestream_schedule[0].keys())
 
     return livestream_schedule
     
