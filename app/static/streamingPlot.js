@@ -1,5 +1,5 @@
-let currentRequest = null;
-let previousRequest = null;
+let currentRequestLogs = null;
+// let previousRequest = null;
 
 function trackStreamingChat(selectedChannel) {
     const loadingOverlay = document.getElementById("loadingOverlayStreaming");
@@ -9,21 +9,21 @@ function trackStreamingChat(selectedChannel) {
 
 
     // Check if there's an ongoing request and abort it
-    if (currentRequest) {
-        console.log(currentRequest);
-        currentRequest.abort();
+    if (currentRequestLogs) {
+        console.log(currentRequestLogs);
+        currentRequestLogs.abort();
         console.log("Cancelled the current request.");
     }
 
     var xmlHttp = new XMLHttpRequest();
-    currentRequest = xmlHttp; // Store the current request
+    currentRequestLogs = xmlHttp; // Store the current request
 
-    if (previousRequest && currentRequest !== previousRequest) {
-        console.log(previousRequest);
-        previousRequest.abort();
-        console.log("Cancelled the previous request.");
-    }
-    previousRequest = currentRequest;
+    // if (previousRequest && currentRequest !== previousRequest) {
+    //     console.log(previousRequest);
+    //     previousRequest.abort();
+    //     console.log("Cancelled the previous request.");
+    // }
+    // previousRequest = currentRequest;
 
     xmlHttp.open("GET", `/api/streaming_logs?channel=${selectedChannel}`, true);
     // Flask API streaming_logs: will start a while loop and won't respond
@@ -35,7 +35,7 @@ function trackStreamingChat(selectedChannel) {
         if (xmlHttp.status === 200) {
             console.log(xmlHttp.status);
         }
-        currentRequest = null; // Reset the current request when it's completed
+        currentRequestLogs = null; // Reset the current request when it's completed, but the requests of /api/streaming_logs are aborted while switching channels 
     };
 
     xmlHttp.send();
@@ -44,14 +44,14 @@ function trackStreamingChat(selectedChannel) {
 
 
 
-
+let currentRequestStats = null;
 
 function updateStreamingPlot(selectedChannel) {
 
     var xmlHttp = new XMLHttpRequest();
-    // currentRequestStats = xmlHttp;
+    currentRequestStats = xmlHttp; // be used in keydown event listener
+
     xmlHttp.open( "GET", `/api/streaming_stats?channel=${selectedChannel}`, true ); 
-    // xmlHttp.setRequestHeader('Connection', 'keep-alive');
 
     xmlHttp.onload = function () {
         if (xmlHttp.status === 200) {
@@ -201,6 +201,12 @@ let searchQuery;
 
 searchBar.addEventListener("keydown", (e) => {
     if (e.key == "Enter" && searchBar.value != "") {
+
+        if (currentRequestStats) { // currentRequestStats is assigned in 'updateStreamingPlot' function. If the socket connection is still waiting for messages, we quit the request.
+            console.log(currentRequestStats);
+            currentRequestStats.abort();
+            console.log("Cancelled the uncompleted stats request.");
+        }
         
         searchQuery = searchBar.value;
 
