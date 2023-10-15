@@ -142,8 +142,11 @@ def streaming_logs():
 
         stream_logs_route.latest_selected_channel = selected_channel # after doing those and before starting running, record latest_selected_channel
         print("latest_selected_channel: ", stream_logs_route.latest_selected_channel)
-
-        stream_logs_route.listener.listen_to_chatroom_temp()
+        
+        try:
+            stream_logs_route.listener.listen_to_chatroom_temp()
+        except:
+            return json.dumps({"error": "channel is offline"}), 404
 
 
 
@@ -186,8 +189,25 @@ def event_listener():
 def streaming_stats():
     channel = request.args.get("channel")
     analyser = ViewersReactionAnalyser(channel)
+    try:
+        analyser.insert_temp_chat_logs(os.getcwd()+f'/chat_logs/{channel}.log')
+    except Exception as e:
+        print(e, "channel seleted is offline")
 
-    analyser.insert_temp_chat_logs(os.getcwd()+f'/chat_logs/{channel}.log')
+        global stream_logs_route
+        if stream_logs_route:
+            print("trying to stop streaming_logs process...")
+            try:
+                stream_logs_route.listener.sock.close()
+                print('closed the socket')
+            except Exception as e:
+                print(e)
+
+            stream_logs_route.keep_listening_temp = False
+            print('stopped the while loop')
+        stream_logs_route.keep_listening_temp = False
+
+        return json.dumps({'error': 'channel is offline'})
     stats = analyser.temp_stats(channel)
     """
     'timestamp' is in utc timezone, need to be transformed before showing on application.
