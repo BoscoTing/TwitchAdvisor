@@ -232,20 +232,6 @@ window.addEventListener('beforeunload', function () {
     xmlHttp.send();
 });
 
-// window.addEventListener('unload', function () {
-//     // This code will be executed when the user is leaving the page (e.g., closing the tab/window).
-//     // You can make an AJAX request to your Flask API here.
-//     console.log('unload');
-//     var xmlHttp = new XMLHttpRequest();
-//     xmlHttp.open("GET", `/api/streaming_logs?event=unload`, true);
-//     xmlHttp.onload = function () {
-//         if (xmlHttp.status === 200) {
-//             console.log(xmlHttp.status);
-//         }
-//     };
-//     xmlHttp.send();
-// });
-
 window.addEventListener('unload', function () {
     var data = JSON.stringify({ message: 'Page is closing' });
     navigator.sendBeacon(`/api/streaming_logs?event=unload`, data);
