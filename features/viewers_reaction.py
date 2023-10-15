@@ -186,8 +186,8 @@ class ViewersReactionAnalyser():
 
             documents = []
             with open(
-                # os.getcwd() + f"/dags/chat_logs/{uncompleted_started_at}_{self.channel}.log", 
-                os.getcwd() + f"/chat_logs/{uncompleted_started_at}_{self.channel}.log", 
+                os.getcwd() + f"/dags/chat_logs/{uncompleted_started_at}_{self.channel}.log", 
+                # os.getcwd() + f"/chat_logs/{uncompleted_started_at}_{self.channel}.log", 
 
                 'r', 
                 encoding='utf-8'
