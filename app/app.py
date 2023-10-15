@@ -8,7 +8,7 @@ import re
 import json
 import os
 import sys
-sys.path.insert(0, os.getcwd())
+sys.path.insert(0, "/Users/surfgreen/B/AppworksSchool/projects/personal_project")
 
 from managers.twitch_api_manager import TwitchDeveloper
 from managers.ircbot_manager import TwitchChatListener
