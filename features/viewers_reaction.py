@@ -64,7 +64,9 @@ class ViewersReactionAnalyser():
 
         started_at = line.split('—')[1].strip()
 
-        username_message = line.split('—')[2:]
+        viewer_count = int(line.split('—')[2].strip())
+
+        username_message = line.split('—')[3:]
         username_message = '—'.join(username_message).strip()
 
         username, channel, message = re.search(
@@ -73,6 +75,7 @@ class ViewersReactionAnalyser():
         doc = {
             'message': message,
             'cheer': self.recognize_cheers(line),
+            'viewerCount': viewer_count,
             'userName': username,
             'insertOrder': self.lastest_record,
             'timestamp': time_logged, # datetime format in timezone of ROC
@@ -184,6 +187,8 @@ class ViewersReactionAnalyser():
             documents = []
             with open(
                 os.getcwd() + f"/dags/chat_logs/{uncompleted_started_at}_{self.channel}.log", 
+                # os.getcwd() + f"/chat_logs/{uncompleted_started_at}_{self.channel}.log", 
+
                 'r', 
                 encoding='utf-8'
                 ) as f:
@@ -435,13 +440,13 @@ class ViewersReactionAnalyser():
             print("viewers_reaction: querying historical_stats...")
             stats = deepcopy(self.historical_stats(uncompleted_started_at)) # calculate chatstats from chatlogs # self.historical_stats() will need self.started_at
             organized_documents = []
-            # sentiment_analyser = ChatroomSentiment()
+            sentiment_analyser = ChatroomSentiment()
             
-            print("(skipped)viewers_reaction: calculating sentiment_score...")
+            print("(skipped) viewers_reaction: calculating sentiment_score...")
             for doc in stats:
                 doc['timestamp'] = doc['_id']
-                # doc['sentiment'] = sentiment_analyser.historical_stats_sentiment(doc['messages'])
-                # doc['sentimentScore'] = self.avg_sentiment_weighted_by_index(doc['sentiment'])
+                doc['sentiment'] = sentiment_analyser.historical_stats_sentiment(doc['messages'])
+                doc['sentimentScore'] = self.avg_sentiment_weighted_by_index(doc['sentiment'])
                 organized_documents.append(doc)
             try:
                 print("viewers_reaction: trying to insertmany into chatStats...")
@@ -613,13 +618,13 @@ class ViewersReactionAnalyser():
                         "$limit": 1
                     }
                     ])]
-        print("latest_doc:", latest_doc)
+        # print("latest_doc:", latest_doc)
         if latest_doc == []:
             latest_row = 0
         else: 
             latest_row = latest_doc[0]['insertOrder']
         self.lastest_record = deepcopy(latest_row)
-        print("latest_row:", latest_row)
+        # print("latest_row:", latest_row)
 
         documents = []
         with open(file, 'r', encoding='utf-8') as f:
@@ -631,16 +636,16 @@ class ViewersReactionAnalyser():
                 print("line: ", line)
                 # logging.debug("line: ", line)
                 try:
-                    print("try parse_temp_chat_logs")
+                    # print("try parse_temp_chat_logs")
                     doc = self.parse_temp_chat_logs(line)
-                    print("parsed_doc")
+                    # print("parsed_doc")
                     doc['viewerCount'] = viewer_count
                     if new_row >= 1: # skip the log which has already been inserted last time.
                         documents.append(doc)
-                        print("appended temporary chat logs")
+                        # print("appended temporary chat logs")
                     new_row += 1
                 except Exception as e:
-                    print(e)
+                    # print(e)
                     pass
                 self.lastest_record += 1
             if documents:
@@ -727,10 +732,11 @@ if __name__ == "__main__":
 
 # use_example
 
-# analyser = ViewersReactionAnalyser("scarra")
-# # analyser.get_historical_schedule()
-# # analyser.insert_historical_stats()
-# # print(analyser.query_historical_stats())
+# analyser = ViewersReactionAnalyser("caedrel")
+# analyser.insert_historical_stats()
+# analyser.get_historical_schedule()
+# analyser.insert_historical_stats()
+# print(analyser.query_historical_stats())
 # while True:
 #     analyser.insert_chat_logs(
 #         f"/Users/surfgreen/B/AppworksSchool/projects/personal_project/chat_logs/{analyser.channel}.log",

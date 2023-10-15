@@ -4,7 +4,6 @@ from flask import (Flask,
                    )
 import pytz
 from datetime import datetime, timedelta
-import threading
 import re
 import json
 import os
@@ -21,13 +20,28 @@ app = Flask(__name__)
 
 @app.route("/") # main page
 def main_page():
-    broadcasters = ['SneakyLOL', 'Gosu', 'DisguisedToast', 'Scarra', 'Trick2g', 'Midbeast', 'Perkz LOL']
-    # broadcasters = ['sneakylol', 'gosu', 'disguisedtoast', 'scarra', 'trick2g', 'midbeast', 'perkz_lol']
-    # week_options = ['Week 1', 'Week 2', 'Week 3', 'Week 4', 'Week 5']
+    db = MongoDBManager()
+    tracked_channels_collection = db.connect_collection("trackedChannels") # query from "trackingChannels" collection
+    query = [
+            {
+                "$sort":{"addedTime": -1}
+                }, 
+            {
+                "$limit": 1
+                }
+        ] # the query to get the tracked channels 
+    result = tracked_channels_collection.aggregate(query)
+
+    tracked_channels_list = [row['channels'] for row in result][0]
+    broadcasters = [" ".join(i.split("_")).title() for i in tracked_channels_list]
+    now_week_of_year=datetime.now().isocalendar().week
+    now_year = datetime.now().year
+    week_value = f"{now_year}-W{now_week_of_year}"
+
     return render_template(
         'main.html', 
         broadcasters=broadcasters,
-        # week_options=week_options
+        week_value=week_value
     )
 
 
@@ -51,13 +65,119 @@ def get_channel_list():
         channel_json = json.dumps(data)
         return channel_json
 
+"""
+1. Create a class and assign to stream_logs_route outside of the view
+2. Use the stream_logs_route inside the 'streaming_logs' by: 
+        global stream_logs_route
+3. So the different requests to /api/streaming_logs are using the same 'StreamingLogsRoute' class to listen to channel.
+4. Now we can controll the same listener with different requests which are sended to '/api/streaming_logs'.
+"""
+class StreamingLogsRoute:
+    def __init__(self):
+        self.keep_listening_temp = True
+        self.latest_selected_channel = None
+
+stream_logs_route = StreamingLogsRoute()
+
+@app.route("/api/streaming_logs", methods=["GET", "POST"]) 
+def streaming_logs():
+
+    global stream_logs_route
+    selected_channel = request.args.get("channel")
+    print("app.py -- selected streaming channel: ", selected_channel)
+
+
+    if selected_channel == stream_logs_route.latest_selected_channel: # won't be interrupted when a same channel is selected
+        pass
+
+    else: # when first entering into chatroom or switching to another channel
+
+        try: # when switching channels: listener.listen_to_chatroom_temp() has been executed 
+            print("switching channel...")
+
+            stream_logs_route.listener.sock.close() # need to close the socket first
+            print("closed socket")
+
+            stream_logs_route.listener.keep_listening_temp = False # then stop the while loop
+            print("stopped while loop")
+
+        except:
+            pass
+
+        if stream_logs_route.latest_selected_channel: # when switching channels
+            os.remove(os.getcwd()+f"/chat_logs/{stream_logs_route.latest_selected_channel}.log")
+            print(f'deleted /chat_logs/{stream_logs_route.latest_selected_channel}.log') # delete the log file after leaving the chatroom
+
+            MongoDBManager().delete_many(stream_logs_route.latest_selected_channel, "tempChatLogs") # delete the log file of previous selected channel.
+            print(f"app.py -- db.tempChatLogs.deleteMany: {stream_logs_route.latest_selected_channel}")
+
+        else:
+            pass
+
+        if selected_channel: 
+            MongoDBManager().delete_many(selected_channel, "tempChatLogs") # make sure documents of current selected channel in collection are deleted.
+            print(f"app.py -- db.tempChatLogs.deleteMany: {selected_channel}")
+            try: 
+                os.remove(os.getcwd()+f"/chat_logs/{selected_channel}.log") # try to delete the log file of current selected channel again, too.
+                print(f"app.py -- temp_delete_log_file: /chat_logs/{selected_channel}.log")
+            except: 
+                pass
+
+        else:
+            pass
+
+
+        stream_logs_route.listener = TwitchChatListener(selected_channel) # assign current selected channel to a new listener
+
+        stream_logs_route.latest_selected_channel = selected_channel # after doing those and before starting running, record latest_selected_channel
+        print("latest_selected_channel: ", stream_logs_route.latest_selected_channel)
+
+        stream_logs_route.listener.listen_to_chatroom_temp()
+
+
+
+def event_listener():
+    """
+    When javascript detecting onload or beforeunload, receive the request from js and stop the while loop and socket connection in 'streaming_logs'
+    """
+    event = request.args.get("event")
+    print('event listener:', event)
+
+    if event and stream_logs_route:
+        try:
+            stream_logs_route.listener.sock.close()
+            print('closed the socket')
+        except Exception as e:
+            print(e)
+
+        stream_logs_route.keep_listening_temp = False
+        print('stopped the while loop')
+
+        if stream_logs_route.latest_selected_channel:
+
+            MongoDBManager().delete_many(stream_logs_route.latest_selected_channel, "tempChatLogs") # delete the log file of previous selected channel.
+            print(f"app.py -- db.tempChatLogs.deleteMany: {stream_logs_route.latest_selected_channel}")
+
+            try:
+                os.remove(os.getcwd()+f"/chat_logs/{stream_logs_route.latest_selected_channel}.log")
+                print(f'deleted /chat_logs/{stream_logs_route.latest_selected_channel}.log') # delete the log file after leaving the chatroom
+                
+            except:
+                pass
+
+    else:
+        pass
+
+    return 'The while loop and socket are off.'
+
+
 @app.route("/api/streaming_stats", methods=["GET"]) # start querying and drawing the chart of selected channel.
 def streaming_stats():
     channel = request.args.get("channel")
     analyser = ViewersReactionAnalyser(channel)
 
     analyser.insert_temp_chat_logs(os.getcwd()+f'/chat_logs/{channel}.log')
-    stats = ViewersReactionAnalyser(channel).temp_stats(channel)
+    stats = analyser.temp_stats(channel)
     """
     'timestamp' is in utc timezone, need to be transformed before showing on application.
     """
@@ -72,63 +192,6 @@ def streaming_stats():
     }
     stats_json = json.dumps(resp_data)
     return stats_json
-
-
-request_param_lock = threading.Lock()
-latest_selected_channel = None
-class TwitchChatListenerTEMP(threading.Thread):
-    def __init__(self, channel):
-        super().__init__()
-        self.channel = channel
-        self.stopped = threading.Event()
-
-    def run(self):
-        listener = TwitchChatListener(self.channel)
-        listener.listen_to_chatroom_temp()
-        print(f"Listening to channel: {self.channel}")
-        while not self.stopped.is_set():
-            listener.record_logs_temp()
-            print("/api/streaming_logs: record_logs_temp")
-
-    def stop(self):
-        self.stopped.set()
-# start listening to selected channel.
-@app.route("/api/streaming_logs", methods=["GET"]) 
-def streaming_logs():
-    global latest_selected_channel # initial value is None
-
-    selected_channel = request.args.get("channel")
-    print("app.py -- selected streaming channel: ", selected_channel)
-
-    # if selected_channel not in ['sneakylol', 'gosu', 'scarra', 'disguisedtoast', 'trick2g', 'midbeast', 'perkz_lol']:
-
-    MongoDBManager().delete_many(selected_channel, "tempChatLogs") # delete the log file of previous selected channel.
-    print(f"app.py -- db.tempChatLogs.deleteMany: {selected_channel}")
-
-    try: 
-        os.remove(os.getcwd()+f"/chat_logs/{selected_channel}.log")
-        print(f"app.py -- temp_delete_log_file: /chat_logs/{selected_channel}.log")
-    except: 
-        pass
-
-    with request_param_lock:     
-        print("request_param_lock")       
-        if selected_channel == latest_selected_channel:
-            # doesn't change current process when same channel is selected.
-            pass
-        else: 
-            latest_selected_channel = selected_channel
-
-            # (if not the first request) stop the previous listener and assign a new one.
-            if hasattr(app, 'listener_thread') and app.listener_thread.is_alive():
-                print("Stop a current listener thread")
-                app.listener_thread.stop()
-                app.listener_thread.join()
-
-            # Start a new listener thread
-            print("Start a new listener thread")
-            app.listener_thread = TwitchChatListenerTEMP(selected_channel)
-            app.listener_thread.start()
 
 
 @app.route("/api/historical_data", methods=["GET"]) # query the result of selected live stream to create a chart.s
@@ -217,8 +280,9 @@ def overiew_stats():
     print(f'flask: request.args.get("year") = {year}')
 
     # now_month = datetime.now().month
-    now_date = datetime.now().day
+    # now_date = datetime.now().day
     # now_weekday = datetime.now().weekday()
+    now_week_of_year = datetime.now().isocalendar().week
     now_year = datetime.now().year
 
     overview = Overview()
@@ -226,11 +290,13 @@ def overiew_stats():
         week = int(week)
         year = int(year)
         livestream_schedule = overview.get_livestream_schedule(week, year)
-    else: 
-        week = (now_date - 1) // 7 + 1
+    else: # when first load the page, show data this week in overviewPlot
+        # week = (now_date - 1) // 7 + 1
+        week = now_week_of_year
         year = now_year
         print('default week/year:', f"{week}/{year}")
         livestream_schedule = overview.get_livestream_schedule(week, year)
+        print(livestream_schedule[0].keys())
 
     return livestream_schedule
     

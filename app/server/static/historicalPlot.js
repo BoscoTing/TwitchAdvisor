@@ -59,9 +59,15 @@ function updateHistoricalPlot(convertSelectedBroadcaster, startedAt) {
             // selectedChannelElement.appendChild(scheduleHeader);
 
             const timestamp = stats.map(stats => new Date(stats.timestamp*1000));
-            // const avgViewerCount = stats.map(stats => stats.avgViewerCount);
+            const avgViewerCount = stats.map(stats => stats.avgViewerCount);
+            console.log(avgViewerCount)
+
             const messageCount = stats.map(stats => stats.messageCount);
+            // console.log(messageCount)
+
             const chatterCount = stats.map(stats => stats.chatterCount);
+            // console.log(chatterCount)
+
             const cheer = stats.map(stats => stats.cheers.length);
             // console.log(cheer)
 
@@ -70,15 +76,6 @@ function updateHistoricalPlot(convertSelectedBroadcaster, startedAt) {
 
             const trace1 = {
                 x: timestamp,
-                y: sentiment,
-                type: 'scatter',
-                mode: 'lines',
-                marker: {color: 'red'},
-                name: 'Chatroom Sentiment'
-            };
-
-            const trace2 = {
-                x: timestamp,
                 y: messageCount,
                 type: 'scatter',
                 mode: 'lines',
@@ -86,7 +83,7 @@ function updateHistoricalPlot(convertSelectedBroadcaster, startedAt) {
                 name: 'Messages'
             };
 
-            const trace3 = {
+            const trace2 = {
                 x: timestamp,
                 y: chatterCount,
                 type: 'scatter',
@@ -95,17 +92,37 @@ function updateHistoricalPlot(convertSelectedBroadcaster, startedAt) {
                 name: 'Chatters'
             };
 
+            const trace3 = {
+                x: timestamp,
+                y: sentiment,
+                type: 'scatter',
+                mode: 'lines',
+                marker: {color: 'red'},
+                name: 'Chatroom Sentiment',
+                visible: 'legendonly'
+            };
+
             const trace4 = {
                 x: timestamp,
                 y: cheer,
                 type: 'scatter',
                 mode: 'lines',
                 marker: {color: 'gray'},
-                name: 'Cheers'
+                name: 'Cheers',
+                visible: 'legendonly'
+            };
+
+            const trace5 = {
+                x: timestamp,
+                y: avgViewerCount,
+                type: 'scatter',
+                mode: 'lines',
+                marker: {color: 'black'},
+                name: 'Cheers',
             };
             
             // Layout for the chart
-            const layout = {
+            const layout1 = {
                 
                 title: `${selectedBroadcaster}'s Live Stream Records`,
                 font: {
@@ -116,8 +133,23 @@ function updateHistoricalPlot(convertSelectedBroadcaster, startedAt) {
                     title: 'Time'
                 },
                 yaxis: {
-                    title: 'Average Viewer Count'
-                }
+                    title: 'Chatroom Engagement'
+                },
+            };
+
+            const layout2 = {
+                
+                // title: `${selectedBroadcaster}'s Live Stream Records`,
+                font: {
+                    family: 'Verdana',
+                    size: 15,
+                },
+                xaxis: {
+                    title: 'Time'
+                },
+                yaxis: {
+                    title: 'Viewer Count'
+                },
             };
 
             Plotly.newPlot(
@@ -128,8 +160,17 @@ function updateHistoricalPlot(convertSelectedBroadcaster, startedAt) {
                         trace3, 
                         trace4
                     ], 
-                    layout
-                );    
+                    layout1
+                ); 
+
+            Plotly.newPlot(
+                'historicalPlotViewerCount', 
+                [
+                    trace5
+                ], 
+                layout2
+            ); 
+
         }
     }
     xmlHttp.send();
