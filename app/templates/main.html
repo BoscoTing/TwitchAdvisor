@@ -25,15 +25,23 @@
 
          <div id="searchBarContainer">
             <!-- <span>Search by URL:</span> -->
-            <input type="text" placeholder="Enter Your URL Here" id="searchBar">
-            <!-- <button type="submit"><i id="searchButton">Go</i></button> -->
+            <input type="text" placeholder="https://www.twitch.tv/channel" id="searchBar">
+            <button type="submit" id="searchButton">Go</button>
          </div>
 
          <!-- average viewers -->
          <div id="avgViewerCountContainer">
-            <h3 id="avgViewerCountHeader" class="avgViewerCount">Total Viewers</h3>
+            <h3 id="avgViewerCountHeader" class="avgViewerCount">Average Viewer Count</h3>
             <p id="avgViewerCount" class="avgViewerCount"></p>
          </div>
+
+         <!-- total cheers -->
+         <div id="totalCheersContainer">
+            <h3 id="totalCheersHeader" class="totalCheers">Total Cheers</h3>
+            <p id="totalCheers" class="totalCheers"></p>
+         </div>
+         
+         <div id="waitingMessage">Waiting for messages...</div>
 
          <!-- <h3 id="topLiveChannelHeader">Top live channels</h3>
          <span id="topLiveChannels"></span> -->
@@ -50,6 +58,7 @@
          <div class="loadingOverlay" id="loadingOverlayStreaming">
             <div class="loadingMessage">Entering into Chatroom...</div>
          </div>
+
 
       </div>
 
@@ -82,13 +91,14 @@
 
       <!-- plot -->
       <div id="historicalPlot" class="plot"></div>
-      <!-- <div id="radarPlot" class="plot"></div> -->
+      <div id="historicalPlotViewerCount" class="plot"></div>
 
       <div class="loadingOverlay" id="loadingOverlayHistorical">
          <div class="loadingMessage">Loading...</div>
       </div>
 
    </div>
+
 
    <!-- overview -->
    <div class="plotContainer">
@@ -97,7 +107,14 @@
       <div id="selectionInfo" class="column">
 
          <h3>Week Selector</h3>
-         <input id="week" type="week" name="week" lang="en" onchange="handleWeekSelection()">
+         <input id="week" type="week" name="week" lang="en" onchange="handleWeekSelection()" value={{week_value}} min={{start_week}} max={{end_week}}>
+
+         <h3>Metrics</h3>
+            <div class="overviewMetrics">Viewer Count</div>
+            <div class="overviewMetrics">Average Message Count</div>
+            <div class="overviewMetrics">Max Message Count</div>
+            <div class="overviewMetrics">Average Sentiment Score</div>
+            <div class="overviewMetrics">Total Cheers</div>
          
       </div>
 

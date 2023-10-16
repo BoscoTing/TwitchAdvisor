@@ -186,8 +186,8 @@ class ViewersReactionAnalyser():
 
             documents = []
             with open(
-                # os.getcwd() + f"/dags/chat_logs/{uncompleted_started_at}_{self.channel}.log", 
-                os.getcwd() + f"/chat_logs/{uncompleted_started_at}_{self.channel}.log", 
+                os.getcwd() + f"/dags/chat_logs/{uncompleted_started_at}_{self.channel}.log", 
+                # os.getcwd() + f"/chat_logs/{uncompleted_started_at}_{self.channel}.log", 
 
                 'r', 
                 encoding='utf-8'
@@ -533,13 +533,15 @@ class ViewersReactionAnalyser():
     
     def get_historical_schedule(self):
         """
-        Only show the schedule query from chatStats, which have been organized already.
+        1. Only show the schedule query from taskRecords whose taskName is 'insert_stats'
+        2. taskName='insert_stats' means that the channel's stats data have been organized already at the time 'startedAt'.
         """
         collection = self.db.connect_collection("taskRecords")
         query = [
             {
                 "$match": {
-                    "channel": {"$eq": self.channel}
+                    "channel": {"$eq": self.channel},
+                    "taskName": "insert_stats" 
                 }
             },
             {
@@ -618,34 +620,37 @@ class ViewersReactionAnalyser():
                         "$limit": 1
                     }
                     ])]
-        print("latest_doc:", latest_doc)
+        # print("latest_doc:", latest_doc)
         if latest_doc == []:
             latest_row = 0
         else: 
             latest_row = latest_doc[0]['insertOrder']
         self.lastest_record = deepcopy(latest_row)
-        print("latest_row:", latest_row)
+        # print("latest_row:", latest_row)
 
         documents = []
         with open(file, 'r', encoding='utf-8') as f:
             lines = f.read().split('\n')
             new_row = 0
             # if latest_row == 0 or latest_row % 10 == 0:
+            """
+            request viewer_count from Twitch API and show on streamingPlot section.
+            """
             viewer_count = self.api.detect_living_channel(self.channel)['viewer_count'] # Since viewerCount in Twitch API is updating in a slow pace, I request it for each iteration in while loop.
             for line in lines[latest_row+1:]:
                 print("line: ", line)
                 # logging.debug("line: ", line)
                 try:
-                    print("try parse_temp_chat_logs")
+                    # print("try parse_temp_chat_logs")
                     doc = self.parse_temp_chat_logs(line)
-                    print("parsed_doc")
+                    # print("parsed_doc")
                     doc['viewerCount'] = viewer_count
                     if new_row >= 1: # skip the log which has already been inserted last time.
                         documents.append(doc)
-                        print("appended temporary chat logs")
+                        # print("appended temporary chat logs")
                     new_row += 1
                 except Exception as e:
-                    print(e)
+                    # print(e)
                     pass
                 self.lastest_record += 1
             if documents:
