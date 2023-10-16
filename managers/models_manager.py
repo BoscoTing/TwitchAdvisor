@@ -1,5 +1,6 @@
 from transformers import AutoTokenizer, AutoModelForSequenceClassification
 import torch
+import string
 import os
 # os.environ['TRANSFORMERS_CACHE'] = os.getcwd()+'/dags/.cache/'
 import sys
@@ -22,6 +23,17 @@ class SentimentAnalyser:
         )
 
     def sentiment_score(self, chat):
+
+        def exclude_ascii_art(chat):
+            printable = set(string.printable)
+            parsed_string = ''.join(filter(lambda x: x in printable, chat))
+            return parsed_string
+
+        try: 
+            chat = exclude_ascii_art(chat)
+        except Exception as e:
+            print(f"{chat}: ", e)
+
 
         if len(chat) > 400:
             print('token exceed the limit of 512: ', chat)
