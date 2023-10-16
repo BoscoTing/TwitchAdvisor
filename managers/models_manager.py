@@ -22,8 +22,26 @@ class SentimentAnalyser:
         )
 
     def sentiment_score(self, chat):
-        tokens = self.tokenizer.encode(chat, return_tensors='pt')
-        result = self.model(tokens)
+
+        if len(chat) > 400:
+            print('token exceed the limit of 512: ', chat)
+            return 1
+        else:
+            pass
+
+        try:
+            tokens = self.tokenizer.encode(chat, return_tensors='pt')
+        except Exception as e:
+            print(f"{chat}: ", e)
+            return 1
+
+        try:             
+            result = self.model(tokens)
+        except Exception as e:
+            print(f"{chat}: ", e)
+            return 1
+
+
         if self.modelname == 'cardiffnlp/twitter-roberta-base-sentiment':
             return int(torch.argmax(result.logits))
         elif self.modelname == "nlptown/bert-base-multilingual-uncased-sentiment":

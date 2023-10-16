@@ -44,8 +44,8 @@ def complete_insert_stats_for_every_channels():
 
 with DAG(
     "start_insert_stats_dag",
-    schedule=timedelta(hours=12), 
-    start_date=datetime(2023, 10, 2, 1, 0),
+    schedule=timedelta(hours=6), 
+    start_date=datetime(2023, 10, 1, 1, 0),
     concurrency=1,
     max_active_runs=1,
     catchup=False
