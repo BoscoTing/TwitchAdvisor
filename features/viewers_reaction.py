@@ -442,7 +442,7 @@ class ViewersReactionAnalyser():
             organized_documents = []
             sentiment_analyser = ChatroomSentiment()
             
-            print("(skipped) viewers_reaction: calculating sentiment_score...")
+            print("viewers_reaction: calculating sentiment_score...")
             for doc in stats:
                 doc['timestamp'] = doc['_id']
                 doc['sentiment'] = sentiment_analyser.historical_stats_sentiment(doc['messages'])
