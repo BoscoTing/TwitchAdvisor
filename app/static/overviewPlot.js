@@ -116,13 +116,21 @@ function handleWeekSelection() {
     };
 }
 
-const overviewMetricsElements = document.getElementsByClassName("overviewMetrics")
-for (var i = 0; i < overviewMetricsElements.length; i++) {
-    let overviewMetricsElement = overviewMetricsElements[i];
-    overviewMetricsElement.addEventListener ("click", function () {
-        option = overviewMetricsElement.textContent;
-        updateOverviewPlot(week, year);
-    })
-}
+// const overviewMetricsElements = document.getElementsByClassName("overviewMetrics")
+// for (var i = 0; i < overviewMetricsElements.length; i++) {
+//     let overviewMetricsElement = overviewMetricsElements[i];
+//     overviewMetricsElement.addEventListener ("click", function () {
+//         option = overviewMetricsElement.textContent;
+//         updateOverviewPlot(week, year);
+//     })
+// }
+
+const overviewMetricsSelect = document.getElementById("overviewMetricsSelect")
+
+overviewMetricsSelect.addEventListener ("change", function () {
+    option = overviewMetricsSelect.value;
+    console.log(option);
+    updateOverviewPlot(week, year);
+})
 
 updateOverviewPlot();

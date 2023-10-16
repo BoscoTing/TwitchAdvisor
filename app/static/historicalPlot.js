@@ -120,7 +120,9 @@ function updateHistoricalPlot(convertSelectedBroadcaster, startedAt) {
                 type: 'scatter',
                 mode: 'lines',
                 marker: {color: 'black'},
-                name: 'Cheers',
+                name: 'Viewer Count',
+                visible: 'legendonly'
+
             };
             
             // Layout for the chart
@@ -139,20 +141,20 @@ function updateHistoricalPlot(convertSelectedBroadcaster, startedAt) {
                 },
             };
 
-            const layout2 = {
+            // const layout2 = {
                 
-                // title: `${selectedBroadcaster}'s Live Stream Records`,
-                font: {
-                    family: 'Verdana',
-                    size: 15,
-                },
-                xaxis: {
-                    title: 'Time'
-                },
-                yaxis: {
-                    title: 'Viewer Count'
-                },
-            };
+            //     // title: `${selectedBroadcaster}'s Live Stream Records`,
+            //     font: {
+            //         family: 'Verdana',
+            //         size: 15,
+            //     },
+            //     xaxis: {
+            //         title: 'Time'
+            //     },
+            //     yaxis: {
+            //         title: 'Viewer Count'
+            //     },
+            // };
 
             Plotly.newPlot(
                     'historicalPlot', 
@@ -160,18 +162,19 @@ function updateHistoricalPlot(convertSelectedBroadcaster, startedAt) {
                         trace1, 
                         trace2, 
                         trace3, 
-                        trace4
+                        trace4,
+                        trace5
                     ], 
                     layout1
                 ); 
 
-            Plotly.newPlot(
-                'historicalPlotViewerCount', 
-                [
-                    trace5
-                ], 
-                layout2
-            ); 
+            // Plotly.newPlot(
+            //     'historicalPlotViewerCount', 
+            //     [
+            //         trace5
+            //     ], 
+            //     layout2
+            // ); 
 
         }
     }
@@ -207,8 +210,8 @@ function handleSelectionChange() {
     updateHistoricalPlot(convertSelectedBroadcaster, null); // set startedAt=null when first loading to the page
   }
 
-    const selectElement = document.getElementById("broadcasterSelect");
-  selectElement.addEventListener("change", handleSelectionChange);
+const selectElement = document.getElementById("broadcasterSelect");
+selectElement.addEventListener("change", handleSelectionChange);
 
 
 // when using dropdown selector on schedule
@@ -222,7 +225,6 @@ scheduleHeader.addEventListener("change", function () { // set event listener to
     const timePart = parts[1];
     const formattedDate = `${datePart}T${timePart}+08:00`;
     console.log("formattedDate:", formattedDate);
-    
     // use convertSelectedBroadcaster to select by snake case name
     updateHistoricalPlot(convertSelectedBroadcaster, formattedDate);
 });  
