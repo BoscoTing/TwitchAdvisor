@@ -16,22 +16,22 @@ function updateOverviewPlot(selectedWeek, selectedYear) {
     var xmlHttp = new XMLHttpRequest();
     if (selectedWeek && selectedYear) {
         xmlHttp.open( "GET", `/api/overview_data?week=${selectedWeek}&year=${selectedYear}`, true );
-        console.log("GET", `/api/overview_data?week=${selectedWeek}&year=${selectedYear}`);
+        // console.log("GET", `/api/overview_data?week=${selectedWeek}&year=${selectedYear}`);
     }
     else {
         xmlHttp.open( "GET", `/api/overview_data`, true ); // use default week in flask
-        console.log(`/api/overview_data`);
+        // console.log(`/api/overview_data`);
     };
     xmlHttp.onload = function () {
         loadingOverlay.style.display = "none";
         if (xmlHttp.status === 200) {
             var responseHtml = xmlHttp.responseText;
             var data = JSON.parse(responseHtml);
-            console.log("data: " ,data);
+            // console.log("data: " ,data);
 
             // Extract unique channels
             const channels = [...new Set(data.map(entry => entry.channel))];
-            console.log("channels: ", channels);
+            // console.log("channels: ", channels);
 
             // Create an array of all weekdays
             const weekdays = ['Mon.', 'Tue.', 'Wed.', 'Thu.', 'Fri.', 'Sat.', 'Sun.'];
@@ -42,9 +42,9 @@ function updateOverviewPlot(selectedWeek, selectedYear) {
                 const xValues = weekdays;
                 const yValues = weekdays.map(weekday => {
                     const entry = channelData.find(dataEntry => dataEntry.weekDayName === weekday);
-                    console.log(entry);
+                    // console.log(entry);
                     if (entry) {
-                        console.log("entry: ", entry)
+                        // console.log("entry: ", entry)
                     };
 
                     if (option == 'Average Message Count') {
@@ -62,7 +62,7 @@ function updateOverviewPlot(selectedWeek, selectedYear) {
                 return {
                     x: xValues,
                     y: yValues,
-                    name: channel,
+                    name: capitalizeNames([channel])[0],
                     mode: 'markers',
                     type: 'scatter',
                     marker: {"size": 12}
@@ -90,6 +90,13 @@ function updateOverviewPlot(selectedWeek, selectedYear) {
     };
     xmlHttp.send();
 }
+
+function capitalizeNames(names) {
+    return names.map(name => {
+      // Capitalize the first letter of each word and handle "lol" pattern
+      return name.replace(/\b\w/g, firstLetter => firstLetter.toUpperCase()).replace(/_lol\b/gi, ' LOL');
+    });
+  }
 
 // add event listener on week selector of html.
 function handleWeekSelection() {

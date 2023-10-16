@@ -33,8 +33,13 @@ def main_page():
     result = tracked_channels_collection.aggregate(query)
 
     tracked_channels_list = [row['channels'] for row in result][0]
-    broadcasters = [" ".join(i.split("_")).title() for i in tracked_channels_list]
-
+    def process_name(name):
+        # Capitalize the first letter of each word and handle "lol" pattern
+        name = re.sub(r'\b\w', lambda x: x.group(0).upper(), name)
+        name = re.sub(r'_lol\b', ' LOL', name, flags=re.IGNORECASE)
+        return name
+    # broadcasters = [" ".join(i.split("_")).title() for i in tracked_channels_list]
+    broadcasters = [process_name(channel) for channel in tracked_channels_list]
     """
     1. set default week number for overviewPlot.
     2. query min/max week number.
