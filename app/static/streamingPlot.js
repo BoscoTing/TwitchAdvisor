@@ -52,7 +52,7 @@ function updateStreamingPlot(selectedChannel) {
             var responseHtml = xmlHttp.responseText;
             var responseJson = JSON.parse(responseHtml);
             let stats = responseJson.stats; // get the stats data
-            if (stats == null){
+            if (stats == null){ // if channel is offline, streaming_logs API return 406
                 clearInterval(updateInterval);
                 console.log('channel is offline, clear update interval.')
                 return null
@@ -77,6 +77,12 @@ function updateStreamingPlot(selectedChannel) {
             const avgViewerCountElement = document.getElementById("avgViewerCount");
             avgViewerCountElement.textContent = avgViewerCount.at(-1);
             console.log(avgViewerCount.at(-1));
+
+            if (avgViewerCount == null && updateInterval){ // if channel turn off during plotting the streaming chart, clear the update interval.
+                clearInterval(updateInterval);
+                console.log('channel is offline, clear update interval.')
+                return null
+            };
 
             const totalCheersElement = document.getElementById("totalCheers");
             if (cheerCount.length >= 1) {

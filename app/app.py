@@ -146,7 +146,7 @@ def streaming_logs():
         try:
             stream_logs_route.listener.listen_to_chatroom_temp()
         except:
-            return json.dumps({"error": "channel is offline"}), 404
+            return json.dumps({"error": "channel is offline"}), 406
 
 
 
