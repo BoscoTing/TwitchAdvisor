@@ -97,9 +97,9 @@ def streaming_logs():
     selected_channel = request.args.get("channel")
     print("app.py -- selected streaming channel: ", selected_channel)
 
-
-    if selected_channel == stream_logs_route.latest_selected_channel: # won't be interrupted when a same channel is selected
-        pass
+    if selected_channel == stream_logs_route.latest_selected_channel: # use if statement so the process won't be interrupted when a same channel is selected
+        print("same channel is selected.")
+        return json.dumps({"error": "Same channel is selected"}), 406
 
     else: # when first entering into chatroom or switching to another channel
 
@@ -145,8 +145,14 @@ def streaming_logs():
         
         try:
             stream_logs_route.listener.listen_to_chatroom_temp()
+
         except:
-            return json.dumps({"error": "channel is offline"}), 406
+            event = request.args.get("event") # recogize the refresh event in order not to respond {"error": "Same channel is selected"} when refreshing
+            print('event:', event)
+            # print('live:', live)
+
+            if event == None and 'live' not in vars():
+                return json.dumps({"error": "Channel is offline"}), 406
 
 
 
