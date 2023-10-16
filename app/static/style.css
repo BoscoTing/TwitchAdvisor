@@ -13,6 +13,7 @@ body {
     color: #fff;
 }
 
+
 .plotContainer {
     position: relative;
     max-width: 100%; /* Ensure it doesn't exceed the viewport width */
@@ -26,6 +27,12 @@ body {
     min-height: 600px; /* Set a minimum height for the container */
 }
 
+.contentContainer {
+    flex: 1; /* Take up available space */
+    display: flex;
+    flex-direction: column; /* Arrange its children vertically */
+}
+
 .column {
     flex: 1; /* Take up available space */
     display: flexbox; /* Nested flex container */
@@ -34,6 +41,7 @@ body {
     padding: 10px; /* Adjust padding as needed */
     /* margin-left: 50px; */
 }
+
 
 .plot {
     flex: 3; /* Take up more available space */
@@ -45,15 +53,16 @@ body {
     margin: 10px 0 0 0; /* Adjust margin as needed */
 }
 
-h1, h3 {
+/* h1, h2, h3 {
     color: #333;
-}
-
-/* h2 {
-    display: inline;
-    margin: auto;
-    text-align: left;
+    
 } */
+
+h2 {
+    /* display: inline; */
+    margin: 0;
+    text-align: center;
+}
 
 .options ul {
     list-style: none;
@@ -118,7 +127,7 @@ h1, h3 {
 }
 
 #avgViewerCountHeader {
-    font-size: 26px;
+    font-size: 22px;
     text-align: center;
 }
 #avgViewerCount {
@@ -127,7 +136,7 @@ h1, h3 {
 }
 
 #totalCheersHeader {
-    font-size: 26px;
+    font-size: 22px;
     text-align: center;
 }
 #totalCheers {
@@ -141,4 +150,13 @@ h1, h3 {
 
 #week {
     text-align: center;
+}
+
+#header {
+    margin-bottom: 10%;
+    margin-top: 0;
+}
+
+#overviewHeader {
+    height: 196px;
 }
