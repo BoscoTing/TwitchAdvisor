@@ -12,7 +12,7 @@ function trackStreamingChat(selectedChannel) {
         console.log("Cancelled the current request.");
     }
 
-    var xmlHttp = new XMLHttpRequest();
+    var     xmlHttp = new XMLHttpRequest();
     currentRequestLogs = xmlHttp; // Store the current request
 
     xmlHttp.open("GET", `/api/streaming_logs?channel=${selectedChannel}`, true);
@@ -25,16 +25,23 @@ function trackStreamingChat(selectedChannel) {
         if (xmlHttp.status === 200) {
             console.log(xmlHttp.status);
         }
-        else if (xmlHttp.status === 404) {
+        else if (xmlHttp.status === 406 && JSON.parse(xmlHttp.responseText).error == "Channel is offline") {
             loadingOverlay.style.display = "none"; // unblock when entering into chatroom failed.
-            alert("Channel is offline.");
-            return null;
+            alert("This channel is offline, or it doesn't exist.");
+            selectedChannel = null;
+            return null; // don't send the request again with offline channel.
+        }
+        else if (xmlHttp.status === 406 && JSON.parse(xmlHttp.responseText).error == "Same channel is selected") {
+            // alert("You are trying to enter the same channel.")
+            searchQuery = '';
+            loadingOverlay.style.display = "none"; // unblock when entering into chatroom failed.
+            return null; // don't send the request again with duplicated channel seleted.
         }
         currentRequestLogs = null; // Reset the current request when it's completed (but here we are going to abort the requests of /api/streaming_logs while switching channels so this line might not works)
     };
 
     xmlHttp.send();
-    console.log(`Listening to ${selectedChannel}'s chatroom`);
+    console.log(`Listening to ${selectedChannel}'s chatroom...`);
 }
 
 
@@ -102,7 +109,7 @@ function updateStreamingPlot(selectedChannel) {
 
                 if (messageCount.length == previousMessageCountLength || messageCount.length <= 1) { // wait for new data to update the chart
                     waitingMessage.style.display = "block";
-                    console.log("streaming_logs:", "show 'waiting' notification when waiting for new messages");
+                    // console.log("streaming_logs:", "show 'waiting' notification when waiting for new messages");
                 }
                 else if (messageCount.length > previousMessageCountLength) {
                     waitingMessage.style.display = "none";
@@ -217,7 +224,7 @@ for (var i = 0; i < liveChannels.length; i++) {
         console.log("latest selected channel: ", selectedChannel);
 
         clearInterval(updateInterval); // stop updating previous selected channel
-        console.log("clear the update interval for previous selected channel.")
+        console.log("Clear the update interval for previous selected channel.")
 
         trackStreamingChat(selectedChannel);
 
@@ -227,24 +234,90 @@ for (var i = 0; i < liveChannels.length; i++) {
 };
 
 // search bar which receives value by pressing enter
-const searchBtn = document.getElementById("searchBotton");
+const searchBtn = document.getElementById("searchButton");
 const searchBar = document.getElementById("searchBar");
 let searchQuery;
+
 
 searchBar.addEventListener("keydown", (e) => {
     if (e.key == "Enter" && searchBar.value != "") {
 
+        searchQuery = searchBar.value;
+        searchBar.value = '';
+
+        const regex = /^(https?:\/\/)?(www\.)?twitch\.tv\/\w+\/?(?:\?referrer=raid|\/video)?$/; // check if the url is in the format of https://www.twitch.tv, http://www.twitch.tv or www.twitch.tv
+        if (regex.test(searchQuery) == false) {
+            searchQuery = '';
+            alert("Invalid url. Please try again.")
+        }
+
+        if (!searchQuery.startsWith("http://") && !searchQuery.startsWith("https://")) { // If url doesn't start with "http" or "https," add "https://"
+            searchQuery = "https://" + searchQuery;
+          }
+        
         if (currentRequestStats) { // currentRequestStats is assigned in 'updateStreamingPlot' function. If the socket connection is still waiting for messages, we quit that request.
-            console.log(currentRequestStats);
             currentRequestStats.abort();
             console.log("Cancelled the uncompleted stats request.");
         }
-        
-        searchQuery = searchBar.value;
 
-        const url = new URL(searchQuery);
-        const channelName = url.pathname.split('/').pop();
+        try {
+            url = new URL(searchQuery);
+            channelName = url.pathname.split('/').pop();
+        } catch (error) {
+            searchQuery = '';
+            console.log(error);
+        }
+
+        selectedChannel = channelName; // assign selectedChannel in a broader scope
+
+        console.log("latest selected channel: ", selectedChannel);
+
+        if (updateInterval) {
+            clearInterval(updateInterval); // stop updating previous selected channel
+            console.log("Cleared the update interval for previous selected channel.")
+        };
+
+        trackStreamingChat(selectedChannel);
+        console.log("Start to track the chatroom...")
+
+        startUpdateInterval(); //set or reset startUpdateInterval and execute updateStreamingPlot
+        console.log("Start the update interval...") 
+
+    }
+
+});
+
+searchBtn.addEventListener("click", (e) => {
+    if (searchBar.value != "") {
+
+        searchQuery = searchBar.value;
+        searchBar.value = '';
+
+        const regex = /^(https?:\/\/)?(www\.)?twitch\.tv\/\w+\/?(?:\?referrer=raid|\/video)?$/; // check if the url is in the format of https://www.twitch.tv, http://www.twitch.tv or www.twitch.tv
+        if (regex.test(searchQuery) == false) {
+            searchQuery = '';
+            alert("Invalid url. Please try again.")
+        }
+
+        if (!searchQuery.startsWith("http://") && !searchQuery.startsWith("https://")) { // If url doesn't start with "http" or "https," add "https://"
+            searchQuery = "https://" + searchQuery;
+          }
         
+        if (currentRequestStats) { // currentRequestStats is assigned in 'updateStreamingPlot' function. If the socket connection is still waiting for messages, we quit that request.
+            // console.log(currentRequestStats);
+            currentRequestStats.abort();
+            console.log("Cancelled the uncompleted stats request.");
+        }
+
+        try {
+            url = new URL(searchQuery);
+            channelName = url.pathname.split('/').pop();
+        } catch (error) {
+            // alert('Invalid url.');
+            searchQuery = '';
+            console.log(error);
+        }
+
         selectedChannel = channelName; // assign selectedChannel in a broader scope
 
         console.log("latest selected channel: ", selectedChannel);
@@ -255,10 +328,10 @@ searchBar.addEventListener("keydown", (e) => {
         };
 
         trackStreamingChat(selectedChannel);
-        console.log("trackStreamingChat")
+        console.log("Start to track the chatroom")
 
         startUpdateInterval(); //set or reset startUpdateInterval and execute updateStreamingPlot
-        console.log("startUpdateInterval") 
+        console.log("Start the update interval") 
 
     }
 
