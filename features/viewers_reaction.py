@@ -533,13 +533,15 @@ class ViewersReactionAnalyser():
     
     def get_historical_schedule(self):
         """
-        Only show the schedule query from chatStats, which have been organized already.
+        1. Only show the schedule query from taskRecords whose taskName is 'insert_stats'
+        2. taskName='insert_stats' means that the channel's stats data have been organized already at the time 'startedAt'.
         """
         collection = self.db.connect_collection("taskRecords")
         query = [
             {
                 "$match": {
-                    "channel": {"$eq": self.channel}
+                    "channel": {"$eq": self.channel},
+                    "taskName": "insert_stats" 
                 }
             },
             {
