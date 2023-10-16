@@ -25,26 +25,28 @@ function updateHistoricalPlot(convertSelectedBroadcaster, startedAt) {
                 scheduleHeader.removeChild(startedAtElements[0]);
             };
             console.log(scheduleArray);
+            
+            // when using textContent
             for (var i = 0; i < scheduleArray.length; i ++) { // create startedDate options
 
-                let startedAt = document.createElement("p");
+                let startedAt = document.createElement("option");
                 startedAt.setAttribute("class", "startedAt");
                 startedAt.textContent = scheduleArray[i];
 
                 // parse the textContent of the selectedDate into the bson format which is required by flask.
-                startedAt.addEventListener("click", function () { // set event listener to startedAt
-                    selectedDate = startedAt.textContent;
-                    console.log("selectedDate:", selectedDate);
+                // startedAt.addEventListener("click", function () { // set event listener to startedAt
+                //     selectedDate = startedAt.textContent;
+                //     console.log("selectedDate:", selectedDate);
 
-                    const parts = selectedDate.split(' ');
-                    const datePart = parts[0];
-                    const timePart = parts[1];
-                    const formattedDate = `${datePart}T${timePart}+08:00`;
-                    console.log("formattedDate:", formattedDate);
+                //     const parts = selectedDate.split(' ');
+                //     const datePart = parts[0];
+                //     const timePart = parts[1];
+                //     const formattedDate = `${datePart}T${timePart}+08:00`;
+                //     console.log("formattedDate:", formattedDate);
                     
-                    // use convertSelectedBroadcaster to select by snake case name
-                    updateHistoricalPlot(convertSelectedBroadcaster, formattedDate);
-                });
+                //     // use convertSelectedBroadcaster to select by snake case name
+                //     updateHistoricalPlot(convertSelectedBroadcaster, formattedDate);
+                // });
 
                 scheduleHeader.appendChild(startedAt);
             }
@@ -60,7 +62,7 @@ function updateHistoricalPlot(convertSelectedBroadcaster, startedAt) {
 
             const timestamp = stats.map(stats => new Date(stats.timestamp*1000));
             const avgViewerCount = stats.map(stats => stats.avgViewerCount);
-            console.log(avgViewerCount)
+            console.log(avgViewerCount[-1])
 
             const messageCount = stats.map(stats => stats.messageCount);
             // console.log(messageCount)
@@ -176,10 +178,14 @@ function updateHistoricalPlot(convertSelectedBroadcaster, startedAt) {
     xmlHttp.send();
 };
 
+
+
+
+// when using textContent
 const defaultBroadcasters = document.getElementsByClassName("defaultBroadcasters")
 for (var i = 0; i < defaultBroadcasters.length; i++) {
     let defaultBroadcaster = defaultBroadcasters[i];
-    defaultBroadcaster.addEventListener("click", function () {
+    defaultBroadcaster.addEventListener("change", function () {
 
         selectedBroadcaster = defaultBroadcaster.textContent;
         convertSelectedBroadcaster = selectedBroadcaster.toLowerCase().replace(/\s+/g, '_');
@@ -187,3 +193,36 @@ for (var i = 0; i < defaultBroadcasters.length; i++) {
 
     });
 };
+
+// when using dropdown selector on Broadcaster
+function handleSelectionChange() {
+
+    const selectElement = document.getElementById("broadcasterSelect");
+    const selectedValue = selectElement.value;
+  
+    console.log("Selected option: " + selectedValue);
+  
+    selectedBroadcaster = selectedValue;
+    convertSelectedBroadcaster = selectedBroadcaster.toLowerCase().replace(/\s+/g, '_');
+    updateHistoricalPlot(convertSelectedBroadcaster, null); // set startedAt=null when first loading to the page
+  }
+
+    const selectElement = document.getElementById("broadcasterSelect");
+  selectElement.addEventListener("change", handleSelectionChange);
+
+
+// when using dropdown selector on schedule
+scheduleHeader.addEventListener("change", function () { // set event listener to startedAt
+
+    selectedDate = scheduleHeader.value;
+    console.log("selectedDate:", selectedDate);
+
+    const parts = selectedDate.split(' ');
+    const datePart = parts[0];
+    const timePart = parts[1];
+    const formattedDate = `${datePart}T${timePart}+08:00`;
+    console.log("formattedDate:", formattedDate);
+    
+    // use convertSelectedBroadcaster to select by snake case name
+    updateHistoricalPlot(convertSelectedBroadcaster, formattedDate);
+});  

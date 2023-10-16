@@ -75,17 +75,20 @@
 
          <div id="defaultBroadcasters" class="options">
             <h3>Tracked Broadcasters</h3>
-               <div>
+               <select id="broadcasterSelect">
                   {% for b in broadcasters %}
-                  <p class="defaultBroadcasters">{{b}}</p>
+                  <option class="defaultBroadcasters">{{b}}</option>
                   {% endfor %}  
-               </div>
+               </select>
          </div>
 
          <!-- selected channel -->
          <h3 id="selectedBroadcaster"></h3>
          <!-- schedule -->
-         <div id="scheduleHeader" class="options">Live Stream History</div>
+         <label>Live Stream History</label>
+         <select id="scheduleHeader" class="options">
+            <option value="" disabled selected>Select a start date</option>
+         </select>
 
       </div>
 
