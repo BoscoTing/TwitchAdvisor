@@ -34,7 +34,13 @@ class TwitchChatListener:
 
         resp = self.sock.recv(2048).decode('utf-8')
         print(f"getting 'startedAt' for {self.channel}'s live stream...")
-        self.started_at = TwitchDeveloper().detect_living_channel(self.channel)['started_at'] # already turn timezone to +8 for showing on the chart.
+        try:
+            self.started_at = TwitchDeveloper().detect_living_channel(self.channel)['started_at'] # already turn timezone to +8 for showing on the chart.
+
+        except Exception as e:
+            print(e)
+            return False
+         
         """
         record the start_tracking_livestream task in taskRecords collection.
         """
@@ -84,7 +90,12 @@ class TwitchChatListener:
                                                           mode='w', # use 'w' mode to create log file everytime.
                                                           encoding='utf-8')])
         logging.info(resp)
-        self.started_at = TwitchDeveloper().detect_living_channel(self.channel)['started_at']
+        try:
+            self.started_at = TwitchDeveloper().detect_living_channel(self.channel)['started_at'] # already turn timezone to +8 for showing on the chart.
+
+        except Exception as e:
+            print(e)
+            return False
     
     """
     1. In 'listen_to_chatroom' function, 'get_total_viewers_thread' function for threading collect 'viewer_count' at the same time.
@@ -117,7 +128,7 @@ class TwitchChatListener:
         if resp.startswith('PING'):
             self.sock.send("PONG\n".encode('utf-8'))
         elif len(resp) > 0:
-            logging.info(demojize(resp))
+            # logging.info(demojize(resp))
             with open(os.getcwd() + f'/chat_logs/{self.channel}.log', 
                       'a', 
                       encoding='utf-8') as log_file:
@@ -178,7 +189,15 @@ class TwitchChatListener:
 
 
     def listen_to_chatroom_temp(self):
+        self.keep_listening_temp = True
         self.connect_chatroom_temp()
+        print("connect_chatroom_temp")
+        while self.keep_listening_temp:
+            # print("record_logs_temp")
+            self.record_logs_temp()
+
+        return False
+
  
     def save_start_time(self):
         developer = TwitchDeveloper()
