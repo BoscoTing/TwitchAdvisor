@@ -207,8 +207,8 @@ function handleSelectionChange() {
     updateHistoricalPlot(convertSelectedBroadcaster, null); // set startedAt=null when first loading to the page
   }
 
-    const selectElement = document.getElementById("broadcasterSelect");
-  selectElement.addEventListener("change", handleSelectionChange);
+const selectElement = document.getElementById("broadcasterSelect");
+selectElement.addEventListener("change", handleSelectionChange);
 
 
 // when using dropdown selector on schedule
@@ -222,7 +222,6 @@ scheduleHeader.addEventListener("change", function () { // set event listener to
     const timePart = parts[1];
     const formattedDate = `${datePart}T${timePart}+08:00`;
     console.log("formattedDate:", formattedDate);
-    
     // use convertSelectedBroadcaster to select by snake case name
     updateHistoricalPlot(convertSelectedBroadcaster, formattedDate);
 });  

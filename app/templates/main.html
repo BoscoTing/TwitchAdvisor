@@ -76,6 +76,7 @@
          <div id="defaultBroadcasters" class="options">
             <h3>Tracked Broadcasters</h3>
                <select id="broadcasterSelect">
+                  <option value="" disabled selected>Select a broadcaster</option>
                   {% for b in broadcasters %}
                   <option class="defaultBroadcasters">{{b}}</option>
                   {% endfor %}  
@@ -86,9 +87,9 @@
          <h3 id="selectedBroadcaster"></h3>
          <!-- schedule -->
          <label>Live Stream History</label>
-         <select id="scheduleHeader" class="options">
-            <option value="" disabled selected>Select a start date</option>
-         </select>
+            <select id="scheduleHeader" class="options">
+               <option value="" disabled selected>Select a start date</option>
+            </select>
 
       </div>
 
@@ -113,12 +114,14 @@
          <input id="week" type="week" name="week" lang="en" onchange="handleWeekSelection()" value={{week_value}} min={{start_week}} max={{end_week}}>
 
          <h3>Metrics</h3>
-            <div class="overviewMetrics">Viewer Count</div>
-            <div class="overviewMetrics">Average Message Count</div>
-            <div class="overviewMetrics">Max Message Count</div>
-            <div class="overviewMetrics">Average Sentiment Score</div>
-            <div class="overviewMetrics">Total Cheers</div>
-         
+         <select id="overviewMetricsSelect">
+            <option class="overviewMetrics">Viewer Count</option>
+            <option class="overviewMetrics">Average Message Count</option>
+            <option class="overviewMetrics">Max Message Count</option>
+            <option class="overviewMetrics">Average Sentiment Score</option>
+            <option class="overviewMetrics">Total Cheers</option>
+         </select>
+
       </div>
 
       <!-- plot -->
