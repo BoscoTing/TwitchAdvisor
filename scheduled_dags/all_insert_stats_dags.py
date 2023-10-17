@@ -7,6 +7,7 @@ import os
 import sys
 sys.path.insert(0, os.getcwd())
 
+from managers.logging_manager import dev_logger, send_log
 from features.viewers_reaction import ViewersReactionAnalyser
 from managers.mongodb_manager import MongoDBManager
 
@@ -30,7 +31,7 @@ query = [
     ] # the query to get the tracked channels 
 result = tracked_channels_collection.aggregate(query)
 tracked_channels_list = [row['channels'] for row in result][0]
-print("current_tracking_channels: ", tracked_channels_list)
+dev_logger.info("current_tracking_channels: ", tracked_channels_list)
 
 
 """
@@ -41,6 +42,7 @@ def complete_insert_stats_for_every_channels():
     for channel in tracked_channels_list:
         analyser = ViewersReactionAnalyser(channel=channel)
         analyser.insert_historical_stats()
+        send_log("insert_historical_stats: ", channel)
 
 with DAG(
     "start_insert_stats_dag",

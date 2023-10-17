@@ -8,7 +8,7 @@ from airflow.operators.python_operator import PythonOperator
 from airflow.models import DagModel
 from airflow.settings import Session
 
-
+from managers.logging_manager import dev_logger, send_log
 from managers.twitch_api_manager import TwitchDeveloper
 from managers.mongodb_manager import MongoDBManager
 from managers.ircbot_manager import TwitchChatListener
@@ -38,7 +38,7 @@ query = [
     ] # the query to get the tracked channels 
 result = tracked_channels_collection.aggregate(query)
 tracked_channels_list = [row['channels'] for row in result][0]
-print("current_tracking_channels: ", tracked_channels_list)
+dev_logger.info("current_tracking_channels: ", tracked_channels_list)
 # tracked_channels_list = ['sneakylol', 'gosu', 'scarra', 'disguisedtoast', 'trick2g', 'midbeast', 'perkz_lol']
 
 
