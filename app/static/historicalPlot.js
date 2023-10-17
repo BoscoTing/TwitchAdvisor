@@ -53,6 +53,7 @@ function updateHistoricalPlot(convertSelectedBroadcaster, startedAt) {
 
             let stats = responseJson.stats; // get the stats data
             console.log(stats.length);
+            console.log(stats)
 
             const channel = stats.map(stats => stats.channel)[0];
             console.log("selectedBroadcaster: ", channel);
@@ -61,7 +62,7 @@ function updateHistoricalPlot(convertSelectedBroadcaster, startedAt) {
             // selectedChannelElement.appendChild(scheduleHeader);
 
             const timestamp = stats.map(stats => new Date(stats.timestamp*1000));
-            const avgViewerCount = stats.map(stats => stats.avgViewerCount);
+            const avgViewerCount = stats.map(stats => stats.averageViewerCount);
             console.log(avgViewerCount[-1])
 
             const messageCount = stats.map(stats => stats.messageCount);
@@ -161,7 +162,7 @@ function updateHistoricalPlot(convertSelectedBroadcaster, startedAt) {
                     [
                         trace1, 
                         trace2, 
-                        trace3, 
+                        // trace3, 
                         trace4,
                         trace5
                     ], 
