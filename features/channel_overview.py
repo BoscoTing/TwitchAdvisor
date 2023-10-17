@@ -35,7 +35,16 @@ class Overview:
                     }, 
                     'avgMessageCount': {
                         '$avg': '$messageCount'
-                    }
+                    },
+                    'avgViewerCount': {
+                        '$avg': '$averageViewerCount'
+                    },
+                    'maxViewerCount': {
+                        '$max': '$averageViewerCount'
+                    },
+                    'totCheerCount': {
+                        '$sum': {'$sum': "$cheers"}
+                    },
                 }
             }, {
                 '$project': {
@@ -44,7 +53,10 @@ class Overview:
                     'startedAt': '$_id.startedAt', 
                     'avgSentimentScore': 1, 
                     'maxMessageCount': 1, 
-                    'avgMessageCount': 1
+                    'avgMessageCount': 1,
+                    'avgViewerCount': 1,
+                    'maxViewerCount': 1,
+                    'totCheerCount': 1
                 }
             }
         ]

@@ -44,7 +44,7 @@ function updateOverviewPlot(selectedWeek, selectedYear) {
                     const entry = channelData.find(dataEntry => dataEntry.weekDayName === weekday);
                     // console.log(entry);
                     if (entry) {
-                        // console.log("entry: ", entry)
+                        console.log("entry: ", entry)
                     };
 
                     if (option == 'Average Message Count') {
@@ -53,9 +53,21 @@ function updateOverviewPlot(selectedWeek, selectedYear) {
                     else if (option == 'Max Message Count') {
                         return entry ? entry.maxMessageCount : 0;
                     }
-                    else if (option == 'Average Sentiment Score') {
-                        return entry ? entry.avgSentimentScore : 0;
+                    else if (option == 'Average Viewer Count') {
+                        return entry ? entry.avgViewerCount : 0;
                     }
+                    else if (option == 'Max Viewer Count') {
+                        return entry ? entry.maxViewerCount : 0;
+                    }
+                    else if (option == 'Max Message Count') {
+                        return entry ? entry.maxMessageCount : 0;
+                    }
+                    else if (option == 'Total Cheer Count') {
+                        return entry ? entry.totCheerCount : 0;
+                    }
+                    // else if (option == 'Average Sentiment Score') {
+                    //     return entry ? entry.avgSentimentScore : 0;
+                    // }
 
                 });
 

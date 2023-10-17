@@ -87,7 +87,7 @@
             <!-- schedule -->
             <label>Live Stream History</label>
                <select id="scheduleHeader" class="options">
-                  <option value="" disabled selected>Select a start date</option>
+                  <option value="" disabled selected>Live stream start date</option>
                </select>
          </div>
 
@@ -116,11 +116,13 @@
 
          <h3>Metrics</h3>
          <select id="overviewMetricsSelect">
-            <option class="overviewMetrics">Viewer Count</option>
+            <option value="" disabled selected>Select a metric</option>
+            <option class="overviewMetrics">Average Viewer Count</option>
+            <option class="overviewMetrics">Max Viewer Count</option>
             <option class="overviewMetrics">Average Message Count</option>
             <option class="overviewMetrics">Max Message Count</option>
-            <option class="overviewMetrics">Average Sentiment Score</option>
-            <option class="overviewMetrics">Total Cheers</option>
+            <!-- <option class="overviewMetrics">Average Sentiment Score</option> -->
+            <option class="overviewMetrics">Total Cheer Count</option>
          </select>
       </div>
 
