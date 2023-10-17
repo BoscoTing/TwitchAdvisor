@@ -9,6 +9,7 @@ import os
 import sys
 sys.path.insert(0, os.getcwd())
 
+from managers.logging_manager import dev_logger, send_log
 from managers.twitch_api_manager import TwitchDeveloper
 from managers.mongodb_manager import MongoDBManager
 
@@ -44,20 +45,23 @@ def stop_dag_run(dag_id): # doesn't work
 
 
     if dag_run:
-        print(f"DAG '{dag_id}' is currently running.")
+        send_log(f"DAG '{dag_id}' is currently running.")
+        dev_logger.info(f"DAG '{dag_id}' is currently running.")
 
         dag_run_id = dag_run[0].run_id # prepare dag_id and dag_run_id
-        print(f"DAG run ID for DAG '{dag_id}' is {dag_run_id}.")
+        dev_logger.info(f"DAG run ID for DAG '{dag_id}' is {dag_run_id}.")
 
         try:
             dag_run[0].set_state('failed') # set dag run state to 'success'
-            print(f"Successfully Stopped DAG run {dag_run_id} for DAG {dag_id}.")
+            send_log(f"Successfully Stopped DAG run {dag_run_id} for DAG {dag_id}.")
+            dev_logger.info(f"Successfully Stopped DAG run {dag_run_id} for DAG {dag_id}.")
             
         except Exception as e:
-            print(f"Error: {e}")
+            send_log(e)
+            dev_logger.error(e)
 
     else:
-        print(f"No running DAG runs found for DAG '{dag_id}'.")
+        dev_logger.info(f"No running DAG runs found for DAG '{dag_id}'.")
 
 
 with DAG(
@@ -80,16 +84,19 @@ with DAG(
             3. Trigger listen_dags for online channels.
             """
 
-            print(f"{channel} is online.")
+            dev_logger.info(f"{channel} is online.")
 
             # dag_id = f'{channel}_listen_dag'
             dag_run = DagRun.find(dag_id=dag_id, state='running')
-            print("dag_runs: ", dag_run)
+            dev_logger.info("dag_runs: ", dag_run)
 
             if dag_run:
-                print(f"DAG '{dag_id}' is currently running.")
+                send_log(f"DAG '{dag_id}' is currently running.")
+                dev_logger.info(f"DAG '{dag_id}' is currently running.")
+
             else:
-                print(f"DAG '{dag_id}' is not running, trigger {dag_id}")
+                send_log(f"DAG '{dag_id}' is not running, trigger {dag_id}")
+                dev_logger.info(f"DAG '{dag_id}' is not running, trigger {dag_id}")
                 start_listen_task=TriggerDagRunOperator(
                     task_id=f"trigger_{channel}_listen_task",
                     trigger_dag_id=f"{channel}_listen_dag",

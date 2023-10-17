@@ -2,19 +2,20 @@ from flask import (Flask,
                    render_template, 
                    request, 
                    )
-import pytz
 from datetime import datetime, timedelta
 import re
 import json
 import os
 import sys
-sys.path.insert(0, "/Users/surfgreen/B/AppworksSchool/projects/personal_project")
+sys.path.insert(0, os.getcwd())
 
+from managers.logging_manager import send_log, dev_logger
 from managers.twitch_api_manager import TwitchDeveloper
 from managers.ircbot_manager import TwitchChatListener
 from features.viewers_reaction import ViewersReactionAnalyser
 from features.channel_overview import Overview
 from managers.mongodb_manager import MongoDBManager
+
 
 app = Flask(__name__)
 
@@ -38,7 +39,6 @@ def main_page():
         name = re.sub(r'\b\w', lambda x: x.group(0).upper(), name)
         name = re.sub(r'_lol\b', ' LOL', name, flags=re.IGNORECASE)
         return name
-    # broadcasters = [" ".join(i.split("_")).title() for i in tracked_channels_list]
     broadcasters = [process_name(channel) for channel in tracked_channels_list]
     """
     1. set default week number for overviewPlot.
@@ -100,32 +100,39 @@ def streaming_logs():
 
     global stream_logs_route
     selected_channel = request.args.get("channel")
-    print("app.py -- selected streaming channel: ", selected_channel)
+    dev_logger.info(selected_channel)
+    # print("app.py -- selected streaming channel: ", selected_channel)
 
     if selected_channel == stream_logs_route.latest_selected_channel: # use if statement so the process won't be interrupted when a same channel is selected
-        print("same channel is selected.")
+        dev_logger.debug("same channel is selected.")
+        # print("same channel is selected.")
         return json.dumps({"error": "Same channel is selected"}), 406
 
     else: # when first entering into chatroom or switching to another channel
 
         try: # when switching channels: listener.listen_to_chatroom_temp() has been executed 
-            print("switching channel...")
+            dev_logger.debug("switching channel...")
+            # print("switching channel...")
 
             stream_logs_route.listener.sock.close() # need to close the socket first
-            print("closed socket")
+            dev_logger.debug("closed socket")
+            # print("closed socket")
 
             stream_logs_route.listener.keep_listening_temp = False # then stop the while loop
-            print("stopped while loop")
+            dev_logger.debug("stopped while loop")
+            # print("stopped while loop")
 
         except:
             pass
 
         if stream_logs_route.latest_selected_channel: # when switching channels
             os.remove(os.getcwd()+f"/chat_logs/{stream_logs_route.latest_selected_channel}.log")
-            print(f'deleted /chat_logs/{stream_logs_route.latest_selected_channel}.log') # delete the log file after leaving the chatroom
+            dev_logger.debug(f'deleted /chat_logs/{stream_logs_route.latest_selected_channel}.log')
+            # print(f'deleted /chat_logs/{stream_logs_route.latest_selected_channel}.log') # delete the log file after leaving the chatroom
 
             MongoDBManager().delete_many(stream_logs_route.latest_selected_channel, "tempChatLogs") # delete the log file of previous selected channel.
-            print(f"app.py -- db.tempChatLogs.deleteMany: {stream_logs_route.latest_selected_channel}")
+            dev_logger.debug(f"db.tempChatLogs.deleteMany: {stream_logs_route.latest_selected_channel}")
+            # print(f"app.py -- db.tempChatLogs.deleteMany: {stream_logs_route.latest_selected_channel}")
 
         else:
             pass
@@ -149,6 +156,8 @@ def streaming_logs():
         print("latest_selected_channel: ", stream_logs_route.latest_selected_channel)
         
         try:
+            send_log('Trying turn on The while loop and socket.')
+            dev_logger.info('Trying turn on The while loop and socket.')
             stream_logs_route.listener.listen_to_chatroom_temp()
 
         except:
@@ -192,8 +201,10 @@ def event_listener():
 
     else:
         pass
-
-    return 'The while loop and socket are off.'
+    
+    send_log('The while loop and socket are turned off.')
+    dev_logger.info('The while loop and socket are turned off.')
+    return 'The while loop and socket are turned off.'
 
 
 @app.route("/api/streaming_stats", methods=["GET"]) # start querying and drawing the chart of selected channel.
