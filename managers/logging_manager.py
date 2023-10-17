@@ -13,11 +13,12 @@ dev_logger.addHandler(handler)
 client = boto3.client('logs', region_name='ap-southeast-2', aws_access_key_id=config("aws_access_key"),
                                aws_secret_access_key=config("aws_secret_access_key"))
 
-LOG_GROUP_NAME = "/apps/CloudWatchAgentLog/"
-LOG_STREAM_NAME = f"{config('ip_address')}_{config('instance_id')}"
+# LOG_GROUP_NAME = "/apps/CloudWatchAgentLog/"
+# LOG_STREAM_NAME = f"{config('ip_address')}_{config('instance_id')}"
 
-def send_log(log_group_name, log_stream_name, log_message):
-    # Getting last sequence token
+def send_log(log_message):
+    log_group_name = "/apps/CloudWatchAgentLog/"
+    log_stream_name = f"{config('ip_address')}_{config('instance_id')}"
     response = client.describe_log_streams(logGroupName=log_group_name,
                                            logStreamNamePrefix=log_stream_name)
 
