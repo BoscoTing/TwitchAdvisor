@@ -5,6 +5,8 @@ async-timeout==4.0.3
 attrs==23.1.0
 beautifulsoup4==4.12.2
 blinker==1.6.2
+boto3==1.28.64
+botocore==1.31.64
 bs4==0.0.1
 cachetools==5.3.1
 certifi==2023.7.22
@@ -27,6 +29,7 @@ idna==3.4
 importlib-metadata==6.8.0
 itsdangerous==2.1.2
 Jinja2==3.1.2
+jmespath==1.0.1
 jsonschema==4.18.0
 jsonschema-specifications==2023.7.1
 kiwisolver==1.4.5
@@ -62,6 +65,7 @@ regex==2023.8.8
 requests==2.29.0
 rich==13.5.3
 rpds-py==0.10.3
+s3transfer==0.7.0
 safetensors==0.3.3
 six==1.16.0
 smmap==5.0.1
