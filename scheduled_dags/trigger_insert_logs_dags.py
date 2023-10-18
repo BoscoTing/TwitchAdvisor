@@ -8,6 +8,7 @@ import os
 import sys
 sys.path.insert(0, os.getcwd())
 
+from managers.logging_manager import dev_logger, send_log
 from managers.twitch_api_manager import TwitchDeveloper
 from managers.mongodb_manager import MongoDBManager
 
@@ -49,18 +50,23 @@ with DAG(
         3. Trigger insert_logs_dags for offline channels.
         """
         if living:
-            print(f"{channel} is online.")
+            send_log(f"{channel} is online.")
+            dev_logger.info(f"{channel} is online.")
 
         else:
-            print(f"{channel} is offline.")
+            send_log(f"{channel} is offline.")
+            dev_logger.info(f"{channel} is offline.")
 
             dag_id = f'{channel}_insert_logs_dags'
             dag_runs = DagRun.find(dag_id=dag_id, state='running')
 
             if dag_runs:
-                print(f"DAG '{dag_id}' is currently running.")
+                send_log(f"{channel} is online.")
+                dev_logger.info(f"DAG '{dag_id}' is currently running.")
+
             else:
-                print(f"DAG '{dag_id}' is not running, trigger {dag_id}")
+                send_log(f"DAG '{dag_id}' is not running, trigger {dag_id}")
+                dev_logger.info(f"DAG '{dag_id}' is not running, trigger {dag_id}")
                 trigger_insert_logs_task=TriggerDagRunOperator(
                     task_id=f"trigger_{channel}_insert_logs_task",
                     trigger_dag_id=f"{channel}_insert_logs_dag",

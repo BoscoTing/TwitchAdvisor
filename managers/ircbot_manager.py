@@ -73,7 +73,7 @@ class TwitchChatListener:
         #                                                   mode='a',
         #                                                   encoding='utf-8')])
         print(f"Writing logs in /dags/chat_logs/{self.started_at}_{self.channel}.log")
-        logging.info(resp)
+        logging.debug(resp)
 
     def connect_chatroom_temp(self):
         self.sock = socket.socket()
@@ -89,7 +89,7 @@ class TwitchChatListener:
                             handlers=[logging.FileHandler(os.getcwd() + f'/chat_logs/{self.channel}.log', 
                                                           mode='w', # use 'w' mode to create log file everytime.
                                                           encoding='utf-8')])
-        logging.info(resp)
+        logging.debug(resp)
         try:
             self.started_at = TwitchDeveloper().detect_living_channel(self.channel)['started_at'] # already turn timezone to +8 for showing on the chart.
 
@@ -109,7 +109,7 @@ class TwitchChatListener:
         if resp.startswith('PING'):
             self.sock.send("PONG\n".encode('utf-8'))
         elif len(resp) > 0:
-            logging.info(demojize(resp))
+            logging.debug(demojize(resp))
             with open(os.getcwd() + f'/dags/chat_logs/{self.started_at}_{self.channel}.log', 
                       'a', 
                       encoding='utf-8') as log_file:
