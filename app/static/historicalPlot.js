@@ -1,7 +1,7 @@
 function updateHistoricalPlot(convertSelectedBroadcaster, startedAt) {
     const loadingOverlay = document.getElementById("loadingOverlayHistorical");
     loadingOverlay.style.display = "block";
-    
+
     var xmlHttp = new XMLHttpRequest();
 
     if (startedAt) {
@@ -25,7 +25,7 @@ function updateHistoricalPlot(convertSelectedBroadcaster, startedAt) {
                 scheduleHeader.removeChild(startedAtElements[0]);
             };
             console.log(scheduleArray);
-            
+
             // when using textContent
             for (var i = 0; i < scheduleArray.length; i ++) { // create startedDate options
 
@@ -43,7 +43,7 @@ function updateHistoricalPlot(convertSelectedBroadcaster, startedAt) {
                 //     const timePart = parts[1];
                 //     const formattedDate = `${datePart}T${timePart}+08:00`;
                 //     console.log("formattedDate:", formattedDate);
-                    
+
                 //     // use convertSelectedBroadcaster to select by snake case name
                 //     updateHistoricalPlot(convertSelectedBroadcaster, formattedDate);
                 // });
@@ -57,8 +57,8 @@ function updateHistoricalPlot(convertSelectedBroadcaster, startedAt) {
 
             const channel = stats.map(stats => stats.channel)[0];
             console.log("selectedBroadcaster: ", channel);
-            const selectedChannelElement = document.getElementById("selectedBroadcaster");
-            selectedChannelElement.textContent = `${selectedBroadcaster}`;
+            // const selectedChannelElement = document.getElementById("selectedBroadcaster");
+            // selectedChannelElement.textContent = `${selectedBroadcaster}`;
             // selectedChannelElement.appendChild(scheduleHeader);
 
             const timestamp = stats.map(stats => new Date(stats.timestamp*1000));
@@ -125,10 +125,10 @@ function updateHistoricalPlot(convertSelectedBroadcaster, startedAt) {
                 visible: 'legendonly'
 
             };
-            
+
             // Layout for the chart
             const layout1 = {
-                
+
                 title: `${selectedBroadcaster}'s Live Stream Records`,
                 font: {
                     family: 'Verdana',
@@ -143,7 +143,7 @@ function updateHistoricalPlot(convertSelectedBroadcaster, startedAt) {
             };
 
             // const layout2 = {
-                
+
             //     // title: `${selectedBroadcaster}'s Live Stream Records`,
             //     font: {
             //         family: 'Verdana',
@@ -158,24 +158,24 @@ function updateHistoricalPlot(convertSelectedBroadcaster, startedAt) {
             // };
 
             Plotly.newPlot(
-                    'historicalPlot', 
+                    'historicalPlot',
                     [
-                        trace1, 
-                        trace2, 
-                        // trace3, 
+                        trace1,
+                        trace2,
+                        // trace3,
                         trace4,
                         trace5
-                    ], 
+                    ],
                     layout1
-                ); 
+                );
 
             // Plotly.newPlot(
-            //     'historicalPlotViewerCount', 
+            //     'historicalPlotViewerCount',
             //     [
             //         trace5
-            //     ], 
+            //     ],
             //     layout2
-            // ); 
+            // );
 
         }
     }
@@ -203,9 +203,9 @@ function handleSelectionChange() {
 
     const selectElement = document.getElementById("broadcasterSelect");
     const selectedValue = selectElement.value;
-  
+
     console.log("Selected option: " + selectedValue);
-  
+
     selectedBroadcaster = selectedValue;
     convertSelectedBroadcaster = selectedBroadcaster.toLowerCase().replace(/\s+/g, '_');
     updateHistoricalPlot(convertSelectedBroadcaster, null); // set startedAt=null when first loading to the page
@@ -228,4 +228,4 @@ scheduleHeader.addEventListener("change", function () { // set event listener to
     console.log("formattedDate:", formattedDate);
     // use convertSelectedBroadcaster to select by snake case name
     updateHistoricalPlot(convertSelectedBroadcaster, formattedDate);
-});  
+});

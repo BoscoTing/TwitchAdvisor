@@ -12,7 +12,7 @@ let year = null;
 function updateOverviewPlot(selectedWeek, selectedYear) {
     const loadingOverlay = document.getElementById("loadingOverlayOverview");
     loadingOverlay.style.display = "block";
-    
+
     var xmlHttp = new XMLHttpRequest();
     if (selectedWeek && selectedYear) {
         xmlHttp.open( "GET", `/api/overview_data?week=${selectedWeek}&year=${selectedYear}`, true );
@@ -83,7 +83,7 @@ function updateOverviewPlot(selectedWeek, selectedYear) {
 
             // Create the layout
             const layout = {
-                title: `Overview of ${option} at Week ${week}`,
+                title: `Comparisons at Week ${week}`,
                 font: {
                     family: 'Verdana',
                     size: 15,
