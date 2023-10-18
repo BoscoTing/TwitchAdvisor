@@ -52,7 +52,7 @@ function updateStreamingPlot(selectedChannel) {
     var xmlHttp = new XMLHttpRequest();
     currentRequestStats = xmlHttp; // be used in keydown event listener
 
-    xmlHttp.open( "GET", `/api/streaming_stats?channel=${selectedChannel}`, true ); 
+    xmlHttp.open( "GET", `/api/streaming_stats?channel=${selectedChannel}`, true );
 
     xmlHttp.onload = function () {
         if (xmlHttp.status === 200) {
@@ -102,10 +102,10 @@ function updateStreamingPlot(selectedChannel) {
             const loadingOverlay = document.getElementById("loadingOverlayStreaming");
             const waitingMessage = document.getElementById("waitingMessage");
 
-            if (messageCount.length >= 0) { 
+            if (messageCount.length >= 0) {
                 // loadingOverlay.style.display = "block";
                 // console.log("streaming_logs:", "block the screen when waiting for messages");
-                loadingOverlay.style.display = "none"; 
+                loadingOverlay.style.display = "none";
 
                 if (messageCount.length == previousMessageCountLength || messageCount.length <= 1) { // wait for new data to update the chart
                     waitingMessage.style.display = "block";
@@ -124,7 +124,7 @@ function updateStreamingPlot(selectedChannel) {
                 waitingMessage.style.display = "none";
 
                 // const loadingOverlay = document.getElementById("loadingOverlayStreaming");
-                // loadingOverlay.style.display = "none"; 
+                // loadingOverlay.style.display = "none";
             }
 
             const trace1 = {
@@ -162,10 +162,10 @@ function updateStreamingPlot(selectedChannel) {
                 marker: {color: 'gray'},
                 name: 'Cheers'
             };
-            
+
             // Layout for the chart
             const layout = {
-                title: `Your Live Stream`,
+                title: `Live Chats`,
                 font: {
                     // family:'Times New Roman'
                     family: 'Verdana',
@@ -179,13 +179,13 @@ function updateStreamingPlot(selectedChannel) {
                 }
             };
             Plotly.react(
-                    'streamingPlot', 
+                    'streamingPlot',
                     [
-                        // trace1, 
-                        trace2, 
-                        trace3, 
+                        // trace1,
+                        trace2,
+                        trace3,
                         // trace4
-                    ], 
+                    ],
                     layout
                 );
         }
@@ -219,7 +219,7 @@ let updateInterval = null; // assign updateInterval in initial
 for (var i = 0; i < liveChannels.length; i++) {
     let liveChannel = liveChannels[i]
     liveChannel.addEventListener("click", function () {
-        
+
         selectedChannel = liveChannel.textContent;
         console.log("latest selected channel: ", selectedChannel);
 
@@ -254,7 +254,7 @@ searchBar.addEventListener("keydown", (e) => {
         if (!searchQuery.startsWith("http://") && !searchQuery.startsWith("https://")) { // If url doesn't start with "http" or "https," add "https://"
             searchQuery = "https://" + searchQuery;
           }
-        
+
         if (currentRequestStats) { // currentRequestStats is assigned in 'updateStreamingPlot' function. If the socket connection is still waiting for messages, we quit that request.
             currentRequestStats.abort();
             console.log("Cancelled the uncompleted stats request.");
@@ -281,7 +281,7 @@ searchBar.addEventListener("keydown", (e) => {
         console.log("Start to track the chatroom...")
 
         startUpdateInterval(); //set or reset startUpdateInterval and execute updateStreamingPlot
-        console.log("Start the update interval...") 
+        console.log("Start the update interval...")
 
     }
 
@@ -302,7 +302,7 @@ searchBtn.addEventListener("click", (e) => {
         if (!searchQuery.startsWith("http://") && !searchQuery.startsWith("https://")) { // If url doesn't start with "http" or "https," add "https://"
             searchQuery = "https://" + searchQuery;
           }
-        
+
         if (currentRequestStats) { // currentRequestStats is assigned in 'updateStreamingPlot' function. If the socket connection is still waiting for messages, we quit that request.
             // console.log(currentRequestStats);
             currentRequestStats.abort();
@@ -331,7 +331,7 @@ searchBtn.addEventListener("click", (e) => {
         console.log("Start to track the chatroom")
 
         startUpdateInterval(); //set or reset startUpdateInterval and execute updateStreamingPlot
-        console.log("Start the update interval") 
+        console.log("Start the update interval")
 
     }
 
@@ -354,3 +354,7 @@ window.addEventListener('unload', function () {
     var data = JSON.stringify({ message: 'Page is closing' });
     navigator.sendBeacon(`/api/streaming_logs?event=unload`, data);
 });
+
+// function capitalizeNames(name) {
+//       return name.replace(/\b\w/g, firstLetter.toUpperCase()).replace(/_lol\b/gi, ' LOL');
+// }
