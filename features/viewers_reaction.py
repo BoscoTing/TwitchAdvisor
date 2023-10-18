@@ -8,6 +8,7 @@ import sys
 sys.path.insert(0, os.getcwd())
 from copy import deepcopy
 
+from managers.logging_manager import send_log, dev_logger
 from managers.mongodb_manager import MongoDBManager
 from managers.ircbot_manager import TwitchChatListener
 from managers.twitch_api_manager import TwitchDeveloper
@@ -64,7 +65,9 @@ class ViewersReactionAnalyser():
 
         started_at = line.split('—')[1].strip()
 
-        username_message = line.split('—')[2:]
+        viewer_count = int(line.split('—')[2].strip())
+
+        username_message = line.split('—')[3:]
         username_message = '—'.join(username_message).strip()
 
         username, channel, message = re.search(
@@ -73,6 +76,7 @@ class ViewersReactionAnalyser():
         doc = {
             'message': message,
             'cheer': self.recognize_cheers(line),
+            'viewerCount': viewer_count,
             'userName': username,
             'insertOrder': self.lastest_record,
             'timestamp': time_logged, # datetime format in timezone of ROC
@@ -83,7 +87,7 @@ class ViewersReactionAnalyser():
             }
         return doc
 
-    def insert_chat_logs(self, file): # streaming
+    def insert_chat_logs(self): # streaming
         """
         Only triggered after the channel turn into offline.
         """
@@ -145,7 +149,9 @@ class ViewersReactionAnalyser():
             start_tracking_livestream_records = result['taskRecord']
         except: 
             start_tracking_livestream_records = []
-        print("completed 'start_tracking_livestream' tasks: ", start_tracking_livestream_records)
+        send_log("completed 'start_tracking_livestream' tasks: ", start_tracking_livestream_records)
+        dev_logger.info("completed 'start_tracking_livestream' tasks: ", start_tracking_livestream_records)
+        # print("completed 'start_tracking_livestream' tasks: ", start_tracking_livestream_records)
 
         query = [  
             {
@@ -170,20 +176,26 @@ class ViewersReactionAnalyser():
             insert_logs_records = result['taskRecord']
         except: 
             insert_logs_records = []
-        print("completed 'insert_logs_records' tasks: ", insert_logs_records)
+        send_log("completed 'insert_logs_records' tasks: ", insert_logs_records) 
+        dev_logger.info("completed 'insert_logs_records' tasks: ", insert_logs_records)
+        # print("completed 'insert_logs_records' tasks: ", insert_logs_records)
 
 
         """
         compare the start_tracking_livestream_records and insert_logs_records to find 'startedAt' that insert_logs_records is uncompleted
         """
         uncompleted_tasks = list(set(start_tracking_livestream_records).difference(insert_logs_records)) # find uncomplete 'insert_logs' tasks
-        print("uncompleted insert_logs tasks: ", uncompleted_tasks)
+        send_log("uncompleted insert_logs tasks: ", uncompleted_tasks)
+        dev_logger.info("uncompleted insert_logs tasks: ", uncompleted_tasks)
+        # print("uncompleted insert_logs tasks: ", uncompleted_tasks)
 
         for uncompleted_started_at in uncompleted_tasks:
 
             documents = []
             with open(
                 os.getcwd() + f"/dags/chat_logs/{uncompleted_started_at}_{self.channel}.log", 
+                # os.getcwd() + f"/chat_logs/{uncompleted_started_at}_{self.channel}.log", 
+
                 'r', 
                 encoding='utf-8'
                 ) as f:
@@ -204,31 +216,43 @@ class ViewersReactionAnalyser():
                         # new_row += 1
 
                     except Exception as e:
-                        print(e)
-                        pass
+                        send_log(e)
+                        dev_logger.error(e)
+                        # print(e)
                     # self.lastest_record += 1
 
                 if documents:
-                    print("inserting documents into 'chatLogs' collection...")
+                    send_log("inserting documents into 'chatLogs' collection...")
+                    dev_logger.info("inserting documents into 'chatLogs' collection...")
+                    # print("inserting documents into 'chatLogs' collection...")
+
                     self.db.insertmany_into_collection(documents, collection_name="chatLogs")
-                    print('inserted')
+                    send_log('inserted')
+                    dev_logger.info('inserted')
+                    # print('inserted')
 
                     """
                     record the completed insert_logs task in taskRecords collection.
                     """
                     try:
-                        print("viewers_reaction: trying to insert 'insert_logs' task record into taskRecords...")
+                        send_log("viewers_reaction: trying to insert 'insert_logs' task record into taskRecords...")
+                        dev_logger.info("viewers_reaction: trying to insert 'insert_logs' task record into taskRecords...")
+                        # print("viewers_reaction: trying to insert 'insert_logs' task record into taskRecords...")
                         task_record_document = {
                             "channel": self.channel,
                             "startedAt": uncompleted_started_at, # bson format in +8 timezone
                             "taskName": "insert_logs",
                             "completeTime": datetime.utcnow() # utc time for timeseries collection index.
                         }
+
                         self.db.insertone_into_collection(task_record_document, collection_name='taskRecords')
-                        print("successfully insert task records.")
+                        send_log("successfully insert task records.")
+                        dev_logger.info("successfully insert task records.")
+                        # print("successfully insert task records.")
                         
                     except Exception as e:
-                        print(e)
+                        send_log(e)
+                        dev_logger.error(e)
 
     def query_chat_logs(self): # streaming # need to add new filter to find the doc of selected channel.
         # last_record = self.last_record
@@ -372,22 +396,30 @@ class ViewersReactionAnalyser():
                     "_id": 0
                 }
             }]
-        try:
-            self.db.insertmany_into_collection(organized_documents, collection_name='chatStats')
-        except Exception as e:
-            # print(e)
-            sleep(5)
-            pass
+        
+        send_log(f"trying to check uncompleted tasks for {self.channel}...")
+        dev_logger.info(f"trying to check uncompleted tasks for {self.channel}...")
+        # print(f"trying to check uncompleted tasks for {self.channel}...")
 
+        """
+        get the latest startedAt record of 'insert_logs' task.
+        """
+        try:
+        #     self.db.insertmany_into_collection(organized_documents, collection_name='chatStats')
+        # except Exception as e:
+        #     print(e)
             result = [row for row in task_records_collction.aggregate(query)][0]
             insert_logs_task_records = result['taskRecord']
         except: 
             insert_logs_task_records = []
-        print("completed insert_logs tasks: ", insert_logs_task_records)
+            
+        send_log("completed insert_logs tasks: ", insert_logs_task_records)
+        dev_logger.info("completed insert_logs tasks: ", insert_logs_task_records)
+        # print("completed insert_logs tasks: ", insert_logs_task_records)
 
 
         """
-        get the latest startedAt record from chatStats collection.
+        get the latest startedAt record of 'insert_stats' task.
         """
         # historical_schedule_list = self.get_historical_schedule()
         # print("historical_schedule: ", historical_schedule_list)
@@ -419,7 +451,10 @@ class ViewersReactionAnalyser():
             insert_stats_task_records = result['taskRecord']
         except: 
             insert_stats_task_records = []
-        print("completed insert_stats tasks: ", insert_stats_task_records)
+
+        send_log("completed insert_stats tasks: ", insert_stats_task_records)
+        dev_logger.info("completed insert_stats tasks: ", insert_stats_task_records)
+        # print("completed insert_stats tasks: ", insert_stats_task_records)
 
 
         """
@@ -428,26 +463,38 @@ class ViewersReactionAnalyser():
         uncompleted_tasks = list(set(insert_logs_task_records).difference(insert_stats_task_records)) # find uncomplete 'insert_stats' tasks
         print("uncompleted_tasks: ", uncompleted_tasks)
         for uncompleted_started_at in uncompleted_tasks:
-            print(f"{self.channel}'s live stream started at {uncompleted_started_at} has not been calculated and inserted.")
-            logging.info(f"{self.channel}'s live stream started at {uncompleted_started_at} has not been calculated and inserted.")
+
+            send_log("completed insert_stats tasks: ", insert_stats_task_records)
+            dev_logger.info(f"{self.channel}'s live stream started at {uncompleted_started_at} has not been calculated and inserted.")
+            # print(f"{self.channel}'s live stream started at {uncompleted_started_at} has not been calculated and inserted.")
 
             print("viewers_reaction: querying historical_stats...")
             stats = deepcopy(self.historical_stats(uncompleted_started_at)) # calculate chatstats from chatlogs # self.historical_stats() will need self.started_at
             organized_documents = []
             # sentiment_analyser = ChatroomSentiment()
             
-            print("(skipped)viewers_reaction: calculating sentiment_score...")
+            print("(skipped) viewers_reaction: calculating sentiment_score...")
+
             for doc in stats:
                 doc['timestamp'] = doc['_id']
                 # doc['sentiment'] = sentiment_analyser.historical_stats_sentiment(doc['messages'])
                 # doc['sentimentScore'] = self.avg_sentiment_weighted_by_index(doc['sentiment'])
                 organized_documents.append(doc)
+
             try:
-                print("viewers_reaction: trying to insertmany into chatStats...")
+                send_log("viewers_reaction: trying to insertmany into chatStats...")
+                dev_logger.info("viewers_reaction: trying to insertmany into chatStats...")
+                # print("viewers_reaction: trying to insertmany into chatStats...")
+
                 self.db.insertmany_into_collection(organized_documents, collection_name='chatStats')
+                send_log("successfully insert historical stats.")
+                dev_logger.info("successfully insert historical stats.")
                 print("successfully insert historical stats.")
+
             except Exception as e:
-                print(e)
+                send_log(e)
+                dev_logger.error(e)
+
                 sleep(5)
 
 
@@ -463,9 +510,14 @@ class ViewersReactionAnalyser():
                     "completeTime": datetime.utcnow() # utc time for timeseries collection index.
                 }
                 self.db.insertone_into_collection(task_record_document, collection_name='taskRecords')
+                send_log("successfully insert task records.")
+                dev_logger.info("successfully insert task records.")
                 print("successfully insert task records.")
+
             except Exception as e:
-                print(e)
+                send_log(e)
+                dev_logger.error(e)
+
                 sleep(5)    
 
     def query_historical_stats(self, started_at): # the "started_at" here is the argument requested from flask app, which is different from "self.started_at"
@@ -476,7 +528,8 @@ class ViewersReactionAnalyser():
         started_at can be None.
         """
         if started_at: # if user chose the schedule date
-            print("viewers_reaction.py - query_historical_stats - started_at", started_at)
+            dev_logger.debug(("started_at", started_at))
+            # print("viewers_reaction.py - query_historical_stats - started_at", started_at)
             result = [row for row in collection.aggregate([
                 {
                     "$match": {
@@ -490,17 +543,24 @@ class ViewersReactionAnalyser():
                     }
                 }
                 ])]
-            print("viewers_reaction.py - query_historical_stats - result[-1]", result[-1])
+            dev_logger.debug(("result[-1]", result[-1]))
+            # print("viewers_reaction.py - query_historical_stats - result[-1]", result[-1])
+
             return result
 
         else: # When user first get into historical page
             try: 
-                print("viewers_reaction.py - query_historical_stats: trying to get schedule")
+                dev_logger.debug("viewers_reaction.py - query_historical_stats: trying to get schedule")
+                # print("viewers_reaction.py - query_historical_stats: trying to get schedule")
+
                 schedule = self.get_historical_schedule()
 
                 most_current = schedule[-1]
-                print("viewers_reaction.py: query_historical_stats most_current", most_current)
-                print("viewers_reaction.py: query_historical_stats self.channel", self.channel)
+                dev_logger.debug("most_current", most_current)
+                dev_logger.debug("self.channel", self.channel)
+
+                # print("viewers_reaction.py: query_historical_stats most_current", most_current)
+                # print("viewers_reaction.py: query_historical_stats self.channel", self.channel)
 
                 result = [row for row in collection.aggregate([
                     {
@@ -521,19 +581,23 @@ class ViewersReactionAnalyser():
                     return result
 
             except Exception as e:
-                print(e)
+                send_log(e)
+                dev_logger.error(e)
+                # print(e)
                 return False
 
     
     def get_historical_schedule(self):
         """
-        Only show the schedule query from chatStats, which have been organized already.
+        1. Only show the schedule query from taskRecords whose taskName is 'insert_stats'
+        2. taskName='insert_stats' means that the channel's stats data have been organized already at the time 'startedAt'.
         """
         collection = self.db.connect_collection("taskRecords")
         query = [
             {
                 "$match": {
-                    "channel": {"$eq": self.channel}
+                    "channel": {"$eq": self.channel},
+                    "taskName": "insert_stats" 
                 }
             },
             {
@@ -612,34 +676,37 @@ class ViewersReactionAnalyser():
                         "$limit": 1
                     }
                     ])]
-        print("latest_doc:", latest_doc)
+        # print("latest_doc:", latest_doc)
         if latest_doc == []:
             latest_row = 0
         else: 
             latest_row = latest_doc[0]['insertOrder']
         self.lastest_record = deepcopy(latest_row)
-        print("latest_row:", latest_row)
+        # print("latest_row:", latest_row)
 
         documents = []
         with open(file, 'r', encoding='utf-8') as f:
             lines = f.read().split('\n')
             new_row = 0
             # if latest_row == 0 or latest_row % 10 == 0:
+            """
+            request viewer_count from Twitch API and show on streamingPlot section.
+            """
             viewer_count = self.api.detect_living_channel(self.channel)['viewer_count'] # Since viewerCount in Twitch API is updating in a slow pace, I request it for each iteration in while loop.
             for line in lines[latest_row+1:]:
                 print("line: ", line)
                 # logging.debug("line: ", line)
                 try:
-                    print("try parse_temp_chat_logs")
+                    # print("try parse_temp_chat_logs")
                     doc = self.parse_temp_chat_logs(line)
-                    print("parsed_doc")
+                    # print("parsed_doc")
                     doc['viewerCount'] = viewer_count
                     if new_row >= 1: # skip the log which has already been inserted last time.
                         documents.append(doc)
-                        print("appended temporary chat logs")
+                        # print("appended temporary chat logs")
                     new_row += 1
                 except Exception as e:
-                    print(e)
+                    # print(e)
                     pass
                 self.lastest_record += 1
             if documents:
@@ -726,10 +793,11 @@ if __name__ == "__main__":
 
 # use_example
 
-# analyser = ViewersReactionAnalyser("scarra")
-# # analyser.get_historical_schedule()
-# # analyser.insert_historical_stats()
-# # print(analyser.query_historical_stats())
+# analyser = ViewersReactionAnalyser("caedrel")
+# analyser.insert_historical_stats()
+# analyser.get_historical_schedule()
+# analyser.insert_historical_stats()
+# print(analyser.query_historical_stats())
 # while True:
 #     analyser.insert_chat_logs(
 #         f"/Users/surfgreen/B/AppworksSchool/projects/personal_project/chat_logs/{analyser.channel}.log",

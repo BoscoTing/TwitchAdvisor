@@ -1,5 +1,6 @@
 from transformers import AutoTokenizer, AutoModelForSequenceClassification
 import torch
+import string
 import os
 # os.environ['TRANSFORMERS_CACHE'] = os.getcwd()+'/dags/.cache/'
 import sys
@@ -22,8 +23,37 @@ class SentimentAnalyser:
         )
 
     def sentiment_score(self, chat):
-        tokens = self.tokenizer.encode(chat, return_tensors='pt')
-        result = self.model(tokens)
+
+        def exclude_ascii_art(chat):
+            printable = set(string.printable)
+            parsed_string = ''.join(filter(lambda x: x in printable, chat))
+            return parsed_string
+
+        try: 
+            chat = exclude_ascii_art(chat)
+        except Exception as e:
+            print(f"{chat}: ", e)
+
+
+        if len(chat) > 400:
+            print('token exceed the limit of 512: ', chat)
+            return 1
+        else:
+            pass
+
+        try:
+            tokens = self.tokenizer.encode(chat, return_tensors='pt')
+        except Exception as e:
+            print(f"{chat}: ", e)
+            return 1
+
+        try:             
+            result = self.model(tokens)
+        except Exception as e:
+            print(f"{chat}: ", e)
+            return 1
+
+
         if self.modelname == 'cardiffnlp/twitter-roberta-base-sentiment':
             return int(torch.argmax(result.logits))
         elif self.modelname == "nlptown/bert-base-multilingual-uncased-sentiment":
