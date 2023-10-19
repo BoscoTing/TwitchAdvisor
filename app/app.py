@@ -1,6 +1,6 @@
-from flask import (Flask, 
-                   render_template, 
-                   request, 
+from flask import (Flask,
+                   render_template,
+                   request,
                    )
 from datetime import datetime, timedelta
 import re
@@ -26,11 +26,11 @@ def main_page():
     query = [
             {
                 "$sort":{"addedTime": -1}
-                }, 
+                },
             {
                 "$limit": 1
                 }
-        ] # the query to get the tracked channels 
+        ] # the query to get the tracked channels
     result = tracked_channels_collection.aggregate(query)
 
     tracked_channels_list = [row['channels'] for row in result][0]
@@ -53,7 +53,7 @@ def main_page():
     start_week = schedule_week_range[0]
     end_week = schedule_week_range[1]
     return render_template(
-        'main.html', 
+        'main.html',
         broadcasters=broadcasters,
         week_value=week_value,
         start_week=start_week,
@@ -70,7 +70,7 @@ def get_channel_list():
             key.replace('-', ' '))).split()).lower()
     if request.method == "GET":
         channel_dict = TwitchDeveloper().search_channels()
-        
+
         renamed_channel_dict = {} # renamed keys of channel_dict using snake case
         for key, value in channel_dict.items():
             renamed_key = snake_case(key)
@@ -83,7 +83,7 @@ def get_channel_list():
 
 """
 1. Create a class and assign to stream_logs_route outside of the view
-2. Use the stream_logs_route inside the 'streaming_logs' by: 
+2. Use the stream_logs_route inside the 'streaming_logs' by:
         global stream_logs_route
 3. So the different requests to /api/streaming_logs are using the same 'StreamingLogsRoute' class to listen to channel.
 4. Now we can controll the same listener with different requests which are sended to '/api/streaming_logs'.
@@ -95,7 +95,7 @@ class StreamingLogsRoute:
 
 stream_logs_route = StreamingLogsRoute()
 
-@app.route("/api/streaming_logs", methods=["GET", "POST"]) 
+@app.route("/api/streaming_logs", methods=["GET", "POST"])
 def streaming_logs():
 
     global stream_logs_route
@@ -110,7 +110,7 @@ def streaming_logs():
 
     else: # when first entering into chatroom or switching to another channel
 
-        try: # when switching channels: listener.listen_to_chatroom_temp() has been executed 
+        try: # when switching channels: listener.listen_to_chatroom_temp() has been executed
             dev_logger.debug("switching channel...")
             # print("switching channel...")
 
@@ -137,13 +137,13 @@ def streaming_logs():
         else:
             pass
 
-        if selected_channel: 
+        if selected_channel:
             MongoDBManager().delete_many(selected_channel, "tempChatLogs") # make sure documents of current selected channel in collection are deleted.
             print(f"app.py -- db.tempChatLogs.deleteMany: {selected_channel}")
-            try: 
+            try:
                 os.remove(os.getcwd()+f"/chat_logs/{selected_channel}.log") # try to delete the log file of current selected channel again, too.
                 print(f"app.py -- temp_delete_log_file: /chat_logs/{selected_channel}.log")
-            except: 
+            except:
                 pass
 
         else:
@@ -154,10 +154,10 @@ def streaming_logs():
 
         stream_logs_route.latest_selected_channel = selected_channel # after doing those and before starting running, record latest_selected_channel
         print("latest_selected_channel: ", stream_logs_route.latest_selected_channel)
-        
+
         try:
-            send_log('Trying turn on The while loop and socket.')
-            dev_logger.info('Trying turn on The while loop and socket.')
+            send_log('Trying to turn on The while loop and socket.')
+            dev_logger.info('Trying to turn on The while loop and socket.')
             stream_logs_route.listener.listen_to_chatroom_temp()
 
         except:
@@ -195,13 +195,13 @@ def event_listener():
             try:
                 os.remove(os.getcwd()+f"/chat_logs/{stream_logs_route.latest_selected_channel}.log")
                 print(f'deleted /chat_logs/{stream_logs_route.latest_selected_channel}.log') # delete the log file after leaving the chatroom
-                
+
             except:
                 pass
 
     else:
         pass
-    
+
     send_log('The while loop and socket are turned off.')
     dev_logger.info('The while loop and socket are turned off.')
     return 'The while loop and socket are turned off.'
@@ -237,7 +237,7 @@ def streaming_stats():
     for doc in stats:
         # print(doc['_id'])
         # "2023-10-10 05:00:55"
-        datetime_taipei = doc['_id'] + timedelta(hours=8)
+        datetime_taipei = doc['_id']# + timedelta(hours=8)
         doc['timestamp'] = datetime.timestamp(datetime_taipei)
         del doc["_id"]
     resp_data = {
@@ -252,7 +252,7 @@ def historical_stats():
     channel = request.args.get("channel")
     started_at = request.args.get("started_at")
     print("flask historical_stats: started_at", started_at)
-    if started_at: 
+    if started_at:
         started_at = started_at.replace(" ", "+") # request.args.get reads the "+" string as " "
     print("flask historical_stats: started_at", started_at)
 
@@ -262,7 +262,7 @@ def historical_stats():
 
     if stats == False or stats == []:
         return []
-    
+
     def avg_sentiment_weighted_by_index(score_list):
             weighted_scores = []
             for i in range(len(score_list)):
@@ -276,12 +276,12 @@ def historical_stats():
         """
         If the historical stats have calculated the 'sentiment', then process them and pass to javascipt.
         """
-        try: 
+        try:
             doc['sentiment'] = avg_sentiment_weighted_by_index(doc['sentiment'])
         except:
             pass
 
-        del doc["_id"]  
+        del doc["_id"]
 
     schedule = analyser.get_historical_schedule() # startedAt time, which are in +8 timezone
     for i in range(len(schedule)):
@@ -306,7 +306,7 @@ def record_tracking_channels():
     query = [
         {
             "$sort":{"addedTime": -1}
-            }, 
+            },
         {
             "$limit": 1
             }
@@ -351,13 +351,13 @@ def overiew_stats():
         livestream_schedule = overview.get_livestream_schedule(week, year)
 
     return livestream_schedule
-    
 
-if __name__ == "__main__": 
-    app.run(debug=True, port='8000', host='0.0.0.0') 
+
+if __name__ == "__main__":
+    app.run(debug=True, port='8000', host='0.0.0.0')
 
 # debug=False, run app and update data at the same time
-# if __name__ == "__main__":      
+# if __name__ == "__main__":
 #     flask_thread = Thread(target=flask_app)
 #     flask_thread.start()
 #     processing_threads() # 更新user_evtn資料庫，即時更新plotly
