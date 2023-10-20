@@ -6,8 +6,6 @@ import requests
 import sys
 sys.path.insert(0, "/Users/surfgreen/B/AppworksSchool/projects/personal_project")
 
-# from databases.mongodb import insert_document, connect_mongo
-
 channel_info = {}
 def get_viewers_count(channel):
     url = "https://gql.twitch.tv/gql"
@@ -96,14 +94,3 @@ def get_channels():
     soup = BeautifulSoup(resp.text, 'lxml')
     html = soup.prettify(resp)
     print(html)
-
-# get_channels()
-# while True:
-#     viewers_count = get_viewers_count("livekiss")
-#     active_viewers = get_active_viewers("livekiss")
-#     print(
-#         viewers_count, 
-#         active_viewers
-#         )
-#     time.sleep(5)
-# get_viewers_count("fanta")

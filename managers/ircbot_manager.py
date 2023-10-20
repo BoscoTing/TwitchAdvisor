@@ -208,10 +208,3 @@ class TwitchChatListener:
             "channel": self.channel
             }
         db.insertone_into_collection(doc, "schedules")
-
-# use_example
-
-# if __name__ == "__main__":
-#     chat_listener = TwitchChatListener("caedrel")
-#     chat_listener.save_start_time()
-#     chat_listener.listen_to_chatroom() 

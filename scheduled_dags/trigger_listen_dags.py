@@ -101,15 +101,3 @@ with DAG(
                     task_id=f"trigger_{channel}_listen_task",
                     trigger_dag_id=f"{channel}_listen_dag",
                 )
-        
-        else: # pass
-            pass
-            # """
-            # 4. Terminate listen_dags for offline channels.
-            # """
-
-            # stop_dag_run_task=PythonOperator(
-            #     task_id=f"stop_{channel}_listen_task",
-            #     python_callable=stop_dag_run,
-            #     op_kwargs= {"dag_id": f'{channel}_listen_dag'}
-            # )

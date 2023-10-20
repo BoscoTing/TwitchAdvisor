@@ -1,17 +1,9 @@
-from datetime import datetime, timedelta
-from time import time, sleep
-from copy import deepcopy
-import logging
-import re
+from datetime import datetime
 import os
 import sys
 sys.path.insert(0, os.getcwd())
-from copy import deepcopy
 
 from managers.mongodb_manager import MongoDBManager
-from managers.ircbot_manager import TwitchChatListener
-from managers.twitch_api_manager import TwitchDeveloper
-from features.chatroom_sentiment import ChatroomSentiment
 
 class Overview:
     def __init__(self):

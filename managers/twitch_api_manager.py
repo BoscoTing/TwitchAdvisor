@@ -2,9 +2,7 @@ from decouple import config
 from datetime import datetime, timedelta
 import logging
 logging.basicConfig(level=logging.ERROR)
-import pytz
 import requests
-import json
 
 class TwitchDeveloper:
     def __init__(self):
@@ -111,8 +109,3 @@ class TwitchDeveloper:
             return resp_data#[0]
         else:
             return False
-# use_example
-
-# twitch_api = TwitchDeveloper()
-# result = twitch_api.detect_living_channel("trick2g")
-# print(result)

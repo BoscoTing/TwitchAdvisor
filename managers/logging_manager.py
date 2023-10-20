@@ -13,8 +13,6 @@ dev_logger.addHandler(handler)
 client = boto3.client('logs', region_name='ap-southeast-2', aws_access_key_id=config("aws_access_key"),
                                aws_secret_access_key=config("aws_secret_access_key"))
 
-# LOG_GROUP_NAME = "/apps/CloudWatchAgentLog/"
-# LOG_STREAM_NAME = f"{config('ip_address')}_{config('instance_id')}"
 
 def send_log(log_message):
     log_group_name = "/apps/CloudWatchAgentLog/"
@@ -42,5 +40,3 @@ def send_log(log_message):
     response = client.put_log_events(**log_event)
     time.sleep(1)
     print("Response : ", response)
-
-# send_log(LOG_GROUP_NAME, LOG_STREAM_NAME, 'test')
