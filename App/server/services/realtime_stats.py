@@ -3,15 +3,17 @@ import logging
 import re
 import os
 import sys
+import requests
 from copy import deepcopy
 from decouple import config
 from emoji import demojize
-from datetime import datetime
+from datetime import datetime, timedelta
+logging.basicConfig(level=logging.ERROR)
 
-from managers.logging_manager import send_log, dev_logger
-from managers.mongodb_manager import MongoDBManager
-from managers.twitch_api_manager import TwitchDeveloper
+from ..models.mongodb_manager import MongoDBManager
+from ..utils.logger import send_log, dev_logger
 
+log_path = "../static/assets/chat_logs/"
 
 sys.path.insert(0, os.getcwd())
 
@@ -30,7 +32,6 @@ class TwitchChatListenerTEMP():
         self.token = config('twitch_token')
         self.channel = channel
         self.db = MongoDBManager()
-        self.developer = TwitchDeveloper()
 
     def connect_chatroom_temp(self):
         self.sock = socket.socket()
@@ -43,7 +44,7 @@ class TwitchChatListenerTEMP():
         logging.basicConfig(level=logging.DEBUG,
                             format='%(asctime)s — %(message)s',
                             datefmt='%Y-%m-%d_%H:%M:%S',
-                            handlers=[logging.FileHandler(os.getcwd() + f'/chat_logs/{self.channel}.log', 
+                            handlers=[logging.FileHandler(os.getcwd() + f'/App/server/static/assets/chat_logs/{self.channel}.log', 
                                                           mode='w', # use 'w' mode to create log file everytime.
                                                           encoding='utf-8')])
         logging.debug(resp)
@@ -68,7 +69,7 @@ class TwitchChatListenerTEMP():
             self.sock.send("PONG\n".encode('utf-8'))
         elif len(resp) > 0:
             # logging.info(demojize(resp))
-            with open(os.getcwd() + f'/chat_logs/{self.channel}.log', 
+            with open(os.getcwd() + f'/App/server/static/assets/chat_logs/{self.channel}.log', 
                       'a', 
                       encoding='utf-8') as log_file:
                 log_file.write(formatted_resp)
@@ -105,6 +106,111 @@ class TwitchChatListenerTEMP():
             }
         db.insertone_into_collection(doc, "schedules")
 
+class TwitchDeveloper:
+    def __init__(self):
+        self.client_id = config('twitch_app_id')
+        self.secret = config('twitch_app_secret')
+
+    def get_token(self):
+        auth_params = {
+            'client_id': config('twitch_app_id'),
+            'client_secret': config('twitch_app_secret'),
+            'grant_type': 'client_credentials'
+        }
+        auth_url = 'https://id.twitch.tv/oauth2/token'
+        auth_request = requests.post(url=auth_url, params=auth_params) 
+        access_token = auth_request.json()['access_token']
+        return access_token
+    
+    def search_channels(self):
+        headers = {
+            'Client-ID' : config('twitch_app_id'),
+            'Authorization' :  "Bearer " + self.get_token()
+        }
+        query = "type=live&language=en&first=100"
+        url = f'https://api.twitch.tv/helix/streams?{query}'
+        resp = requests.get(url, headers=headers).json()['data']
+        # print(resp[0:20])
+
+        channel_dict = {
+            'Just Chatting': [],
+            'League of Legends': [],
+            'Music': []
+        }
+        if resp:
+            for channel in resp:
+                if channel['game_name'] in ['League of Legends', 'Just Chatting', 'Music']:
+                    game_name = channel['game_name']
+                    channel_name = channel['user_login']
+                    channel_dict[game_name].append(channel_name)
+        else:
+            return False
+        
+        return channel_dict
+        
+    def detect_living_channel(self, channel):
+        
+        url = f'https://api.twitch.tv/helix/streams?user_login={channel}'
+        headers = {
+            'Client-ID' : config('twitch_app_id'),
+            'Authorization' :  "Bearer " + self.get_token()
+        }
+        resp_data = requests.get(url, headers=headers).json()['data']
+
+        if resp_data:
+            """
+            turn startedAt into +8 timezone. 
+            startedAt will be recorded in log file and then inserted into chatLogs collection.
+            """
+            taipei_time = datetime.fromisoformat(resp_data[0]['started_at'][:-1]) + timedelta(hours=8)
+            taipei_isoformat = datetime.isoformat(taipei_time) + "+08:00"
+            resp_data[0]['started_at'] = taipei_isoformat
+            logging.info(resp_data[0])
+            return resp_data[0]
+        
+        else:
+            return False
+        
+    def get_total_viewers(self, channel):
+        
+        url = f'https://api.twitch.tv/helix/streams?user_login={channel}'
+        headers = {
+            'Client-ID' : config('twitch_app_id'),
+            'Authorization' :  "Bearer " + self.get_token()
+        }
+        resp_data = requests.get(url, headers=headers).json()['data']
+
+        if resp_data:
+            return resp_data[0]['viewer_count']
+        
+        else:
+            return False
+    
+    def get_broadcaster_id(self, channel):
+        url = f'https://api.twitch.tv/helix/streams?user_login={channel}'
+        headers = {
+            'Client-ID' : config('twitch_app_id'),
+            'Authorization' :  "Bearer " + self.get_token()
+        }
+        resp_data = requests.get(url, headers=headers).json()['data']
+        if resp_data:
+            return resp_data[0]['user_id']
+        else:
+            return False
+        
+    def get_channel_schedule(self, channel):
+        broadcaster_id = self.get_broadcaster_id(channel)
+        print(broadcaster_id)
+        url = f"https://api.twitch.tv/helix/schedule?broadcaster_id={broadcaster_id}"
+        headers = {
+            'Client-ID' : config('twitch_app_id'),
+            'Authorization' :  "Bearer " + self.get_token()
+        }
+        resp_data = requests.get(url, headers=headers).json()#['data']
+        if resp_data:
+            return resp_data#[0]
+        else:
+            return False
 
 class ViewersReactionAnalyserTEMP():
 

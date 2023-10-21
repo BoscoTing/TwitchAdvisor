@@ -3,8 +3,8 @@ import os
 import sys
 sys.path.insert(0, os.getcwd())
 
-from managers.logging_manager import send_log, dev_logger
-from managers.mongodb_manager import MongoDBManager
+from ..models.mongodb_manager import MongoDBManager
+from ..utils.logger import send_log, dev_logger
 
 def main():
     print('this is python script of ViewersReactionAnalyser')
@@ -118,6 +118,7 @@ class ViewersReactionAnalyser():
 
 
 class Overview():
+
     def __init__(self):
         self.db = MongoDBManager()
 

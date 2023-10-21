@@ -6,10 +6,11 @@ import sys
 sys.path.insert(0, os.getcwd())
 
 from server import app
-from managers.logging_manager import send_log, dev_logger
-from managers.mongodb_manager import MongoDBManager
-from ..services.viewers_reaction_temp import ViewersReactionAnalyserTEMP, TwitchChatListenerTEMP
+from ..utils.logger import send_log, dev_logger
+from ..models.mongodb_manager import MongoDBManager
+from ..services.realtime_stats import ViewersReactionAnalyserTEMP, TwitchChatListenerTEMP
 
+log_path = "../static/assets/chat_logs/"
 
 """
 1. Create a class and assign to stream_logs_route outside of the view
@@ -51,26 +52,22 @@ def streaming_logs():
             pass
 
         if stream_logs_route.latest_selected_channel: # when switching channels
-            os.remove(os.getcwd()+f"/chat_logs/{stream_logs_route.latest_selected_channel}.log")
-            dev_logger.debug(f'deleted /chat_logs/{stream_logs_route.latest_selected_channel}.log')
+            os.remove(os.getcwd() + f'/App/server/static/assets/chat_logs/{stream_logs_route.channel}.log')
+            dev_logger.debug(os.getcwd() + f'/App/server/static/assets/chat_logs/{stream_logs_route.channel}.log')
 
             MongoDBManager().delete_many(stream_logs_route.latest_selected_channel, "tempChatLogs") # delete the log file of previous selected channel.
             dev_logger.debug(f"db.tempChatLogs.deleteMany: {stream_logs_route.latest_selected_channel}")
 
-        else:
-            pass
 
         if selected_channel:
             MongoDBManager().delete_many(selected_channel, "tempChatLogs") # make sure documents of current selected channel in collection are deleted.
-            print(f"app.py -- db.tempChatLogs.deleteMany: {selected_channel}")
+            dev_logger.debug(f"app.py -- db.tempChatLogs.deleteMany: {selected_channel}")
             try:
-                os.remove(os.getcwd()+f"/chat_logs/{selected_channel}.log") # try to delete the log file of current selected channel again, too.
-                print(f"app.py -- temp_delete_log_file: /chat_logs/{selected_channel}.log")
-            except:
-                pass
+                os.remove(os.getcwd() + f'/App/server/static/assets/chat_logs/{stream_logs_route.channel}.log') # try to delete the log file of current selected channel again, too.
+                dev_logger.debug(f"app.py -- temp_delete_log_file: /chat_logs/{selected_channel}.log")
+            except Exception as e :
+                dev_logger.debug(e)
 
-        else:
-            pass
 
 
         stream_logs_route.listener = TwitchChatListenerTEMP(selected_channel) # assign current selected channel to a new listener
@@ -116,7 +113,7 @@ def event_listener():
             print(f"app.py -- db.tempChatLogs.deleteMany: {stream_logs_route.latest_selected_channel}")
 
             try:
-                os.remove(os.getcwd()+f"/chat_logs/{stream_logs_route.latest_selected_channel}.log")
+                os.remove(os.getcwd() + f'/App/server/static/assets/chat_logs/{stream_logs_route.channel}.log')
                 print(f'deleted /chat_logs/{stream_logs_route.latest_selected_channel}.log') # delete the log file after leaving the chatroom
 
             except:
@@ -135,7 +132,7 @@ def streaming_stats():
     channel = request.args.get("channel")
     analyser = ViewersReactionAnalyserTEMP(channel)
     try:
-        analyser.insert_temp_chat_logs(os.getcwd()+f'/chat_logs/{channel}.log')
+        analyser.insert_temp_chat_logs(os.getcwd() + f'/App/server/static/assets/chat_logs/{channel}.log')
     except Exception as e:
         print(e, "channel seleted is offline")
 

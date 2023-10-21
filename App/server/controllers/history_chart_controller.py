@@ -7,10 +7,9 @@ import sys
 sys.path.insert(0, os.getcwd())
 
 from server import app
-from managers.logging_manager import send_log
-from managers.mongodb_manager import MongoDBManager
-
-from ..services.viewers_reaction import ViewersReactionAnalyser, Overview
+from ..utils.logger import send_log
+from ..models.mongodb_manager import MongoDBManager
+from ..services.history_stats import ViewersReactionAnalyser, Overview
 
 
 @app.route("/")
