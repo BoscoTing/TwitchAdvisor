@@ -1,0 +1,24 @@
+[2023-10-22T17:23:22.125+0800] {taskinstance.py:1157} INFO - Dependencies all met for dep_context=non-requeueable deps ti=<TaskInstance: trick2g_listen_dag.listen_to_channel_task manual__2023-10-22T09:23:11.180044+00:00 [queued]>
+[2023-10-22T17:23:22.129+0800] {taskinstance.py:1157} INFO - Dependencies all met for dep_context=requeueable deps ti=<TaskInstance: trick2g_listen_dag.listen_to_channel_task manual__2023-10-22T09:23:11.180044+00:00 [queued]>
+[2023-10-22T17:23:22.129+0800] {taskinstance.py:1359} INFO - Starting attempt 1 of 1
+[2023-10-22T17:23:22.135+0800] {taskinstance.py:1380} INFO - Executing <Task(_PythonDecoratedOperator): listen_to_channel_task> on 2023-10-22 09:23:11.180044+00:00
+[2023-10-22T17:23:22.138+0800] {standard_task_runner.py:57} INFO - Started process 262 to run task
+[2023-10-22T17:23:22.142+0800] {standard_task_runner.py:84} INFO - Running: ['***', 'tasks', 'run', 'trick2g_listen_dag', 'listen_to_channel_task', 'manual__2023-10-22T09:23:11.180044+00:00', '--job-id', '53', '--raw', '--subdir', 'DAGS_FOLDER/dags_generator.py', '--cfg-path', '/tmp/tmp72fh5laz']
+[2023-10-22T17:23:22.143+0800] {standard_task_runner.py:85} INFO - Job 53: Subtask listen_to_channel_task
+[2023-10-22T17:23:22.174+0800] {task_command.py:415} INFO - Running <TaskInstance: trick2g_listen_dag.listen_to_channel_task manual__2023-10-22T09:23:11.180044+00:00 [running]> on host 7781ba1548ef
+[2023-10-22T17:23:22.217+0800] {taskinstance.py:1660} INFO - Exporting env vars: AIRFLOW_CTX_DAG_OWNER='***' AIRFLOW_CTX_DAG_ID='trick2g_listen_dag' AIRFLOW_CTX_TASK_ID='listen_to_channel_task' AIRFLOW_CTX_EXECUTION_DATE='2023-10-22T09:23:11.180044+00:00' AIRFLOW_CTX_TRY_NUMBER='1' AIRFLOW_CTX_DAG_RUN_ID='manual__2023-10-22T09:23:11.180044+00:00'
+[2023-10-22T17:23:22.718+0800] {logging_mixin.py:151} INFO - getting 'startedAt' for trick2g's live stream...
+[2023-10-22T17:23:24.066+0800] {twitch_api_manager.py:69} INFO - {'id': '41960111417', 'user_id': '28036688', 'user_login': 'trick2g', 'user_name': 'Trick2g', 'game_id': '21779', 'game_name': 'League of Legends', 'type': 'live', 'title': 'FIRSTSTRIKE/CRIT UDYR IS BACK!! HULL BREAKER NEFTS RIP????!!!!???!!!', 'viewer_count': 1098, 'started_at': '2023-10-22T08:10:54+08:00', 'language': 'en', 'thumbnail_url': 'https://static-cdn.jtvnw.net/previews-ttv/live_user_trick2g-{width}x{height}.jpg', 'tag_ids': [], 'tags': ['LoL', 'Toplane', 'Volibear', 'English', 'Dad', 'bald', 'LoudAF'], 'is_mature': True}
+[2023-10-22T17:23:24.070+0800] {logging_mixin.py:151} INFO - trick2g's live stream started at 2023-10-22T08:10:54+08:00
+[2023-10-22T17:23:24.070+0800] {logging_mixin.py:151} INFO - ircbot_manager: trying to insert 'start_tracking_livestream' task record into taskRecords...
+[2023-10-22T17:23:24.688+0800] {logging_mixin.py:151} INFO - successfully insert task records.
+[2023-10-22T17:23:24.693+0800] {logging_mixin.py:151} INFO - Writing logs in /dags/chat_logs/2023-10-22T08:10:54+08:00_trick2g.log
+[2023-10-22T17:23:24.694+0800] {logging_mixin.py:151} INFO - start total_viewers_thread
+[2023-10-22T17:23:34.741+0800] {logging_mixin.py:151} INFO - start record_logs_thread
+[2023-10-22T17:23:34.753+0800] {logging_mixin.py:151} INFO - set sock.close()
+[2023-10-22T17:23:36.514+0800] {logging_mixin.py:151} INFO - set sock.close()
+[2023-10-22T17:24:17.591+0800] {local_task_job_runner.py:294} WARNING - State of this instance has been externally set to failed. Terminating instance.
+[2023-10-22T17:24:17.594+0800] {process_utils.py:131} INFO - Sending 15 to group 262. PIDs of all processes in the group: [262]
+[2023-10-22T17:24:17.594+0800] {process_utils.py:86} INFO - Sending the signal 15 to group 262
+[2023-10-22T17:24:17.600+0800] {taskinstance.py:1630} ERROR - Received SIGTERM. Terminating subprocesses.
+[2023-10-22T17:24:17.689+0800] {process_utils.py:79} INFO - Process psutil.Process(pid=262, status='terminated', exitcode=0, started='17:23:22') (262) terminated with exit code 0
