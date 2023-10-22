@@ -76,12 +76,15 @@ x-airflow-common:
     # WARNING: Use _PIP_ADDITIONAL_REQUIREMENTS option ONLY for a quick checks
     # for other purpose (development, test and especially production usage) build/extend Airflow image.
     _PIP_ADDITIONAL_REQUIREMENTS: ${_PIP_ADDITIONAL_REQUIREMENTS:-}
+  env_file:
+    - .env
   volumes:
-    - ${AIRFLOW_PROJ_DIR:-.}/B/AppworksSchool/projects/personal_project:/opt/airflow/dags
-    - ${AIRFLOW_PROJ_DIR:-.}/B/AppworksSchool/projects/personal_project/scheduled_dags/.cache:/home/airflow/.cache
-    - ${AIRFLOW_PROJ_DIR:-.}/logs:/opt/airflow/logs
-    - ${AIRFLOW_PROJ_DIR:-.}/config:/opt/airflow/config
-    - ${AIRFLOW_PROJ_DIR:-.}/plugins:/opt/airflow/plugins
+    - ${AIRFLOW_PROJ_DIR:-.}/Airflow/dags:/opt/airflow/dags
+    - ${AIRFLOW_PROJ_DIR:-.}/Airflow/plugins:/opt/airflow/plugins
+    - ${AIRFLOW_PROJ_DIR:-.}/Airflow/data:/opt/airflow/data
+    - ${AIRFLOW_PROJ_DIR:-.}/Airflow/logs:/opt/airflow/logs
+    - ${AIRFLOW_PROJ_DIR:-.}/Airflow/config:/opt/airflow/config
+    # - ${AIRFLOW_PROJ_DIR:-.}/plugins:/opt/airflow/plugins
   user: "${AIRFLOW_UID:-50000}:0"
   depends_on:
     &airflow-common-depends-on
@@ -251,9 +254,10 @@ services:
           echo "   https://airflow.apache.org/docs/apache-airflow/stable/howto/docker-compose/index.html#before-you-begin"
           echo
         fi
-        mkdir -p /sources/logs /sources/dags /sources/plugins
-        chown -R "${AIRFLOW_UID}:0" /sources/{logs,dags,plugins}
+        chown -R "${AIRFLOW_UID}:0" /sources/{logs,dags,plugins,data}
         exec /entrypoint airflow version
+#    mkdir -p /sources/logs /sources/dags /sources/plugins /sources/data
+
     # yamllint enable rule:line-length
     environment:
       <<: *airflow-common-env

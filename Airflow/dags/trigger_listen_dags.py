@@ -1,6 +1,5 @@
 from airflow import DAG
 from airflow.operators.trigger_dagrun import TriggerDagRunOperator
-from airflow.operators.python_operator import PythonOperator
 from airflow.models import DagRun
 from airflow.api.client.local_client import Client
 client = Client(api_base_url='http://localhost:8080')
@@ -9,9 +8,9 @@ import os
 import sys
 sys.path.insert(0, os.getcwd())
 
-from managers.logging_manager import dev_logger, send_log
-from managers.twitch_api_manager import TwitchDeveloper
-from managers.mongodb_manager import MongoDBManager
+from plugins.managers.logging_manager import dev_logger, send_log
+from plugins.managers.twitch_api_manager import TwitchDeveloper
+from plugins.managers.mongodb_manager import MongoDBManager
 
 """
 1. Query from trackedChannels.
@@ -86,7 +85,6 @@ with DAG(
 
             dev_logger.info(f"{channel} is online.")
 
-            # dag_id = f'{channel}_listen_dag'
             dag_run = DagRun.find(dag_id=dag_id, state='running')
             dev_logger.info("dag_runs: ", dag_run)
 
@@ -101,15 +99,3 @@ with DAG(
                     task_id=f"trigger_{channel}_listen_task",
                     trigger_dag_id=f"{channel}_listen_dag",
                 )
-        
-        else: # pass
-            pass
-            # """
-            # 4. Terminate listen_dags for offline channels.
-            # """
-
-            # stop_dag_run_task=PythonOperator(
-            #     task_id=f"stop_{channel}_listen_task",
-            #     python_callable=stop_dag_run,
-            #     op_kwargs= {"dag_id": f'{channel}_listen_dag'}
-            # )

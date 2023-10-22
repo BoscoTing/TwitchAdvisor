@@ -7,9 +7,9 @@ import os
 import sys
 sys.path.insert(0, os.getcwd())
 
-from managers.logging_manager import dev_logger, send_log
-from features.viewers_reaction import ViewersReactionAnalyser
-from managers.mongodb_manager import MongoDBManager
+from plugins.managers.logging_manager import dev_logger, send_log
+from plugins.viewers_reaction import ViewersReactionAnalyser
+from plugins.managers.mongodb_manager import MongoDBManager
 
 """
 1. Query from trackedChannels.

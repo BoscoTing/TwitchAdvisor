@@ -2,17 +2,13 @@ import os
 import sys
 sys.path.insert(0, os.getcwd())
 from datetime import datetime
-from airflow import DAG
 from airflow.decorators import dag, task
-from airflow.operators.python_operator import PythonOperator
-from airflow.models import DagModel
-from airflow.settings import Session
 
-from managers.logging_manager import dev_logger, send_log
-from managers.twitch_api_manager import TwitchDeveloper
-from managers.mongodb_manager import MongoDBManager
-from managers.ircbot_manager import TwitchChatListener
-from features.viewers_reaction import ViewersReactionAnalyser
+from plugins.managers.logging_manager import dev_logger
+from plugins.managers.twitch_api_manager import TwitchDeveloper
+from plugins.managers.mongodb_manager import MongoDBManager
+from plugins.managers.ircbot_manager import TwitchChatListener
+from plugins.viewers_reaction import ViewersReactionAnalyser
 
 
 """
@@ -39,7 +35,6 @@ query = [
 result = tracked_channels_collection.aggregate(query)
 tracked_channels_list = [row['channels'] for row in result][0]
 dev_logger.info("current_tracking_channels: ", tracked_channels_list)
-# tracked_channels_list = ['sneakylol', 'gosu', 'scarra', 'disguisedtoast', 'trick2g', 'midbeast', 'perkz_lol']
 
 
 """

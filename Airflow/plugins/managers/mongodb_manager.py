@@ -1,7 +1,10 @@
 from pymongo import MongoClient
 from decouple import config 
+import os
+import sys
+sys.path.insert(0, os.getcwd())
 
-class MongoDBManager:
+class MongoDBManager():
     def __init__(self):
         host = config("mongodb_host")
         port = 27017
@@ -23,18 +26,8 @@ class MongoDBManager:
     def insertone_into_collection(self, document, collection_name):
         collection = self.db[collection_name]
         collection.insert_one(document)
-
-    def query_historical_data(self, channel, started_at):
-        collection = self.db["chat_logs"]
-        query = collection.find({}, {"metadata.started_at": { "$in": [started_at]},
-                                     "metadata.channel": {"in": [channel]}})
+        
     def delete_many(self, channel, collection):
         collection = self.db[collection]
         query = {"selectionInfo.channel": channel }
         collection.delete_many(query)
-# collection.find({}, {"metadata.row":1}).sort("timestamp", -1).limit(1)]
-
-# use_example
-# if __name__ == "__main__":
-#     mongodb_manager = MongoDBManager()
-# MongoDBManager().delete_many("froggen", 'tempChatLogs')

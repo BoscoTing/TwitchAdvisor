@@ -10,10 +10,11 @@ import os
 import sys
 sys.path.insert(0, os.getcwd())
 
-from managers.twitch_api_manager import TwitchDeveloper
-from managers.mongodb_manager import MongoDBManager
+from twitch_api_manager import TwitchDeveloper
+from mongodb_manager import MongoDBManager
 
-class TwitchChatListener:
+class TwitchChatListener():
+    
     def __init__(self, channel):
         self.sock = None
         self.server = 'irc.chat.twitch.tv'
@@ -62,40 +63,12 @@ class TwitchChatListener:
         logging.basicConfig(level=logging.DEBUG,
                             format='%(asctime)s — %(message)s',
                             datefmt='%Y-%m-%d_%H:%M:%S',
-                            handlers=[logging.FileHandler(os.getcwd() + f'/dags/chat_logs/{self.started_at}_{self.channel}.log', 
+                            handlers=[logging.FileHandler(os.getcwd() + f'/data/chat_logs/{self.started_at}_{self.channel}.log', 
                                                           mode='a',
                                                           encoding='utf-8')])
         
-        # logging.basicConfig(level=logging.DEBUG,
-        #                     format='%(asctime)s — %(message)s',
-        #                     datefmt='%Y-%m-%d_%H:%M:%S',
-        #                     handlers=[logging.FileHandler(os.getcwd() + f'/chat_logs/{self.started_at}_{self.channel}.log', 
-        #                                                   mode='a',
-        #                                                   encoding='utf-8')])
         print(f"Writing logs in /dags/chat_logs/{self.started_at}_{self.channel}.log")
         logging.debug(resp)
-
-    def connect_chatroom_temp(self):
-        self.sock = socket.socket()
-        self.sock.connect((self.server, self.port))
-        self.sock.send(f"PASS {self.token}\n".encode('utf-8'))
-        self.sock.send(f"NICK {self.nickname}\n".encode('utf-8'))
-        self.sock.send(f"JOIN {'#' + self.channel}\n".encode('utf-8'))
-
-        resp = self.sock.recv(2048).decode('utf-8')
-        logging.basicConfig(level=logging.DEBUG,
-                            format='%(asctime)s — %(message)s',
-                            datefmt='%Y-%m-%d_%H:%M:%S',
-                            handlers=[logging.FileHandler(os.getcwd() + f'/chat_logs/{self.channel}.log', 
-                                                          mode='w', # use 'w' mode to create log file everytime.
-                                                          encoding='utf-8')])
-        logging.debug(resp)
-        try:
-            self.started_at = TwitchDeveloper().detect_living_channel(self.channel)['started_at'] # already turn timezone to +8 for showing on the chart.
-
-        except Exception as e:
-            print(e)
-            return False
     
     """
     1. In 'listen_to_chatroom' function, 'get_total_viewers_thread' function for threading collect 'viewer_count' at the same time.
@@ -110,32 +83,13 @@ class TwitchChatListener:
             self.sock.send("PONG\n".encode('utf-8'))
         elif len(resp) > 0:
             logging.debug(demojize(resp))
-            with open(os.getcwd() + f'/dags/chat_logs/{self.started_at}_{self.channel}.log', 
+            with open(os.getcwd() + f'/data/chat_logs/{self.started_at}_{self.channel}.log', 
                       'a', 
                       encoding='utf-8') as log_file:
                 log_file.write(formatted_resp)
-            # with open(os.getcwd() + f'/chat_logs/{self.started_at}_{self.channel}.log', 
-            #         'a', 
-            #         encoding='utf-8') as log_file:
-            #     log_file.write(formatted_resp)
-        return demojize(resp)
 
-    
-    def record_logs_temp(self):
-        resp = self.sock.recv(2048).decode('utf-8')
-        timestamp = datetime.utcnow().strftime('%Y-%m-%d_%H:%M:%S') # use utc time for insert into mongodb time series collection (which accept utc time). 
-        formatted_resp = f"{timestamp} — {self.started_at} — {demojize(resp)}" # —
-        if resp.startswith('PING'):
-            self.sock.send("PONG\n".encode('utf-8'))
-        elif len(resp) > 0:
-            # logging.info(demojize(resp))
-            with open(os.getcwd() + f'/chat_logs/{self.channel}.log', 
-                      'a', 
-                      encoding='utf-8') as log_file:
-                log_file.write(formatted_resp)
         return demojize(resp)
-            
-
+         
     """
     1.create two threads to run a while loop.
         (1) get_total_viewers_thread: In every 30 seconds, send request to get total_viewers.
@@ -186,18 +140,6 @@ class TwitchChatListener:
 
         self.total_viewers_thread.join()
         print("join total_viewers_thread")
-
-
-    def listen_to_chatroom_temp(self):
-        self.keep_listening_temp = True
-        self.connect_chatroom_temp()
-        print("connect_chatroom_temp")
-        while self.keep_listening_temp:
-            # print("record_logs_temp")
-            self.record_logs_temp()
-
-        return False
-
  
     def save_start_time(self):
         developer = TwitchDeveloper()
@@ -208,10 +150,3 @@ class TwitchChatListener:
             "channel": self.channel
             }
         db.insertone_into_collection(doc, "schedules")
-
-# use_example
-
-# if __name__ == "__main__":
-#     chat_listener = TwitchChatListener("caedrel")
-#     chat_listener.save_start_time()
-#     chat_listener.listen_to_chatroom() 
