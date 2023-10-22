@@ -52,8 +52,8 @@ def streaming_logs():
             pass
 
         if stream_logs_route.latest_selected_channel: # when switching channels
-            os.remove(os.getcwd() + f'/App/server/static/assets/chat_logs/{stream_logs_route.channel}.log')
-            dev_logger.debug(os.getcwd() + f'/App/server/static/assets/chat_logs/{stream_logs_route.channel}.log')
+            os.remove(os.getcwd() + f'/App/server/static/assets/chat_logs/{stream_logs_route.latest_selected_channel}.log')
+            dev_logger.debug(os.getcwd() + f'/App/server/static/assets/chat_logs/{stream_logs_route.latest_selected_channel}.log')
 
             MongoDBManager().delete_many(stream_logs_route.latest_selected_channel, "tempChatLogs") # delete the log file of previous selected channel.
             dev_logger.debug(f"db.tempChatLogs.deleteMany: {stream_logs_route.latest_selected_channel}")
@@ -63,7 +63,7 @@ def streaming_logs():
             MongoDBManager().delete_many(selected_channel, "tempChatLogs") # make sure documents of current selected channel in collection are deleted.
             dev_logger.debug(f"app.py -- db.tempChatLogs.deleteMany: {selected_channel}")
             try:
-                os.remove(os.getcwd() + f'/App/server/static/assets/chat_logs/{stream_logs_route.channel}.log') # try to delete the log file of current selected channel again, too.
+                os.remove(os.getcwd() + f'/App/server/static/assets/chat_logs/{stream_logs_route.selected_channel}.log') # try to delete the log file of current selected channel again, too.
                 dev_logger.debug(f"app.py -- temp_delete_log_file: /chat_logs/{selected_channel}.log")
             except Exception as e :
                 dev_logger.debug(e)
@@ -113,7 +113,7 @@ def event_listener():
             print(f"app.py -- db.tempChatLogs.deleteMany: {stream_logs_route.latest_selected_channel}")
 
             try:
-                os.remove(os.getcwd() + f'/App/server/static/assets/chat_logs/{stream_logs_route.channel}.log')
+                os.remove(os.getcwd() + f'/App/server/static/assets/chat_logs/{stream_logs_route.latest_selected_channel}.log')
                 print(f'deleted /chat_logs/{stream_logs_route.latest_selected_channel}.log') # delete the log file after leaving the chatroom
 
             except:
