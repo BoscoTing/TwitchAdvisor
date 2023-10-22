@@ -14,6 +14,7 @@ from twitch_api_manager import TwitchDeveloper
 from mongodb_manager import MongoDBManager
 
 class TwitchChatListener():
+    
     def __init__(self, channel):
         self.sock = None
         self.server = 'irc.chat.twitch.tv'
@@ -66,12 +67,6 @@ class TwitchChatListener():
                                                           mode='a',
                                                           encoding='utf-8')])
         
-        # logging.basicConfig(level=logging.DEBUG,
-        #                     format='%(asctime)s — %(message)s',
-        #                     datefmt='%Y-%m-%d_%H:%M:%S',
-        #                     handlers=[logging.FileHandler(os.getcwd() + f'/chat_logs/{self.started_at}_{self.channel}.log', 
-        #                                                   mode='a',
-        #                                                   encoding='utf-8')])
         print(f"Writing logs in /dags/chat_logs/{self.started_at}_{self.channel}.log")
         logging.debug(resp)
     
@@ -92,10 +87,7 @@ class TwitchChatListener():
                       'a', 
                       encoding='utf-8') as log_file:
                 log_file.write(formatted_resp)
-            # with open(os.getcwd() + f'/chat_logs/{self.started_at}_{self.channel}.log', 
-            #         'a', 
-            #         encoding='utf-8') as log_file:
-            #     log_file.write(formatted_resp)
+
         return demojize(resp)
          
     """
