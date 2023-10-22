@@ -3,7 +3,7 @@
 .DS_Store
 **/__pycache__/
 .pytest_cache/
-Airflow/data/chat_logs/
+Airflow/data/
 Airflow/logs/
 scheduled_dags/.cache
 
