@@ -5,7 +5,6 @@ from ..services.history_stats import ViewersReactionAnalyser, Overview
 
 def test_get_livestream_schedule():
     overview = Overview()
-    # Mock data for testing
     week = 40
     year = 2023
     

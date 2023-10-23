@@ -8,9 +8,9 @@ import os
 import sys
 sys.path.insert(0, os.getcwd())
 
-from plugins.managers.logging_manager import dev_logger, send_log
-from plugins.managers.twitch_api_manager import TwitchDeveloper
-from plugins.managers.mongodb_manager import MongoDBManager
+from plugins.logging_manager import dev_logger, send_log
+from plugins.twitch_api_manager import TwitchDeveloper
+from plugins.mongodb_manager import MongoDBManager
 
 """
 1. Query from trackedChannels.
