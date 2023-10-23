@@ -11,8 +11,6 @@ def test_get_livestream_schedule():
     processed_data = overview.get_livestream_schedule(week, year)
     for doc in processed_data:
         assert isinstance(doc, dict)  # Check if each item is a dictionary
-        
-        # Check if the keys and their data types match the expected format
         assert 'avgSentimentScore' in doc and isinstance(doc['avgSentimentScore'], (float, type(None)))
         assert 'maxMessageCount' in doc and isinstance(doc['maxMessageCount'], int)
         assert 'avgMessageCount' in doc and isinstance(doc['avgMessageCount'], float)
@@ -40,29 +38,21 @@ def test_get_schedule_week_range():
     overview = Overview()
     schedule_range_list = overview.get_schedule_week_range()
 
-    # Assertions
-    assert len(schedule_range_list) == 2  # Check the length of the list
+    assert len(schedule_range_list) == 2
     for year_week in schedule_range_list:
-        assert year_week.startswith('2023-W')  # Check the format
-        week_number = int(year_week.split('-W')[1])  # Extract the week number
-        assert 1 <= week_number <= 53  # Check if it's in the range
+        assert year_week.startswith('2023-W')
+        week_number = int(year_week.split('-W')[1])
+        assert 1 <= week_number <= 53
 
 def test_query_historical_stats_with_started_at():
     analyser = ViewersReactionAnalyser('sneakylol')
-    # Mock data for testing
     started_at = '2023-10-16T13:05:13+08:00'
-
-    # Call the function to test
     result = analyser.query_historical_stats(started_at)
 
-    # Assertions
-    assert isinstance(result, list)  # Check if the result is a list
-    expected_started_at_format = '%Y-%m-%dT%H:%M:%S+08:00'  # Replace with your expected format
-
+    assert isinstance(result, list)
     assert isinstance(result[0], dict)  # Check if it's a dictionary
 
     doc = result[0]
-
     assert 'timestamp' in doc and isinstance(doc['timestamp'], datetime)
     assert '_id' in doc and isinstance(doc['_id'], datetime)
     assert 'cheers' in doc and isinstance(doc['cheers'], list)
@@ -73,24 +63,18 @@ def test_query_historical_stats_with_started_at():
     assert 'channel' in doc and isinstance(doc['channel'], str)
     assert 'messageCount' in doc and isinstance(doc['messageCount'], int)
 
+    expected_started_at_format = '%Y-%m-%dT%H:%M:%S+08:00'
     assert datetime.strptime(doc['startedAt'], expected_started_at_format)  # Check if startedAt matches the expected format
 
 
 def test_query_historical_stats_without_started_at():
-
     analyser = ViewersReactionAnalyser('sneakylol')
-
-    # Call the function to test
     result = analyser.query_historical_stats(None)
 
-    # Assertions
     assert isinstance(result, list)  # Check if the result is a list
-    expected_started_at_format = '%Y-%m-%dT%H:%M:%S+08:00'  # Replace with your expected format
-
     assert isinstance(result[0], dict)  # Check if it's a dictionary
 
     doc = result[0]
-
     assert 'timestamp' in doc and isinstance(doc['timestamp'], datetime)
     assert '_id' in doc and isinstance(doc['_id'], datetime)
     assert 'cheers' in doc and isinstance(doc['cheers'], list)
@@ -101,4 +85,5 @@ def test_query_historical_stats_without_started_at():
     assert 'channel' in doc and isinstance(doc['channel'], str)
     assert 'messageCount' in doc and isinstance(doc['messageCount'], int)
 
+    expected_started_at_format = '%Y-%m-%dT%H:%M:%S+08:00'
     assert datetime.strptime(doc['startedAt'], expected_started_at_format)  # Check if startedAt matches the expected format

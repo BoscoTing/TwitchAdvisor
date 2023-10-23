@@ -4,10 +4,7 @@ import sys
 sys.path.insert(0, os.getcwd())
 
 from ..models.mongodb_manager import MongoDBManager
-from ..utils.logger import send_log, dev_logger
-
-def main():
-    print('this is python script of ViewersReactionAnalyser')
+from ..utils.logger import dev_logger
 
 class ViewersReactionAnalyser():
 
@@ -18,8 +15,10 @@ class ViewersReactionAnalyser():
         self.lastest_record = 0 
 
     def sort_isodate_schedule(self, schedule_list):
+
         def isodate_key(isodate):
             return datetime.fromisoformat(isodate)
+        
         sorted_schedule_list = sorted(schedule_list, key=isodate_key)
         return sorted_schedule_list
 
@@ -74,11 +73,10 @@ class ViewersReactionAnalyser():
                     ])]
                 
                 if result!=False and result!=[]:
-                    print("viewers_reaction.py - query_historical_stats - result[-1]", result[-1])
+                    dev_logger.debug(f"viewers_reaction.py - query_historical_stats - result[-1]: {result[-1]}")
                     return result
 
             except Exception as e:
-                send_log(e)
                 dev_logger.error(e)
                 return False
 
@@ -112,18 +110,20 @@ class ViewersReactionAnalyser():
 
         schedule = [row['schedule'] for row in collection.aggregate(query)][0]
         sorted_schedule = self.sort_isodate_schedule(schedule)
-        print("viewers_reaction.py - query_historical_stats - sorted_schedule:", sorted_schedule)
-        print("viewers_reaction: historical sorted_schedule", sorted_schedule)
+        dev_logger.debug(f"viewers_reaction.py - query_historical_stats - sorted_schedule: {sorted_schedule}")
+        dev_logger.debug(f"viewers_reaction: historical sorted_schedule: {sorted_schedule}")
         return sorted_schedule
 
 
 class Overview():
 
     def __init__(self):
+
         self.db = MongoDBManager()
 
     def get_livestream_schedule(self, week, year):
-        print(f'channel_overview.py: get_livestream_schedule({week}, {year})')
+        
+        dev_logger.debug(f'channel_overview.py: get_livestream_schedule({week}, {year})')
         task_records = self.db.connect_collection("chatStats")
         query = [
             {
@@ -191,6 +191,7 @@ class Overview():
         return processed_data
     
     def get_schedule_week_range(self):
+        
         task_records = self.db.connect_collection("chatStats")
         query = [
             {
@@ -214,14 +215,11 @@ class Overview():
         sorted_startedAt  = sorted([datetime.fromisoformat(doc['startedAt']) for doc in livestream_schedule])
         min = sorted_startedAt[0]
         max = sorted_startedAt[-1]
-        print(f"schedule_range: {min} to {max}")
+        dev_logger.debug(f"schedule_range: {min} to {max}")
+
         schedule_range_list = [
             f"{min.year}-W{min.isocalendar().week}",
             f"{max.year}-W{max.isocalendar().week}"
             ]
 
         return schedule_range_list
-
-
-if __name__ == "__main__":
-    main()

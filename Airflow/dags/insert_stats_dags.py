@@ -17,8 +17,6 @@ from plugins.mongodb_manager import MongoDBManager
 3. Check if there are tracked channels which have unexecuted insert_stats_task (has insert_logs but not insert_stats record of same 'startedAt').
 4. Calculate stats for those channels one by one.
 """
-
-
 db = MongoDBManager()
 tracked_channels_collection = db.connect_collection("trackedChannels") # query from "trackingChannels" collection
 query = [
@@ -33,7 +31,6 @@ result = tracked_channels_collection.aggregate(query)
 tracked_channels_list = [row['channels'] for row in result][0]
 dev_logger.info("current_tracking_channels: ", tracked_channels_list)
 
-
 """
 2. Iterate over the tracked channels.
 3. Check if there are tracked channels which have unexecuted insert_stats_task.
@@ -42,7 +39,7 @@ def complete_insert_stats_for_every_channels():
     for channel in tracked_channels_list:
         analyser = ViewersReactionAnalyser(channel=channel)
         analyser.insert_historical_stats()
-        send_log("insert_historical_stats: ", channel)
+        dev_logger.info(f"insert_historical_stats: {channel}")
 
 with DAG(
     "start_insert_stats_dag",

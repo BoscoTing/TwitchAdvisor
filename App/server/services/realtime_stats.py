@@ -11,19 +11,14 @@ from datetime import datetime, timedelta
 logging.basicConfig(level=logging.ERROR)
 
 from ..models.mongodb_manager import MongoDBManager
-from ..utils.logger import send_log, dev_logger
+from ..utils.logger import dev_logger
 
 log_path = "../static/assets/chat_logs/"
 
 sys.path.insert(0, os.getcwd())
 
 
-def main():
-    send_log('this is python script of ViewersReactionAnalyserTEMP')
-
-
 class TwitchChatListenerTEMP():
-
     def __init__(self, channel):
         self.sock = None
         self.server = 'irc.chat.twitch.tv'
@@ -48,11 +43,13 @@ class TwitchChatListenerTEMP():
                                                           mode='w', # use 'w' mode to create log file everytime.
                                                           encoding='utf-8')])
         logging.debug(resp)
+
         try:
             self.started_at = TwitchDeveloper().detect_living_channel(self.channel)['started_at'] # already turn timezone to +8 for showing on the chart.
 
         except Exception as e:
-            send_log(e)
+            dev_logger.error(e)
+
             return False
     
     """
@@ -60,19 +57,20 @@ class TwitchChatListenerTEMP():
     2. 'get_total_viewers_thread' pass 'self.viewer_count' to 'record_logs' function in 'while_loop_record_logs_thread'
     3. Add {viewer_count} to the doc, then insert them into "chatLogs" collection.
     """
-
     def record_logs_temp(self):
         resp = self.sock.recv(2048).decode('utf-8')
         timestamp = datetime.utcnow().strftime('%Y-%m-%d_%H:%M:%S') # use utc time for insert into mongodb time series collection (which accept utc time). 
-        formatted_resp = f"{timestamp} — {self.started_at} — {demojize(resp)}" # —
+        formatted_resp = f"{timestamp} — {self.started_at} — {demojize(resp)}"
+
         if resp.startswith('PING'):
             self.sock.send("PONG\n".encode('utf-8'))
+
         elif len(resp) > 0:
-            # logging.info(demojize(resp))
             with open(os.getcwd() + f'/App/server/static/assets/chat_logs/{self.channel}.log', 
                       'a', 
                       encoding='utf-8') as log_file:
                 log_file.write(formatted_resp)
+
         return demojize(resp)
             
     """
@@ -86,10 +84,9 @@ class TwitchChatListenerTEMP():
     """
 
     def listen_to_chatroom_temp(self): # realtime_chart_controller
-
         self.keep_listening_temp = True
         self.connect_chatroom_temp()
-        send_log("connect_chatroom_temp")
+        dev_logger.info("connect_chatroom_temp")
 
         while self.keep_listening_temp:
             self.record_logs_temp()
@@ -130,7 +127,6 @@ class TwitchDeveloper:
         query = "type=live&language=en&first=100"
         url = f'https://api.twitch.tv/helix/streams?{query}'
         resp = requests.get(url, headers=headers).json()['data']
-        # print(resp[0:20])
 
         channel_dict = {
             'Just Chatting': [],
@@ -149,7 +145,6 @@ class TwitchDeveloper:
         return channel_dict
         
     def detect_living_channel(self, channel):
-        
         url = f'https://api.twitch.tv/helix/streams?user_login={channel}'
         headers = {
             'Client-ID' : config('twitch_app_id'),
@@ -200,7 +195,7 @@ class TwitchDeveloper:
         
     def get_channel_schedule(self, channel):
         broadcaster_id = self.get_broadcaster_id(channel)
-        print(broadcaster_id)
+        dev_logger.debug(f"broadcaster_id: {broadcaster_id}")
         url = f"https://api.twitch.tv/helix/schedule?broadcaster_id={broadcaster_id}"
         headers = {
             'Client-ID' : config('twitch_app_id'),
@@ -213,7 +208,6 @@ class TwitchDeveloper:
             return False
 
 class ViewersReactionAnalyserTEMP():
-
     def __init__(self, channel):
         self.channel = channel
         self.listener = TwitchChatListenerTEMP(channel)
@@ -312,7 +306,7 @@ class ViewersReactionAnalyserTEMP():
             """
             viewer_count = self.api.detect_living_channel(self.channel)['viewer_count'] # Since viewerCount in Twitch API is updating in a slow pace, I request it for each iteration in while loop.
             for line in lines[latest_row+1:]:
-                print("line: ", line)
+                dev_logger.debug(f"line: {line}")
                 try:
                     doc = self.parse_temp_chat_logs(line)
                     doc['viewerCount'] = viewer_count
@@ -320,11 +314,12 @@ class ViewersReactionAnalyserTEMP():
                         documents.append(doc)
                     new_row += 1
                 except Exception as e:
-                    pass
+                    dev_logger.error(e)
+                    
                 self.lastest_record += 1
             if documents:
                 self.db.insertmany_into_collection(documents, collection_name="tempChatLogs")
-                print('inserted.')
+                dev_logger.debug('inserted.')
 
     def temp_stats(self, channel): # temparory stats for streaming plot
         started_at = TwitchDeveloper().detect_living_channel(channel)['started_at']
@@ -397,7 +392,3 @@ class ViewersReactionAnalyserTEMP():
         collection = self.db.connect_collection("tempChatLogs")
         query = { "selectionInfo.channel": channel }
         collection.delete_many(query)
-
-
-if __name__ == "__main__":
-    main()

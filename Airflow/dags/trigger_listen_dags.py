@@ -8,7 +8,7 @@ import os
 import sys
 sys.path.insert(0, os.getcwd())
 
-from plugins.logging_manager import dev_logger, send_log
+from plugins.logging_manager import dev_logger
 from plugins.twitch_api_manager import TwitchDeveloper
 from plugins.mongodb_manager import MongoDBManager
 
@@ -18,8 +18,6 @@ from plugins.mongodb_manager import MongoDBManager
 3. Trigger listen_dags for online channels.
 4. Terminate listen_dags for offline channels.
 """
-
-
 db = MongoDBManager()
 tracked_channels_collection = db.connect_collection("trackedChannels") # query from "trackingChannels" collection
 query = [
@@ -32,7 +30,7 @@ query = [
     ] # the query to get the tracked channels 
 result = tracked_channels_collection.aggregate(query)
 tracked_channels_list = [row['channels'] for row in result][0]
-print("current_tracking_channels: ", tracked_channels_list)
+dev_logger.debug(f"current_tracking_channels: {tracked_channels_list}")
 
 def stop_dag_run(dag_id): # doesn't work
     dag_run = DagRun.find(dag_id=dag_id, state='running')
@@ -44,23 +42,20 @@ def stop_dag_run(dag_id): # doesn't work
 
 
     if dag_run:
-        send_log(f"DAG '{dag_id}' is currently running.")
-        dev_logger.info(f"DAG '{dag_id}' is currently running.")
+        dev_logger.debug(f"DAG '{dag_id}' is currently running.")
 
         dag_run_id = dag_run[0].run_id # prepare dag_id and dag_run_id
-        dev_logger.info(f"DAG run ID for DAG '{dag_id}' is {dag_run_id}.")
+        dev_logger.debug(f"DAG run ID for DAG '{dag_id}' is {dag_run_id}.")
 
         try:
             dag_run[0].set_state('failed') # set dag run state to 'success'
-            send_log(f"Successfully Stopped DAG run {dag_run_id} for DAG {dag_id}.")
             dev_logger.info(f"Successfully Stopped DAG run {dag_run_id} for DAG {dag_id}.")
             
         except Exception as e:
-            send_log(e)
             dev_logger.error(e)
 
     else:
-        dev_logger.info(f"No running DAG runs found for DAG '{dag_id}'.")
+        dev_logger.debug(f"No running DAG runs found for DAG '{dag_id}'.")
 
 
 with DAG(
@@ -83,18 +78,16 @@ with DAG(
             3. Trigger listen_dags for online channels.
             """
 
-            dev_logger.info(f"{channel} is online.")
+            dev_logger.debug(f"{channel} is online.")
 
             dag_run = DagRun.find(dag_id=dag_id, state='running')
-            dev_logger.info("dag_runs: ", dag_run)
+            dev_logger.debug("dag_runs: ", dag_run)
 
             if dag_run:
-                send_log(f"DAG '{dag_id}' is currently running.")
-                dev_logger.info(f"DAG '{dag_id}' is currently running.")
+                dev_logger.debug(f"DAG '{dag_id}' is currently running.")
 
             else:
-                send_log(f"DAG '{dag_id}' is not running, trigger {dag_id}")
-                dev_logger.info(f"DAG '{dag_id}' is not running, trigger {dag_id}")
+                dev_logger.debug(f"DAG '{dag_id}' is not running, trigger {dag_id}")
                 start_listen_task=TriggerDagRunOperator(
                     task_id=f"trigger_{channel}_listen_task",
                     trigger_dag_id=f"{channel}_listen_dag",

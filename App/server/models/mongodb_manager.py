@@ -28,6 +28,7 @@ class MongoDBManager:
         collection = self.db["chat_logs"]
         query = collection.find({}, {"metadata.started_at": { "$in": [started_at]},
                                      "metadata.channel": {"in": [channel]}})
+        
     def delete_many(self, channel, collection):
         collection = self.db[collection]
         query = {"selectionInfo.channel": channel }
