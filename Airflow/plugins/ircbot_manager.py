@@ -7,8 +7,6 @@ import time
 import socket
 import logging
 import os
-import sys
-sys.path.insert(0, os.getcwd())
 
 from .logging_manager import dev_logger
 from .twitch_api_manager import TwitchDeveloper
@@ -34,7 +32,6 @@ class TwitchChatListener():
         self.sock.send(f"NICK {self.nickname}\n".encode('utf-8'))
         self.sock.send(f"JOIN {'#' + self.channel}\n".encode('utf-8'))
 
-        resp = self.sock.recv(2048).decode('utf-8')
         dev_logger.debug(f"trying to get 'startedAt' for {self.channel}'s live stream...")
         try:
             self.started_at = TwitchDeveloper().detect_living_channel(self.channel)['started_at'] # already turn timezone to +8 for showing on the chart.

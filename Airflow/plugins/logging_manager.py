@@ -2,9 +2,6 @@ import logging
 import boto3
 import time
 from decouple import config
-import os
-import sys
-sys.path.insert(0, os.getcwd())
 
 dev_logger: logging.Logger = logging.getLogger(name='dev')
 dev_logger.setLevel(logging.DEBUG)

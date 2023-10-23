@@ -1,12 +1,12 @@
+import os
+import sys
+sys.path.insert(0, os.getcwd())
 from airflow import DAG
 from airflow.operators.trigger_dagrun import TriggerDagRunOperator
 from airflow.models import DagRun
 from airflow.api.client.local_client import Client
 client = Client(api_base_url='http://localhost:8080')
 from datetime import datetime, timedelta
-import os
-import sys
-sys.path.insert(0, os.getcwd())
 
 from plugins.logging_manager import dev_logger
 from plugins.twitch_api_manager import TwitchDeveloper

@@ -1,13 +1,13 @@
+import os
+import sys
+sys.path.insert(0, os.getcwd())
 from airflow import DAG
 from airflow.operators.python_operator import PythonOperator
 from airflow.api.client.local_client import Client
 client = Client(api_base_url='http://localhost:8080')
 from datetime import datetime, timedelta
-import os
-import sys
-sys.path.insert(0, os.getcwd())
 
-from plugins.logging_manager import dev_logger, send_log
+from plugins.logging_manager import dev_logger
 from plugins.viewers_reaction import ViewersReactionAnalyser
 from plugins.mongodb_manager import MongoDBManager
 

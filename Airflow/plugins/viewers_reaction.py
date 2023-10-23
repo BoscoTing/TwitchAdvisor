@@ -1,10 +1,8 @@
 from datetime import datetime
-from time import time, sleep
+from time import time
 from copy import deepcopy
 import re
 import os
-import sys
-sys.path.insert(0, os.getcwd())
 from copy import deepcopy
 
 from .logging_manager import dev_logger

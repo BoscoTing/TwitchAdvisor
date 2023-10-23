@@ -60,22 +60,8 @@ for tracked_channel in tracked_channels_list:
             analyser.insert_chat_logs()
         insert_logs_task()
 
-    @dag(dag_id=f"{tracked_channel}_insert_stats_dag", start_date=datetime(2023, 10, 1), schedule="@once", catchup=False,  max_active_runs=1)
-    def dynamic_generated_insert_stats_dag():
-        channel = tracked_channel # prevent from using wrong 'tracked_channel' for 'listen_to_channel_task' due to for loop
-        @task
-        def insert_stats_task():
-            analyser = ViewersReactionAnalyser(channel)
-            analyser.insert_historical_stats()
-        insert_stats_task()
-
-
-
     dynamic_generated_listen_dag()
     dynamic_generated_insert_logs_dag()
-    dynamic_generated_insert_stats_dag()
-
-
 
 """
 3. Send request to Twitch API for checking if the channel is online.

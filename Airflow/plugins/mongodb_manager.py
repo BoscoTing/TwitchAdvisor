@@ -1,8 +1,5 @@
 from pymongo import MongoClient
 from decouple import config 
-import os
-import sys
-sys.path.insert(0, os.getcwd())
 
 class MongoDBManager():
     def __init__(self):
