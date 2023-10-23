@@ -10,9 +10,9 @@ import os
 import sys
 sys.path.insert(0, os.getcwd())
 
-from logging_manager import dev_logger
-from twitch_api_manager import TwitchDeveloper
-from mongodb_manager import MongoDBManager
+from .logging_manager import dev_logger
+from .twitch_api_manager import TwitchDeveloper
+from .mongodb_manager import MongoDBManager
 
 class TwitchChatListener():
     
