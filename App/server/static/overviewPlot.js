@@ -3,9 +3,7 @@ let option = 'Average Message Count' // set default option 'Average Message Coun
 
 currentDate = new Date();
 startDate = new Date(currentDate.getFullYear(), 0, 1);
-var days = Math.floor((currentDate - startDate) /
-    (24 * 60 * 60 * 1000));
-
+let days = Math.floor((currentDate - startDate) / (24 * 60 * 60 * 1000));
 let week = Math.ceil(days / 7); // calculate week of year
 let year = null;
 
@@ -13,27 +11,21 @@ function updateOverviewPlot(selectedWeek, selectedYear) {
     const loadingOverlay = document.getElementById("loadingOverlayOverview");
     loadingOverlay.style.display = "block";
 
-    var xmlHttp = new XMLHttpRequest();
+    let xmlHttp = new XMLHttpRequest();
     if (selectedWeek && selectedYear) {
         xmlHttp.open( "GET", `/api/overview_data?week=${selectedWeek}&year=${selectedYear}`, true );
-        // console.log("GET", `/api/overview_data?week=${selectedWeek}&year=${selectedYear}`);
     }
     else {
         xmlHttp.open( "GET", `/api/overview_data`, true ); // use default week in flask
-        // console.log(`/api/overview_data`);
     };
     xmlHttp.onload = function () {
         loadingOverlay.style.display = "none";
         if (xmlHttp.status === 200) {
-            var responseHtml = xmlHttp.responseText;
-            var data = JSON.parse(responseHtml);
-            // console.log("data: " ,data);
+            let responseHtml = xmlHttp.responseText;
+            let data = JSON.parse(responseHtml);
 
             // Extract unique channels
             const channels = [...new Set(data.map(entry => entry.channel))];
-            // console.log("channels: ", channels);
-
-            // Create an array of all weekdays
             const weekdays = ['Mon.', 'Tue.', 'Wed.', 'Thu.', 'Fri.', 'Sat.', 'Sun.'];
 
             // Create data traces for each channel
@@ -42,7 +34,7 @@ function updateOverviewPlot(selectedWeek, selectedYear) {
                 const xValues = weekdays;
                 const yValues = weekdays.map(weekday => {
                     const entry = channelData.find(dataEntry => dataEntry.weekDayName === weekday);
-                    // console.log(entry);
+
                     if (entry) {
                         console.log("entry: ", entry)
                     };
@@ -65,9 +57,6 @@ function updateOverviewPlot(selectedWeek, selectedYear) {
                     else if (option == 'Total Cheer Count') {
                         return entry ? entry.totCheerCount : 0;
                     }
-                    // else if (option == 'Average Sentiment Score') {
-                    //     return entry ? entry.avgSentimentScore : 0;
-                    // }
 
                 });
 
@@ -88,13 +77,11 @@ function updateOverviewPlot(selectedWeek, selectedYear) {
                     family: 'Verdana',
                     size: 15,
                 },
-                xaxis: {
-                    // title: 'Weekdays'
-                },
+
                 yaxis: {
                     title: option
                 },
-                // barmode: 'group'
+                
             };
 
             Plotly.react('overviewPlot', traces, layout);
@@ -127,15 +114,6 @@ function handleWeekSelection() {
         console.log('No match found.');
     };
 }
-
-// const overviewMetricsElements = document.getElementsByClassName("overviewMetrics")
-// for (var i = 0; i < overviewMetricsElements.length; i++) {
-//     let overviewMetricsElement = overviewMetricsElements[i];
-//     overviewMetricsElement.addEventListener ("click", function () {
-//         option = overviewMetricsElement.textContent;
-//         updateOverviewPlot(week, year);
-//     })
-// }
 
 const overviewMetricsSelect = document.getElementById("overviewMetricsSelect")
 

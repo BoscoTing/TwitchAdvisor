@@ -7,7 +7,7 @@ import sys
 sys.path.insert(0, os.getcwd())
 
 from server import app
-from ..utils.logger import send_log
+from ..utils.logger import dev_logger
 from ..models.mongodb_manager import MongoDBManager
 from ..services.history_stats import ViewersReactionAnalyser, Overview
 
@@ -27,12 +27,15 @@ def main_page():
     result = tracked_channels_collection.aggregate(query)
 
     tracked_channels_list = [row['channels'] for row in result][0]
+
     def process_name(name):
         # Capitalize the first letter of each word and handle "lol" pattern
         name = re.sub(r'\b\w', lambda x: x.group(0).upper(), name)
         name = re.sub(r'_lol\b', ' LOL', name, flags=re.IGNORECASE)
         return name
+    
     broadcasters = [process_name(channel) for channel in tracked_channels_list]
+
     """
     1. set default week number for overviewPlot.
     2. query min/max week number.
@@ -45,6 +48,7 @@ def main_page():
     schedule_week_range = overview.get_schedule_week_range()
     start_week = schedule_week_range[0]
     end_week = schedule_week_range[1]
+
     return render_template(
         'main.html',
         broadcasters=broadcasters,
@@ -58,13 +62,15 @@ def main_page():
 def historical_stats():
     channel = request.args.get("channel")
     started_at = request.args.get("started_at")
-    # send_log(f"flask historical_stats: started_at {started_at}")
+    dev_logger.debug(f"flask historical_stats: started_at {started_at}")
+
     if started_at:
         started_at = started_at.replace(" ", "+") # request.args.get reads the "+" string as " "
-    # send_log(f"flask historical_stats: started_at {started_at}")
+    dev_logger.debug(f"flask historical_stats: started_at {started_at}")
 
     analyser = ViewersReactionAnalyser(channel)
-    # send_log(f"flask historical_stats: started_at {started_at}")
+    dev_logger.debug(f"flask historical_stats: started_at {started_at}")
+
     stats = analyser.query_historical_stats(started_at) # started_at can be None if not included in request params
 
     if stats == False or stats == []:
@@ -74,7 +80,7 @@ def historical_stats():
             weighted_scores = []
             for i in range(len(score_list)):
                 weighted_scores.append(score_list[i] * i)
-                result = sum(weighted_scores) / sum(score_list)
+                result = sum(weighted_scores) / sum(score_list)       
             return result
 
     for doc in stats:
@@ -85,9 +91,8 @@ def historical_stats():
         """
         try:
             doc['sentiment'] = avg_sentiment_weighted_by_index(doc['sentiment'])
-        except:
-            pass
-
+        except Exception as e:
+            dev_logger.error(e)
         del doc["_id"]
 
     schedule = analyser.get_historical_schedule() # startedAt time, which are in +8 timezone
@@ -101,7 +106,6 @@ def historical_stats():
         'schedule': schedule,
         'stats' : stats
         }
-
     resp_data = json.dumps(resp_data)
     return resp_data
 
@@ -120,10 +124,11 @@ def record_tracking_channels():
     ]
     result = tracking_channels_collection.aggregate(query)
     current_tracking_channels = [row['channels'] for row in result][0]
-    # send_log(f"current_tracking_channels: {current_tracking_channels}")
+    dev_logger.debug(f"current_tracking_channels: {current_tracking_channels}")
 
     current_tracking_channels.append(added_channel)
-    # send_log(f"current_tracking_channels: {current_tracking_channels}")
+    dev_logger.debug(f"current_tracking_channels: {current_tracking_channels}")
+
     doc = {
         "channel": current_tracking_channels,
         "addedTime": datetime.now()
@@ -135,8 +140,8 @@ def overiew_stats():
     week = request.args.get("week")
     year = request.args.get("year")
 
-    # send_log(f'flask: request.args.get("week") = {week}')
-    # send_log(f'flask: request.args.get("year") = {year}')
+    dev_logger.debug(f'flask: request.args.get("week") = {week}')
+    dev_logger.debug(f'flask: request.args.get("year") = {year}')
 
     now_week_of_year = datetime.now().isocalendar().week
     now_year = datetime.now().year
@@ -149,7 +154,6 @@ def overiew_stats():
     else: # when first load the page, show data this week in overviewPlot
         week = now_week_of_year
         year = now_year
-        # send_log(f"default week/year: {week}/{year}")
+        dev_logger.debug(f"default week/year: {week}/{year}")
         livestream_schedule = overview.get_livestream_schedule(week, year)
-
     return livestream_schedule

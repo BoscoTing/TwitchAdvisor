@@ -8,7 +8,7 @@ import os
 import sys
 sys.path.insert(0, os.getcwd())
 
-from plugins.logging_manager import dev_logger, send_log
+from plugins.logging_manager import dev_logger
 from plugins.twitch_api_manager import TwitchDeveloper
 from plugins.mongodb_manager import MongoDBManager
 
@@ -31,7 +31,7 @@ query = [
     ] # the query to get the tracked channels 
 result = tracked_channels_collection.aggregate(query)
 tracked_channels_list = [row['channels'] for row in result][0]
-print("current_tracking_channels: ", tracked_channels_list)
+dev_logger.info(f"current_tracking_channels: {tracked_channels_list}")
 
 
 with DAG(
@@ -50,19 +50,19 @@ with DAG(
         3. Trigger insert_logs_dags for offline channels.
         """
         if living:
-            dev_logger.info(f"{channel} is online.")
+            dev_logger.debug(f"{channel} is online.")
 
         else:
-            dev_logger.info(f"{channel} is offline.")
+            dev_logger.debug(f"{channel} is offline.")
 
             dag_id = f'{channel}_insert_logs_dags'
             dag_runs = DagRun.find(dag_id=dag_id, state='running')
 
             if dag_runs:
-                dev_logger.info(f"DAG '{dag_id}' is currently running.")
+                dev_logger.debug(f"DAG '{dag_id}' is currently running.")
 
             else:
-                dev_logger.info(f"DAG '{dag_id}' is not running, trigger {dag_id}")
+                dev_logger.debug(f"DAG '{dag_id}' is not running, trigger {dag_id}")
                 trigger_insert_logs_task=TriggerDagRunOperator(
                     task_id=f"trigger_{channel}_insert_logs_task",
                     trigger_dag_id=f"{channel}_insert_logs_dag",
