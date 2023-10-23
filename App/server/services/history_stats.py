@@ -56,8 +56,8 @@ class ViewersReactionAnalyser():
                 schedule = self.get_historical_schedule()
 
                 most_current = schedule[-1]
-                dev_logger.debug("most_current", most_current)
-                dev_logger.debug("self.channel", self.channel)
+                dev_logger.debug(f"most_current: {most_current}")
+                dev_logger.debug(f"self.channel: {self.channel}")
 
                 result = [row for row in collection.aggregate([
                     {

@@ -7,9 +7,9 @@ import sys
 sys.path.insert(0, os.getcwd())
 from copy import deepcopy
 
-from logging_manager import send_log, dev_logger
-from mongodb_manager import MongoDBManager
-from ircbot_manager import TwitchChatListener
+from .logging_manager import send_log, dev_logger
+from .mongodb_manager import MongoDBManager
+from .ircbot_manager import TwitchChatListener
 
 class ViewersReactionAnalyser():
 
