@@ -4,10 +4,10 @@ sys.path.insert(0, os.getcwd())
 from datetime import datetime
 from airflow.decorators import dag, task
 
-from plugins.managers.logging_manager import dev_logger
-from plugins.managers.twitch_api_manager import TwitchDeveloper
-from plugins.managers.mongodb_manager import MongoDBManager
-from plugins.managers.ircbot_manager import TwitchChatListener
+from plugins.logging_manager import dev_logger
+from plugins.twitch_api_manager import TwitchDeveloper
+from plugins.mongodb_manager import MongoDBManager
+from plugins.ircbot_manager import TwitchChatListener
 from plugins.viewers_reaction import ViewersReactionAnalyser
 
 

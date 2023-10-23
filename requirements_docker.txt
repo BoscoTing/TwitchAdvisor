@@ -49,6 +49,7 @@ pymongo==4.5.0
 Pympler==1.0.1
 pyparsing==3.1.1
 pyrsistent==0.19.3
+pytest==7.4.2
 python-dateutil==2.8.2
 python-decouple==3.8
 python-lsp-jsonrpc==1.0.0

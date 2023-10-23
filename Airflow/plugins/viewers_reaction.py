@@ -7,10 +7,9 @@ import sys
 sys.path.insert(0, os.getcwd())
 from copy import deepcopy
 
-from managers.logging_manager import send_log, dev_logger
-from managers.mongodb_manager import MongoDBManager
-from managers.ircbot_manager import TwitchChatListener
-from managers.twitch_api_manager import TwitchDeveloper
+from logging_manager import send_log, dev_logger
+from mongodb_manager import MongoDBManager
+from ircbot_manager import TwitchChatListener
 
 class ViewersReactionAnalyser():
 
@@ -19,7 +18,6 @@ class ViewersReactionAnalyser():
         self.listener = TwitchChatListener(channel)
         self.db = MongoDBManager()
         self.col = "chatLogs"
-        self.api = TwitchDeveloper()
         self.lastest_record = 0 
 
     def recognize_cheers(self, line): # used
