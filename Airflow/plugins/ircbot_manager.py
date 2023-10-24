@@ -2,7 +2,6 @@ from decouple import config
 from datetime import datetime
 from emoji import demojize
 from threading import Thread
-
 import time
 import socket
 import logging
@@ -34,7 +33,7 @@ class TwitchChatListener():
 
         dev_logger.debug(f"trying to get 'startedAt' for {self.channel}'s live stream...")
         try:
-            self.started_at = TwitchDeveloper().detect_living_channel(self.channel)['started_at'] # already turn timezone to +8 for showing on the chart.
+            self.started_at = TwitchDeveloper().detect_living_channel(self.channel)['started_at'] # already turn timezone as Taipei for showing on the chart.
 
         except Exception as e:
             dev_logger.error(e)
@@ -48,9 +47,9 @@ class TwitchChatListener():
             dev_logger.debug("ircbot_manager: trying to insert 'start_tracking_livestream' task record into taskRecords...")
             task_record_document = {
                 "channel": self.channel,
-                "startedAt": self.started_at, # bson format in +8 timezone
+                "startedAt": self.started_at, # bson format in Taipei timezone
                 "taskName": "start_tracking_livestream",
-                "completeTime": datetime.utcnow() # utc time for timeseries collection index.
+                "completeTime": datetime.utcnow() # utc time for mongodb time series collection
             }
             self.db.insertone_into_collection(task_record_document, collection_name='taskRecords')
             dev_logger.info("successfully insert task records.")
@@ -72,9 +71,9 @@ class TwitchChatListener():
     2. 'get_total_viewers_thread' pass 'self.viewer_count' to 'record_logs' function in 'while_loop_record_logs_thread'
     3. Add {viewer_count} to the doc, then insert them into "chatLogs" collection.
     """
-    def record_logs(self, viewer_count): # add 'viewer_count' param
+    def record_logs(self, viewer_count):
         resp = self.sock.recv(2048).decode('utf-8')
-        timestamp = datetime.utcnow().strftime('%Y-%m-%d_%H:%M:%S') # use utc time for insert into mongodb time series collection (which accept utc time). 
+        timestamp = datetime.utcnow().strftime('%Y-%m-%d_%H:%M:%S') # utc time for mongodb time series collection
         formatted_resp = f"{timestamp} — {self.started_at} — {viewer_count} — {demojize(resp)}" 
 
         if resp.startswith('PING'):
@@ -99,14 +98,15 @@ class TwitchChatListener():
     """
     def get_total_viewers_thread(self):
         self.keep_listening = True
-        self.total_viewers = self.developer.get_total_viewers(self.channel) # request the total_viewer at first
+        self.total_viewers = self.developer.get_total_viewers(self.channel) # request the total_viewer once at first
         while self.keep_listening:
-            if int(time.monotonic()) % 60 == 0: # send requests less frequently to avoid from arriving the limit
+            if int(time.monotonic()) % 60 == 0: # send requests once per minute to avoid from being banned
                 self.total_viewers = self.developer.get_total_viewers(self.channel)
                 dev_logger.debug("total_viewers:", self.total_viewers)
 
-                if not self.total_viewers: # total_viewers will be False when the stream is not alive,
+                if not self.total_viewers: # self.total_viewers will be False when the stream is not alive
                     dev_logger.debug("leaving chatroom...")
+
                     self.keep_listening = False
                     self.sock.close()
                     dev_logger.info("left chatroom.")
@@ -127,7 +127,7 @@ class TwitchChatListener():
         self.total_viewers_thread.start()
         dev_logger.info("start total_viewers_thread")
 
-        time.sleep(10) # prevent from closing the socket accidentally, wait for sending request to get viewer_count
+        time.sleep(10) # wait for the response: viewer_count
 
         self.record_logs_thread.start()
         dev_logger.info("start record_logs_thread")

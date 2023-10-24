@@ -1,8 +1,8 @@
+import logging
+import requests
 from decouple import config
 from datetime import datetime, timedelta
-import logging
 logging.basicConfig(level=logging.ERROR)
-import requests
 
 class TwitchDeveloper():
     def __init__(self):
