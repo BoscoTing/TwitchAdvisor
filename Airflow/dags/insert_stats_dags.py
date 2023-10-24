@@ -1,15 +1,16 @@
 import os
 import sys
-sys.path.insert(0, os.getcwd())
+from datetime import datetime, timedelta
 from airflow import DAG
 from airflow.operators.python_operator import PythonOperator
 from airflow.api.client.local_client import Client
-client = Client(api_base_url='http://localhost:8080')
-from datetime import datetime, timedelta
+sys.path.insert(0, os.getcwd())
 
 from plugins.logging_manager import dev_logger
 from plugins.viewers_reaction import ViewersReactionAnalyser
-from plugins.mongodb_manager import MongoDBManager
+from plugins.tracked_channels import get_tracked_channels
+
+client = Client(api_base_url='http://localhost:8080')
 
 """
 1. Query from trackedChannels.
@@ -17,19 +18,8 @@ from plugins.mongodb_manager import MongoDBManager
 3. Check if there are tracked channels which have unexecuted insert_stats_task (has insert_logs but not insert_stats record of same 'startedAt').
 4. Calculate stats for those channels one by one.
 """
-db = MongoDBManager()
-tracked_channels_collection = db.connect_collection("trackedChannels") # query from "trackingChannels" collection
-query = [
-        {
-            "$sort": {"addedTime": -1}
-            }, 
-        {
-            "$limit": 1
-            }
-    ] # the query to get the tracked channels 
-result = tracked_channels_collection.aggregate(query)
-tracked_channels_list = [row['channels'] for row in result][0]
-dev_logger.info("current_tracking_channels: ", tracked_channels_list)
+
+tracked_channels_list = get_tracked_channels()
 
 """
 2. Iterate over the tracked channels.

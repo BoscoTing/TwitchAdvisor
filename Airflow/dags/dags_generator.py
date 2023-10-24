@@ -1,14 +1,13 @@
 import os
 import sys
-sys.path.insert(0, os.getcwd())
 from datetime import datetime
 from airflow.decorators import dag, task
+sys.path.insert(0, os.getcwd())
 
-from plugins.logging_manager import dev_logger
 from plugins.twitch_api_manager import TwitchDeveloper
-from plugins.mongodb_manager import MongoDBManager
 from plugins.ircbot_manager import TwitchChatListener
 from plugins.viewers_reaction import ViewersReactionAnalyser
+from plugins.tracked_channels import get_tracked_channels
 
 
 """
@@ -22,20 +21,7 @@ from plugins.viewers_reaction import ViewersReactionAnalyser
 """
 1. From mongodb query the tracking channels.
 """
-db = MongoDBManager()
-tracked_channels_collection = db.connect_collection("trackedChannels") # query from "trackingChannels" collection
-query = [
-        {
-            "$sort":{"addedTime": -1}
-            }, 
-        {
-            "$limit": 1
-            }
-    ] # the query to get the tracked channels 
-result = tracked_channels_collection.aggregate(query)
-tracked_channels_list = [row['channels'] for row in result][0]
-dev_logger.info("current_tracking_channels: ", tracked_channels_list)
-
+tracked_channels_list = get_tracked_channels()
 
 """
 2. Create DAGs for it using Airflow REST API.
