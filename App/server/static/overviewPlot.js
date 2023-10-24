@@ -77,7 +77,6 @@ function updateOverviewPlot(selectedWeek, selectedYear) {
                     family: 'Verdana',
                     size: 15,
                 },
-
                 yaxis: {
                     title: option
                 },
