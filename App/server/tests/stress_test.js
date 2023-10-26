@@ -8,6 +8,6 @@ export default function () {
 }
 
 export const options = {
-    vus: 130,
-    duration: '30s',
+    vus: 120,
+    duration: '10m',
 };
