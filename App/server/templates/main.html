@@ -10,8 +10,6 @@
 </head>
 
 <body>
-
-
    <h1 id="title">TwitchAdvisor</h1>
 
    <!-- streaming -->
@@ -35,26 +33,16 @@
             <h3 id="totalCheersHeader" class="totalCheers">Total Cheers</h3>
             <p id="totalCheers" class="totalCheers">&nbsp</p>
          </div>
-
-         <div id="waitingMessage">Waiting for messages...</div>
-
+         <div id="waitingMessage">Waiting for new messages...</div>
       </div>
-
-
 
       <!-- plot -->
       <div id="streamingPlot" class="plot">
          <div class="loadingOverlay" id="loadingOverlayStreaming">
-            <div class="loadingMessage">Entering into Chatroom...</div>
+            <div class="loadingMessage">Entering Chatroom...</div>
          </div>
-
-
       </div>
-
    </div>
-
-
-
 
    <!-- historical -->
    <div class="plotContainer">
@@ -76,7 +64,7 @@
             <h3 id="selectedBroadcaster"></h3>
             <!-- schedule -->
                <select id="scheduleHeader" class="options">
-                  <option value="" disabled selected>Live stream start dates</option>
+                  <option value="" disabled selected>Live stream's started dates</option>
                </select>
          </div>
 
@@ -89,43 +77,36 @@
       <div class="loadingOverlay" id="loadingOverlayHistorical">
          <div class="loadingMessage">Loading...</div>
       </div>
-
    </div>
-
 
    <!-- overview -->
    <div class="plotContainer">
       <!-- metric list -->
       <div id="selectionInfo" class="column">
-
          <h2>Weekly Comparisons</h>
          <input class="options" id="week" type="week" name="week" lang="en" onchange="handleWeekSelection()" value={{week_value}} min={{start_week}} max={{end_week}}>
 
          <select id="overviewMetricsSelect" class="options">
             <option value="" disabled selected>Select a metric</option>
             <option class="overviewMetrics">Average Viewer Count</option>
-            <option class="overviewMetrics">Max Viewer Count</option>
+            <option class="overviewMetrics">Highest Viewer Count</option>
             <option class="overviewMetrics">Average Message Count</option>
-            <option class="overviewMetrics">Max Message Count</option>
-            <option class="overviewMetrics">Total Cheer Count</option>
+            <option class="overviewMetrics">Highest Message Count</option>
+            <!-- <option class="overviewMetrics">Total Cheer Count</option> -->
          </select>
       </div>
 
       <!-- plot -->
       <div id="overviewPlot" class="plot"></div>
-
       <div class="loadingOverlay" id="loadingOverlayOverview">
          <div class="loadingMessage">Loading...</div>
       </div>
-
    </div>
-
 
    <script src="../static/mainPage.js"></script>
    <script src="../static/streamingPlot.js"></script>
    <script src="../static/historicalPlot.js"></script>
    <script src="../static/overviewPlot.js"></script>
-
 
 </body>
 </html>

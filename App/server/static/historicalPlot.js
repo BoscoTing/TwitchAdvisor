@@ -17,14 +17,12 @@ function updateHistoricalPlot(convertSelectedBroadcaster, startedAt) {
             let responseJson = JSON.parse(responseHtml);
 
             let scheduleArray = responseJson.schedule; // get the values of started_at
-            console.log("scheduleArray:", scheduleArray);
             const scheduleHeader = document.getElementById("scheduleHeader");
 
             const startedAtElements = document.getElementsByClassName("startedAt");
             while (startedAtElements.length > 0) { // delete schedule when select a default channel
                 scheduleHeader.removeChild(startedAtElements[0]);
             };
-            console.log(scheduleArray);
 
             // when using textContent
             for (let i = 0; i < scheduleArray.length; i ++) { // create startedDate options
@@ -38,13 +36,11 @@ function updateHistoricalPlot(convertSelectedBroadcaster, startedAt) {
 
             let stats = responseJson.stats; // get the stats data
 
-            const channel = stats.map(stats => stats.channel)[0];
             const timestamp = stats.map(stats => new Date(stats.timestamp*1000));
             const avgViewerCount = stats.map(stats => stats.averageViewerCount);
             const messageCount = stats.map(stats => stats.messageCount);
             const chatterCount = stats.map(stats => stats.chatterCount);
             const cheer = stats.map(stats => stats.cheers.length);
-            const sentiment = stats.map(stats => stats.sentiment);
 
             const trace1 = {
                 x: timestamp,
@@ -66,16 +62,6 @@ function updateHistoricalPlot(convertSelectedBroadcaster, startedAt) {
 
             const trace3 = {
                 x: timestamp,
-                y: sentiment,
-                type: 'scatter',
-                mode: 'lines',
-                marker: {color: 'red'},
-                name: 'Chatroom Sentiment',
-                visible: 'legendonly'
-            };
-
-            const trace4 = {
-                x: timestamp,
                 y: cheer,
                 type: 'scatter',
                 mode: 'lines',
@@ -84,7 +70,7 @@ function updateHistoricalPlot(convertSelectedBroadcaster, startedAt) {
                 visible: 'legendonly'
             };
 
-            const trace5 = {
+            const trace4 = {
                 x: timestamp,
                 y: avgViewerCount,
                 type: 'scatter',
@@ -97,7 +83,6 @@ function updateHistoricalPlot(convertSelectedBroadcaster, startedAt) {
 
             // Layout for the chart
             const layout1 = {
-
                 title: `${selectedBroadcaster}'s Live Stream Records`,
                 font: {
                     family: 'Verdana',
@@ -107,7 +92,7 @@ function updateHistoricalPlot(convertSelectedBroadcaster, startedAt) {
                     title: 'Time'
                 },
                 yaxis: {
-                    title: 'Chatroom Engagement'
+                    title: "Chatroom's Interaction"
                 },
             };
 
@@ -116,9 +101,8 @@ function updateHistoricalPlot(convertSelectedBroadcaster, startedAt) {
                     [
                         trace1,
                         trace2,
-                        // trace3,
+                        trace3,
                         trace4,
-                        trace5
                     ],
                     layout1
                 );
@@ -127,28 +111,11 @@ function updateHistoricalPlot(convertSelectedBroadcaster, startedAt) {
     xmlHttp.send();
 };
 
-
-
-
-// when using textContent
-const defaultBroadcasters = document.getElementsByClassName("defaultBroadcasters")
-for (let i = 0; i < defaultBroadcasters.length; i++) {
-    let defaultBroadcaster = defaultBroadcasters[i];
-    defaultBroadcaster.addEventListener("change", function () {
-
-        selectedBroadcaster = defaultBroadcaster.textContent;
-        convertSelectedBroadcaster = selectedBroadcaster.toLowerCase().replace(/\s+/g, '_');
-        updateHistoricalPlot(convertSelectedBroadcaster, null); // set startedAt=null when first loading to the page
-
-    });
-};
-
 // when using dropdown selector on Broadcaster
 function handleSelectionChange() {
 
     const selectElement = document.getElementById("broadcasterSelect");
-    const selectedValue = selectElement.value;
-
+    selectedValue = selectElement.value;
     selectedBroadcaster = selectedValue;
     convertSelectedBroadcaster = selectedBroadcaster.toLowerCase().replace(/\s+/g, '_');
     updateHistoricalPlot(convertSelectedBroadcaster, null); // set startedAt=null when first loading to the page
@@ -156,7 +123,6 @@ function handleSelectionChange() {
 
 const selectElement = document.getElementById("broadcasterSelect");
 selectElement.addEventListener("change", handleSelectionChange);
-
 
 // when using dropdown selector on schedule
 scheduleHeader.addEventListener("change", function () { // set event listener to startedAt
@@ -170,3 +136,9 @@ scheduleHeader.addEventListener("change", function () { // set event listener to
     // use convertSelectedBroadcaster to select by snake case name
     updateHistoricalPlot(convertSelectedBroadcaster, formattedDate);
 });
+
+defaultBroadcasters = document.getElementsByClassName("defaultBroadcasters");
+let selectedValue = defaultBroadcasters[0].value;
+let selectedBroadcaster = selectedValue;
+let convertSelectedBroadcaster = selectedBroadcaster.toLowerCase().replace(/\s+/g, '_');
+updateHistoricalPlot(convertSelectedBroadcaster, null);

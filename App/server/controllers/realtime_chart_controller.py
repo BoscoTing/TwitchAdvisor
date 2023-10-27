@@ -34,8 +34,6 @@ def streaming_logs():
     dev_logger.info(selected_channel)
 
     if selected_channel == stream_logs_route.latest_selected_channel: # use if statement so the process won't be interrupted when a same channel is selected
-        dev_logger.debug("same channel is selected.")
-
         return json.dumps({"error": "Same channel is selected"}), 406
     
     else: # when first entering into chatroom or switching to another channel

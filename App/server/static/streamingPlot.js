@@ -40,7 +40,6 @@ function trackStreamingChat(selectedChannel) {
     xmlHttp.send();
 }
 
-
 let currentRequestStats = null;
 let previousMessageCountLength = null;
 function updateStreamingPlot(selectedChannel) {
@@ -135,7 +134,7 @@ function updateStreamingPlot(selectedChannel) {
                     title: 'Time'
                 },
                 yaxis: {
-                    title: 'Chatroom Engagement'
+                    title: "Chatroom's Interaction"
                 }
             };
             Plotly.react(
@@ -277,7 +276,6 @@ searchBtn.addEventListener("click", (e) => {
     }
 
 });
-
 
 // window.addEventListener('beforeunload', function () {
 //     let xmlHttp = new XMLHttpRequest();
