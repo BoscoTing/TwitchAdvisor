@@ -9,8 +9,8 @@
     workflow_dispatch:
 
 
-  # env:
-  #   PROJECT_ID: ${{ secrets.GCE_PROJECT }}
+  env:
+    PROJECT_ID: ${{ secrets.GCE_PROJECT }}
 
   jobs:
     server-deploy:
