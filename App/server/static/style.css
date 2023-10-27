@@ -10,6 +10,7 @@ p {
 }
 
 p.annotation {
+    font-size: smaller;
     color: rgb(167, 167, 167);
 }
 
@@ -135,7 +136,7 @@ h2 {
 }
 
 #avgViewerCountHeader {
-    margin-top: 25%;
+    margin-top: 20%;
     font-size: 22px;
     text-align: center;
 }
@@ -165,7 +166,7 @@ h2 {
 
 #header {
     margin-top: 0;
-    margin-bottom: 20%;
+    margin-bottom: 10%;
 }
 
 #overviewHeader {
@@ -197,5 +198,17 @@ h2 {
 }
 
 .recommendChannels {
-    margin-bottom: 20%;
+    margin-bottom: 0%;
+}
+
+#metricOptions {
+    margin: 40% 0 -45% 0;
+}
+
+#avgViewerCountDescription {
+    margin-top: 10%;
+    font-size: smaller;
+}
+#cheersDescription {
+    font-size: smaller;
 }

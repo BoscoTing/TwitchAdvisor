@@ -55,11 +55,11 @@ def streaming_logs():
 
         if selected_channel:
             MongoDBManager().delete_many(selected_channel, "tempChatLogs") # make sure documents of current selected channel in collection are deleted.
-            dev_logger.debug(f"app.py -- db.tempChatLogs.deleteMany: {selected_channel}")
+            dev_logger.debug(f"db.tempChatLogs.deleteMany: {selected_channel}")
 
             try:
                 os.remove(os.getcwd() + f'/App/server/static/assets/chat_logs/{stream_logs_route.selected_channel}.log') # try to delete the log file of current selected channel again, too.
-                dev_logger.debug(f"app.py -- temp_delete_log_file: /chat_logs/{selected_channel}.log")
+                dev_logger.debug(f"temp_delete_log_file: /chat_logs/{selected_channel}.log")
 
             except Exception as e :
                 dev_logger.debug(e)

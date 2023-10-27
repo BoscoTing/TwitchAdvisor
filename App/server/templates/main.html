@@ -27,7 +27,7 @@
 
          <!-- average viewers -->
          <div id="avgViewerCountContainer">
-            <h3 id="avgViewerCountHeader" class="avgViewerCount">Viewer Count</h3>
+            <h3 id="avgViewerCountHeader" class="avgViewerCount">Average Viewer Count (in 5s)</h3>
             <p id="avgViewerCount" class="avgViewerCount">&nbsp</p>
          </div>
 
@@ -36,6 +36,9 @@
             <h3 id="totalCheersHeader" class="totalCheers">Total Cheers</h3>
             <p id="totalCheers" class="totalCheers">&nbsp</p>
          </div>
+         <p class="annotation" id="avgViewerCountDescription">*The Viewer Count is updated at a slower pace by Twitch API</p>
+         <p class="annotation" id="cheersDescription">*Broadcasters gains revenues from Cheers</p>
+
          <div id="waitingMessage">Waiting for new messages...</div>
       </div>
 
@@ -89,6 +92,7 @@
          <p id="comparisonsDescription" class="annotation">An overview of tracked broadcasters' live stream performances</p>
          <input class="options" id="week" type="week" name="week" lang="en" onchange="handleWeekSelection()" value={{week_value}} min={{start_week}} max={{end_week}}>
 
+         <p id="metricOptions" class="annotation">Performance metrics for ended live streams:</p>
          <select id="overviewMetricsSelect" class="options">
             <option value="" disabled selected>Select a metric</option>
             <option class="overviewMetrics">Average Viewer Count</option>
