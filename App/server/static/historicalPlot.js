@@ -92,10 +92,9 @@ function updateHistoricalPlot(convertSelectedBroadcaster, startedAt) {
                     title: 'Time'
                 },
                 yaxis: {
-                    title: "Chatroom's Interaction"
+                    title: "Chatroom activity"
                 },
             };
-
             Plotly.newPlot(
                     'historicalPlot',
                     [

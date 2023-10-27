@@ -125,7 +125,7 @@ function updateStreamingPlot(selectedChannel) {
 
             // Layout for the chart
             const layout = {
-                title: `Live Chats`,
+                title: `${processName(selectedChannel)}'s Chatroom`,
                 font: {
                     family: 'Verdana',
                     size: 15,
@@ -134,7 +134,7 @@ function updateStreamingPlot(selectedChannel) {
                     title: 'Time'
                 },
                 yaxis: {
-                    title: "Chatroom's Interaction"
+                    title: "Chatroom activity"
                 }
             };
             Plotly.react(
@@ -169,6 +169,14 @@ function DeleteTraces () {
         }
     }
 }
+
+function processName(name) {
+    // Replace underscores with spaces, capitalize the first letter of each word, and handle "lol" pattern
+    name = name.replace(/_/g, ' '); // Replace underscores with spaces
+    name = name.replace(/\b\w/g, (match) => match.toUpperCase()); // Capitalize the first letter of each word
+    name = name.replace(/_lol\b/gi, 'LOL'); // Handle "lol" pattern
+    return name;
+  }
 
 let updateInterval = null; // assign updateInterval in initial
 
@@ -296,7 +304,7 @@ window.addEventListener('unload', function () {
     navigator.sendBeacon(`/api/streaming_logs?event=unload`, data);
 });
 
-
-const recommendChannelURL = document.getElementById("searchBar").value;
-const recommendChannel = recommendChannelURL.match(/[^/]+$/)[0];;
-updateStreamingPlot(recommendChannel);
+window.onload = function() {
+    const hangoutButton = document.getElementById("searchButton");
+    hangoutButton.click(); // this will trigger the click event
+};

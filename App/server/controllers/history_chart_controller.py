@@ -50,7 +50,7 @@ def main_page():
     start_week = schedule_week_range[0]
     end_week = schedule_week_range[1]
 
-    recommend_channel = TwitchDeveloper().search_channels()['League of Legends'][0]
+    recommend_channels = TwitchDeveloper().search_channels()['League of Legends']
 
     return render_template(
         'main.html',
@@ -58,7 +58,8 @@ def main_page():
         week_value=week_value,
         start_week=start_week,
         end_week=end_week,
-        recommend_channel=recommend_channel
+        recommend_channel=recommend_channels[0],
+        recommend_channels=recommend_channels[1]
     )
 
 
