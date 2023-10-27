@@ -83,7 +83,7 @@ function updateHistoricalPlot(convertSelectedBroadcaster, startedAt) {
 
             // Layout for the chart
             const layout1 = {
-                title: `${selectedBroadcaster}'s Live Stream Records`,
+                title: `Live Stream Records: ${selectedBroadcaster}`,
                 font: {
                     family: 'Verdana',
                     size: 15,
