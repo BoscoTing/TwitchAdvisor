@@ -10,6 +10,7 @@ p {
 }
 
 p.annotation {
+    font-size: smaller;
     color: rgb(167, 167, 167);
 }
 
@@ -126,15 +127,16 @@ h2 {
 }
 
 #searchBar {
-    font-size: 16px;
-    width: 250px;
+    font-size: 14px;
+    width: 200px;
 }
 
 #searchButton {
-    font-size: 16px;
+    font-size: 14px;
 }
 
 #avgViewerCountHeader {
+    margin-top: 20%;
     font-size: 22px;
     text-align: center;
 }
@@ -147,6 +149,7 @@ h2 {
     font-size: 22px;
     text-align: center;
 }
+
 #totalCheers {
     font-size: 30px;
     text-align: center;
@@ -162,8 +165,8 @@ h2 {
 }
 
 #header {
-    margin-bottom: 10%;
     margin-top: 0;
+    margin-bottom: 10%;
 }
 
 #overviewHeader {
@@ -176,4 +179,36 @@ h2 {
 
 #scheduleHeader {
     font-size: 16px;
+}
+
+#trackedBroadcasters {
+    margin: 40% 0 -25% 0;
+}
+
+#historicalStartedDates {
+    margin: 40% 0 -30% 0;
+}
+
+#comparisonsDescription {
+    margin: 5% 0 0% 0;
+}
+
+#direction {
+    margin: 0% 0 -5% 0;
+}
+
+.recommendChannels {
+    margin-bottom: 0%;
+}
+
+#metricOptions {
+    margin: 40% 0 -45% 0;
+}
+
+#avgViewerCountDescription {
+    margin-top: 10%;
+    font-size: smaller;
+}
+#cheersDescription {
+    font-size: smaller;
 }

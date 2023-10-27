@@ -125,7 +125,7 @@ function updateStreamingPlot(selectedChannel) {
 
             // Layout for the chart
             const layout = {
-                title: `${processName(selectedChannel)}'s Chatroom`,
+                title: `Live Stream Chatroom: ${processName(selectedChannel)}`,
                 font: {
                     family: 'Verdana',
                     size: 15,
