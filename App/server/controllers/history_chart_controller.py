@@ -10,6 +10,7 @@ from server import app
 from ..utils.logger import dev_logger
 from ..models.mongodb_manager import MongoDBManager
 from ..services.history_stats import ViewersReactionAnalyser, Overview
+from ..services.realtime_stats import TwitchDeveloper
 
 
 @app.route("/")
@@ -49,12 +50,16 @@ def main_page():
     start_week = schedule_week_range[0]
     end_week = schedule_week_range[1]
 
+    recommend_channels = TwitchDeveloper().search_channels()['League of Legends']
+
     return render_template(
         'main.html',
         broadcasters=broadcasters,
         week_value=week_value,
         start_week=start_week,
-        end_week=end_week
+        end_week=end_week,
+        recommend_channel=recommend_channels[0],
+        recommend_channels=recommend_channels[1]
     )
 
 
@@ -76,23 +81,8 @@ def historical_stats():
     if stats == False or stats == []:
         return []
 
-    def avg_sentiment_weighted_by_index(score_list):
-            weighted_scores = []
-            for i in range(len(score_list)):
-                weighted_scores.append(score_list[i] * i)
-                result = sum(weighted_scores) / sum(score_list)       
-            return result
-
     for doc in stats:
         doc['timestamp'] = datetime.timestamp(doc['timestamp']) # (utc time!!) turn bson time into unix timestamp, and convert into date using javascript.
-
-        """
-        If the historical stats have calculated the 'sentiment', then process them and pass to javascipt.
-        """
-        try:
-            doc['sentiment'] = avg_sentiment_weighted_by_index(doc['sentiment'])
-        except Exception as e:
-            dev_logger.error(e)
         del doc["_id"]
 
     schedule = analyser.get_historical_schedule() # startedAt time, which are in +8 timezone

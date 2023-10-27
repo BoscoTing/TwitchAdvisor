@@ -40,7 +40,6 @@ function trackStreamingChat(selectedChannel) {
     xmlHttp.send();
 }
 
-
 let currentRequestStats = null;
 let previousMessageCountLength = null;
 function updateStreamingPlot(selectedChannel) {
@@ -126,7 +125,7 @@ function updateStreamingPlot(selectedChannel) {
 
             // Layout for the chart
             const layout = {
-                title: `Live Chats`,
+                title: `${processName(selectedChannel)}'s Chatroom`,
                 font: {
                     family: 'Verdana',
                     size: 15,
@@ -135,7 +134,7 @@ function updateStreamingPlot(selectedChannel) {
                     title: 'Time'
                 },
                 yaxis: {
-                    title: 'Chatroom Engagement'
+                    title: "Chatroom activity"
                 }
             };
             Plotly.react(
@@ -171,6 +170,14 @@ function DeleteTraces () {
     }
 }
 
+function processName(name) {
+    // Replace underscores with spaces, capitalize the first letter of each word, and handle "lol" pattern
+    name = name.replace(/_/g, ' '); // Replace underscores with spaces
+    name = name.replace(/\b\w/g, (match) => match.toUpperCase()); // Capitalize the first letter of each word
+    name = name.replace(/_lol\b/gi, 'LOL'); // Handle "lol" pattern
+    return name;
+  }
+
 let updateInterval = null; // assign updateInterval in initial
 
 for (let i = 0; i < liveChannels.length; i++) {
@@ -192,7 +199,6 @@ for (let i = 0; i < liveChannels.length; i++) {
 const searchBtn = document.getElementById("searchButton");
 const searchBar = document.getElementById("searchBar");
 let searchQuery;
-
 
 searchBar.addEventListener("keydown", (e) => {
     if (e.key == "Enter" && searchBar.value != "") {
@@ -278,7 +284,6 @@ searchBtn.addEventListener("click", (e) => {
 
 });
 
-
 // window.addEventListener('beforeunload', function () {
 //     let xmlHttp = new XMLHttpRequest();
 //     xmlHttp.open("GET", `/api/streaming_logs?event=beforeunload`, true);
@@ -298,3 +303,8 @@ window.addEventListener('unload', function () {
     let data = JSON.stringify({ message: 'Page is closing' });
     navigator.sendBeacon(`/api/streaming_logs?event=unload`, data);
 });
+
+window.onload = function() {
+    const hangoutButton = document.getElementById("searchButton");
+    hangoutButton.click(); // this will trigger the click event
+};

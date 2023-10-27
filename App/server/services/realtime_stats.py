@@ -103,7 +103,7 @@ class TwitchChatListenerTEMP():
             }
         db.insertone_into_collection(doc, "schedules")
 
-class TwitchDeveloper:
+class TwitchDeveloper():
     def __init__(self):
         self.client_id = config('twitch_app_id')
         self.secret = config('twitch_app_secret')

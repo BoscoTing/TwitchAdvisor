@@ -35,29 +35,18 @@ function updateOverviewPlot(selectedWeek, selectedYear) {
                 const yValues = weekdays.map(weekday => {
                     const entry = channelData.find(dataEntry => dataEntry.weekDayName === weekday);
 
-                    if (entry) {
-                        console.log("entry: ", entry)
-                    };
-
                     if (option == 'Average Message Count') {
                         return entry ? entry.avgMessageCount : 0;
                     }
-                    else if (option == 'Max Message Count') {
+                    else if (option == 'Highest Message Count') {
                         return entry ? entry.maxMessageCount : 0;
                     }
                     else if (option == 'Average Viewer Count') {
                         return entry ? entry.avgViewerCount : 0;
                     }
-                    else if (option == 'Max Viewer Count') {
+                    else if (option == 'Highest Viewer Count') {
                         return entry ? entry.maxViewerCount : 0;
                     }
-                    else if (option == 'Max Message Count') {
-                        return entry ? entry.maxMessageCount : 0;
-                    }
-                    else if (option == 'Total Cheer Count') {
-                        return entry ? entry.totCheerCount : 0;
-                    }
-
                 });
 
                 return {
@@ -72,17 +61,15 @@ function updateOverviewPlot(selectedWeek, selectedYear) {
 
             // Create the layout
             const layout = {
-                title: `Comparisons at Week ${week}`,
+                title: `Comparisons among Broadcasters at Week ${week}`,
                 font: {
                     family: 'Verdana',
                     size: 15,
                 },
                 yaxis: {
                     title: option
-                },
-                
+                }, 
             };
-
             Plotly.react('overviewPlot', traces, layout);
         }
     };

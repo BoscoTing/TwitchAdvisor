@@ -10,8 +10,6 @@ from ..utils.logger import dev_logger
 from ..models.mongodb_manager import MongoDBManager
 from ..services.realtime_stats import ViewersReactionAnalyserTEMP, TwitchChatListenerTEMP
 
-log_path = "../static/assets/chat_logs/"
-
 """
 1. Create a class and assign to stream_logs_route outside of the view
 2. Use the stream_logs_route inside the 'streaming_logs' by:
@@ -19,7 +17,7 @@ log_path = "../static/assets/chat_logs/"
 3. So the different requests to /api/streaming_logs are using the same 'StreamingLogsRoute' class to listen to channel.
 4. Now we can controll the same listener with different requests which are sended to '/api/streaming_logs'.
 """
-class StreamingLogsRoute:
+class StreamingLogsRoute():
     def __init__(self):
         self.keep_listening_temp = True
         self.latest_selected_channel = None
@@ -34,8 +32,6 @@ def streaming_logs():
     dev_logger.info(selected_channel)
 
     if selected_channel == stream_logs_route.latest_selected_channel: # use if statement so the process won't be interrupted when a same channel is selected
-        dev_logger.debug("same channel is selected.")
-
         return json.dumps({"error": "Same channel is selected"}), 406
     
     else: # when first entering into chatroom or switching to another channel
@@ -68,8 +64,6 @@ def streaming_logs():
             except Exception as e :
                 dev_logger.debug(e)
 
-
-
         stream_logs_route.listener = TwitchChatListenerTEMP(selected_channel) # assign current selected channel to a new listener
 
         stream_logs_route.latest_selected_channel = selected_channel # after doing those and before starting running, record latest_selected_channel
@@ -89,8 +83,6 @@ def streaming_logs():
             
             else:
                 return json.dumps({"event": "beforeunload"}), 406 
-
-
 
 def event_listener():
     """
@@ -125,7 +117,6 @@ def event_listener():
 
     dev_logger.info('The while loop and socket are turned off.')
     return 'The while loop and socket are turned off.'
-
 
 @app.route("/api/streaming_stats", methods=["GET"]) # start querying and drawing the chart of selected channel.
 def streaming_stats():
