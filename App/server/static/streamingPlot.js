@@ -192,7 +192,6 @@ const searchBtn = document.getElementById("searchButton");
 const searchBar = document.getElementById("searchBar");
 let searchQuery;
 
-
 searchBar.addEventListener("keydown", (e) => {
     if (e.key == "Enter" && searchBar.value != "") {
 
@@ -296,3 +295,8 @@ window.addEventListener('unload', function () {
     let data = JSON.stringify({ message: 'Page is closing' });
     navigator.sendBeacon(`/api/streaming_logs?event=unload`, data);
 });
+
+
+const recommendChannelURL = document.getElementById("searchBar").value;
+const recommendChannel = recommendChannelURL.match(/[^/]+$/)[0];;
+updateStreamingPlot(recommendChannel);
