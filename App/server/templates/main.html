@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html>
+<head>
+   <meta charset="UTF-8">
+   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+   <link rel="stylesheet" type="text/css" href="../static/style.css">
+   <link rel="stylesheet" type="text/css" href="https://cdn.plot.ly/plotly-latest.min.js">
+   <title>TwitchAdvisor</title>
+   <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+</head>
+
+<body>
+   <h1 id="title">TwitchAdvisor</h1>
+
+   <!-- streaming -->
+   <div class="plotContainer">
+      <!-- channel list -->
+      <div id="liveBroadcasters" class="column">
+         <h2 id="header" class="column">Live Chat Analytics</h2>
+         <p id="direction" class="annotation">Please paste the URL of live stream here:</p>
+         <div id="searchBarContainer">
+            <input type="text" placeholder="https://www.twitch.tv/channel" value="https://www.twitch.tv/{{recommend_channel}}" id="searchBar">
+            <button type="submit" id="searchButton">Enter</button>
+         </div>
+         <p class="annotation" id="testingLink">Testing URL:</p>
+         <p class="annotation" class="recommendChannels">https://www.twitch.tv/{{recommend_channels}}</p>
+
+         <!-- average viewers -->
+         <div id="avgViewerCountContainer">
+            <h3 id="avgViewerCountHeader" class="avgViewerCount">Average Viewer Count (in 5s)</h3>
+            <p id="avgViewerCount" class="avgViewerCount">&nbsp</p>
+         </div>
+
+         <!-- total cheers -->
+         <div id="totalCheersContainer">
+            <h3 id="totalCheersHeader" class="totalCheers">Total Cheers</h3>
+            <p id="totalCheers" class="totalCheers">&nbsp</p>
+         </div>
+         <p class="annotation" id="avgViewerCountDescription">*The Viewer Count is updated at a slower pace by Twitch API</p>
+         <p class="annotation" id="cheersDescription">*Broadcasters gains revenues from Cheers</p>
+
+         <div id="waitingMessage">Waiting for new messages...</div>
+      </div>
+
+      <!-- plot -->
+      <div id="streamingPlot" class="plot">
+         <div class="loadingOverlay" id="loadingOverlayStreaming">
+            <div class="loadingMessage">Entering Chatroom...</div>
+         </div>
+      </div>
+   </div>
+
+   <!-- historical -->
+   <div class="plotContainer">
+      <!-- channel list -->
+      <div id="selectionInfo" class="column">
+
+         <h2>Historical Live Stream Stats</h2>
+         <p id="trackedBroadcasters" class="annotation">Broadcasters tracked by TwitchAdvisor:</p>
+         <div id="defaultBroadcasters">
+            <select id="broadcasterSelect" class="options">
+               <option value="" disabled selected>Select a broadcaster</option>
+               {% for broadcaster in broadcasters %}
+               <option class="defaultBroadcasters">{{broadcaster}}</option>
+               {% endfor %}
+            </select>
+         </div>
+
+         <!-- selected channel -->
+         <p id="historicalStartedDates" class="annotation">Historical live stream schedule:</p>
+         <div>
+            <select id="scheduleHeader" class="options">
+               <option value="" disabled selected>Select a live stream date</option>
+            </select>
+         </div>
+
+      </div>
+
+      <!-- plot -->
+      <div id="historicalPlot" class="plot"></div>
+
+      <div class="loadingOverlay" id="loadingOverlayHistorical">
+         <div class="loadingMessage">Loading...</div>
+      </div>
+   </div>
+
+   <!-- overview -->
+   <div class="plotContainer">
+      <!-- metric list -->
+      <div id="selectionInfo" class="column">
+         <h2>Weekly Comparisons</h2>
+         <p id="comparisonsDescription" class="annotation">An overview of tracked broadcasters' live stream performances</p>
+         <input class="options" id="week" type="week" name="week" lang="en" onchange="handleWeekSelection()" value={{week_value}} min={{start_week}} max={{end_week}}>
+
+         <p id="metricOptions" class="annotation">Performance metrics for ended live streams:</p>
+         <select id="overviewMetricsSelect" class="options">
+            <option value="" disabled selected>Select a metric</option>
+            <option class="overviewMetrics">Average Viewer Count</option>
+            <option class="overviewMetrics">Highest Viewer Count</option>
+            <option class="overviewMetrics">Average Message Count</option>
+            <option class="overviewMetrics">Highest Message Count</option>
+         </select>
+      </div>
+
+      <!-- plot -->
+      <div id="overviewPlot" class="plot"></div>
+      <div class="loadingOverlay" id="loadingOverlayOverview">
+         <div class="loadingMessage">Loading...</div>
+      </div>
+   </div>
+
+   <script src="../static/mainPage.js"></script>
+   <script src="../static/streamingPlot.js"></script>
+   <script src="../static/historicalPlot.js"></script>
+   <script src="../static/overviewPlot.js"></script>
+
+</body>
+</html>

@@ -1,0 +1,214 @@
+body {
+    font-family: Verdana, sans-serif;
+    background-color: rgba(0, 0, 0, 0.843);
+    margin: 0% 1%;
+}
+
+p {
+    text-align: center;
+    margin: 0%;
+}
+
+p.annotation {
+    font-size: smaller;
+    color: rgb(167, 167, 167);
+}
+
+#title{
+    display: inline-block;
+    padding: 5px;
+    background-color: #8a2691cf;
+    text-shadow: 5px 5px 5px 5px #000000;
+    color: #fff;
+}
+
+.plotContainer {
+    position: relative;
+    max-width: 100%; 
+    display: flex; 
+    flex-wrap: wrap;
+    background-color: #ffffff;
+    border-radius: 5px;
+    box-shadow: 0 0 5px rgba(0, 0, 0, 0.1);
+    padding: 20px;
+    margin: 0px 0px 2% 0px;
+    min-height: 600px;
+}
+
+.contentContainer {
+    flex: 1; 
+    display: flex;
+    flex-direction: column; 
+}
+
+.column {
+    flex: 1; 
+    display: flexbox; 
+    background-color: #fff;
+    padding: 10px; 
+}
+
+.plot {
+    flex: 3; 
+    background-color: #fff;
+    border-radius: 5px;
+    box-shadow: 0 0 5px rgba(0, 0, 0, 0.1);
+    padding: 20px;
+    min-height: 600px; 
+    margin: 10px 0 0 0; 
+}
+
+h3 {
+    font-size: smaller;
+    color: #333;
+}
+
+h2 {
+    margin: 0;
+    text-align: center;
+}
+
+.options ul {
+    list-style: none;
+    padding: 0;
+}
+
+.options {
+    margin: 50% 0% 0% 0%;
+}
+
+#selectionInfo {
+    display: flex;
+    flex-direction: column;
+    align-items: center; 
+    text-align: center; 
+    margin-top: 20px; 
+}
+
+.button {
+    background-color: #007bff;
+    color: #fff;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+.plotContainer .loadingOverlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(255, 255, 255, 0.8);
+    display: none; /* Initially hidden */
+    justify-content: center;
+    align-items: center;
+    z-index: 100; 
+}
+
+.plotContainer .loadingMessage {
+    margin: 1%;
+    font-size: 1.5rem;
+    color: #333;
+    position: absolute;
+}
+
+#waitingMessage {
+    margin-top: 30%;
+    text-align: left;
+    display: none; /* Initially hidden */
+}
+
+#searchBarContainer {
+    font-size: 36px;
+    text-align: center;
+    margin: 0% 0% 3% 0%;
+}
+
+#searchBar {
+    font-size: 14px;
+    width: 200px;
+}
+
+#searchButton {
+    font-size: 14px;
+}
+
+#avgViewerCountHeader {
+    margin-top: 20%;
+    font-size: 22px;
+    text-align: center;
+}
+#avgViewerCount {
+    font-size: 30px;
+    text-align: center;
+}
+
+#totalCheersHeader {
+    font-size: 22px;
+    text-align: center;
+}
+
+#totalCheers {
+    font-size: 30px;
+    text-align: center;
+}
+
+#week {
+    font-size: 16px;
+    text-align: center;
+}
+
+#overviewMetricsSelect {
+    font-size: 16px;
+}
+
+#header {
+    margin-top: 0;
+    margin-bottom: 10%;
+}
+
+#overviewHeader {
+    height: 196px;
+}
+
+#broadcasterSelect {
+    font-size: 16px;
+}
+
+#scheduleHeader {
+    font-size: 16px;
+}
+
+#trackedBroadcasters {
+    margin: 40% 0 -25% 0;
+}
+
+#historicalStartedDates {
+    margin: 40% 0 -30% 0;
+}
+
+#comparisonsDescription {
+    margin: 5% 0 0% 0;
+}
+
+#direction {
+    margin: 0% 0 -5% 0;
+}
+
+.recommendChannels {
+    margin-bottom: 0%;
+}
+
+#metricOptions {
+    margin: 40% 0 -45% 0;
+}
+
+#avgViewerCountDescription {
+    margin-top: 10%;
+    font-size: smaller;
+}
+#cheersDescription {
+    font-size: smaller;
+}
