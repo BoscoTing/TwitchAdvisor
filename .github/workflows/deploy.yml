@@ -13,7 +13,7 @@
       runs-on: ubuntu-22.04
       steps:
         - name: Checkout code
-          uses: actions/checkout@v4
+          uses: actions/checkout@v2
 
         - name: Compute SSH
           uses: appleboy/ssh-action@master
