@@ -10,10 +10,10 @@
     PORT: 8000
   jobs:
     server-deploy:
-      runs-on: ubuntu-22.04
+      runs-on: ubuntu-latest
       steps:
         - name: Checkout code
-          uses: actions/checkout@v2
+          uses: actions/checkout@v4
 
         - name: Compute SSH
           uses: appleboy/ssh-action@master
