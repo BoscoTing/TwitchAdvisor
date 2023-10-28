@@ -8,8 +8,8 @@
     #   branches:
     #     - main
     #     - develop
-  env:
-    APP_PORT: 8000
+  # env:
+  #   APP_PORT: 8000
   jobs:
     server-deploy:
       runs-on: ubuntu-22.04
@@ -23,7 +23,7 @@
             host: ${{ secrets.SSH_HOST }}
             username: ${{ secrets.SSH_USER }}
             key: ${{ secrets.SSH_KEY }}
-            port: ${{ secrets.SSH_PORT }}
+            # port: ${{ secrets.SSH_PORT }}
             script: |
               cd /home/ubuntu
               mkdir testing-folder
