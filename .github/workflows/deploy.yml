@@ -4,10 +4,10 @@
     push:
       branches:
         - testing-github-actions
-    pull-requests:
-      branches:
-        - main
-        - develop
+    # pull-requests:
+    #   branches:
+    #     - main
+    #     - develop
 
   jobs:
     server-deploy:
