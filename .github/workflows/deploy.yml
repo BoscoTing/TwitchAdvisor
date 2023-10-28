@@ -4,18 +4,19 @@
     push:
       branches:
         - testing-github-actions
-    # pull-requests:
-    #   branches:
-    #     - main
-    #     - develop
-  # env:
-  #   APP_PORT: 8000
+    workflow_dispatch:
+
+  env:
+    PORT: 8000
   jobs:
     server-deploy:
       runs-on: ubuntu-22.04
       steps:
         - name: Checkout code
           uses: actions/checkout@v2
+
+        - name: Compute SSH
+          uses: appleboy/ssh-action@master
           with:
             host: ${{ secrets.SSH_HOST }}
             username: ${{ secrets.SSH_USER }}
@@ -24,14 +25,3 @@
             script: |
               cd /home/ubuntu
               mkdir testing-folder
-
-        # - name: Compute SSH
-        #   uses: appleboy/ssh-action@master
-        #   with:
-        #     host: ${{ secrets.SSH_HOST }}
-        #     username: ${{ secrets.SSH_USER }}
-        #     key: ${{ secrets.SSH_KEY }}
-        #     port: ${{ secrets.SSH_PORT }}
-        #     script: |
-        #       cd /home/ubuntu
-        #       mkdir testing-folder
