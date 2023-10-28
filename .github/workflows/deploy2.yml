@@ -5,12 +5,7 @@
       branches:
         - main
         - develop
-        - user-interface
-    workflow_dispatch:
-
-
-  # env:
-  #   PROJECT_ID: ${{ secrets.GCE_PROJECT }}
+        - testing-github-actions
 
   jobs:
     server-deploy:
@@ -27,5 +22,5 @@
             key: ${{ secrets.SSH_KEY }}
             port: ${{ secrets.SSH_PORT }}
             script: |
-              cd /home/raymond
+              cd /home/ubuntu
               mkdir test-folder
