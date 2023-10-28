@@ -8,8 +8,6 @@
     #   branches:
     #     - main
     #     - develop
-  env:
-    PORT: 5000
 
   jobs:
     server-deploy:
@@ -21,7 +19,8 @@
         - name: Compute SSH
           uses: appleboy/ssh-action@master
           with:
-            timeout: 10m
+            env:
+              PORT: 8000
             host: ${{ secrets.SSH_HOST }}
             username: ${{ secrets.SSH_USER }}
             key: ${{ secrets.SSH_KEY }}
