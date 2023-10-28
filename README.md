@@ -7,21 +7,18 @@ Website Link: [twitch-advisor.com](twitch-advisor.com)
 
 ## Features
 ### Live Chat Analytics
-<p>即時顯示:<p>
-
+即時顯示:
 1. 聊天室踴躍度
 2. 實況觀看人數
 3. 累積付費留言數
 
 ### Historical Live Stream Stats
-<p>追蹤實況主:</p>
-
+追蹤實況主:
 1. 歷史開台時程
 2. 歷史聊天室踴躍度
 
 ### Weekly Comparisons
-<p>每週回顧追蹤實況主:</p>
-
+每週回顧追蹤實況主:
 1. Max Viewer Count (最高同時觀看人數)
 2. Max Message Count (最高同時留言數)
 3. Average Viewer Count (平均觀看人數)
