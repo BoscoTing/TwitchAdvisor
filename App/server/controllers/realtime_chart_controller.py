@@ -76,7 +76,6 @@ def streaming_logs():
         except:
             event = request.args.get("event") # recogize the refresh event in order not to respond {"error": "Same channel is selected"} when refreshing
             dev_logger.debug(f'event: {event}')
-            dev_logger.debug(stream_logs_route.api.detect_living_channel)
 
             if event == None:
                 return json.dumps({"error": "Channel is offline"}), 406
