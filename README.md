@@ -52,3 +52,5 @@ Website Link: [twitch-advisor.com](twitch-advisor.com)
 > Monitoring
 
 * AWS CloudWatch
+# Structure
+![image](https://github.com/BoscoTing/TwitchAdvisor/assets/110707173/09cd0fee-279b-4486-922a-3454030f7be2)
