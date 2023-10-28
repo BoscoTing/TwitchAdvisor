@@ -8,6 +8,8 @@
     #   branches:
     #     - main
     #     - develop
+  env:
+    PORT: 8000
 
   jobs:
     server-deploy:
@@ -17,7 +19,7 @@
           uses: actions/checkout@v2
 
         - name: Compute SSH
-          uses: appleboy/ssh-action@v0.1.3
+          uses: appleboy/ssh-action@master
           with:
             host: ${{ secrets.SSH_HOST }}
             username: ${{ secrets.SSH_USER }}
