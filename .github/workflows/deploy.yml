@@ -25,4 +25,4 @@
             port: ${{ secrets.SSH_PORT }}
             script: |
               cd /home/ubuntu
-              mkdir test-folder
+              mkdir testing-folder
