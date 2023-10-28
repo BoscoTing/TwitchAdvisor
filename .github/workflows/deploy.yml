@@ -5,6 +5,7 @@
       branches:
         - testing-github-actions
     pull-request:
+      branches:
         - main
         - develop
 
