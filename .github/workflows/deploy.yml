@@ -4,7 +4,6 @@
     push:
       branches:
         - testing-github-actions
-  on:
     pull-request:
         - main
         - develop
