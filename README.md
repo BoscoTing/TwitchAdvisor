@@ -6,20 +6,20 @@ Website Link: [twitch-advisor.com](twitch-advisor.com)
 ![image](https://github.com/BoscoTing/TwitchAdvisor/assets/110707173/09cd0fee-279b-4486-922a-3454030f7be2)
 
 ## Features
-> Live Chat Analytics
+### Live Chat Analytics
 <p>即時顯示:<p>
 
 1. 聊天室踴躍度
 2. 實況觀看人數
 3. 累積付費留言數
 
->Historical Live Stream Stats
+### Historical Live Stream Stats
 <p>追蹤實況主:</p>
 
 1. 歷史開台時程
 2. 歷史聊天室踴躍度
 
->Weekly Comparisons
+### Weekly Comparisons
 <p>每週回顧追蹤實況主:</p>
 
 1. Max Viewer Count (最高同時觀看人數)
@@ -34,23 +34,21 @@ Website Link: [twitch-advisor.com](twitch-advisor.com)
 ### ETL
 
 ## Tools
-> Database
+### Database
 
 * Mongodb
-> Data Orchestration	
+### Data Orchestration	
 
 * Airflow
 
-> Backend
+### Backend
 
 * Flask
 
-> Data Visualization
+### Data Visualization
 
 * Plotly
 
-> Monitoring
+### Monitoring
 
 * AWS CloudWatch
-# Structure
-![image](https://github.com/BoscoTing/TwitchAdvisor/assets/110707173/09cd0fee-279b-4486-922a-3454030f7be2)
