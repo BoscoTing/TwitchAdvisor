@@ -10,8 +10,6 @@
 
     workflow_dispatch:
 
-  env:
-    PORT: 8000
   jobs:
     server-deploy:
       runs-on: ubuntu-22.04
