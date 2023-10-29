@@ -27,5 +27,5 @@
             key: ${{ secrets.SSH_KEY }}
             port: ${{ secrets.SSH_PORT }}
             script: |
-              cd /home/ubuntu
-              mkdir testing-folder
+              cd ${{ secrets.PROJECT_PATH }}
+              git pull origin main
