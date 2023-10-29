@@ -88,13 +88,11 @@ function handleWeekSelection() {
 
     const weekInput = document.getElementById("week");
     const selectedWeek = weekInput.value;
-    console.log("selectedWeek:", selectedWeek);
     const regex = /(\d+)-W(\d+)/;
     const match = selectedWeek.match(regex);
     if (match) {
         year = match[1];
         week = match[2];
-        console.log(`Year: ${year}, Week: ${week}`);
         updateOverviewPlot(week, year);
     } else {
         console.log('No match found.');
@@ -105,7 +103,6 @@ const overviewMetricsSelect = document.getElementById("overviewMetricsSelect")
 
 overviewMetricsSelect.addEventListener ("change", function () {
     option = overviewMetricsSelect.value;
-    console.log(option);
     updateOverviewPlot(week, year);
 })
 

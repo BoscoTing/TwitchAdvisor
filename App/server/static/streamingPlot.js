@@ -25,7 +25,8 @@ function trackStreamingChat(selectedChannel) {
         }
         if (xmlHttp.status === 406 && JSON.parse(xmlHttp.responseText).error == "Channel is offline") {
             loadingOverlay.style.display = "none"; // unblock when entering into chatroom failed.
-            alert("This channel is offline, or it doesn't exist.");
+            if (alert("This channel is offline or doesn't exist.")){}
+            else window.location.reload(); 
             selectedChannel = null;
             return null; // don't send the request again with offline channel.
         }
