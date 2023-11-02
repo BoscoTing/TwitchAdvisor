@@ -3,7 +3,7 @@ Website Link: [twitch-advisor.com](https://twitch-advisor.com)
 <p>TwitchAdvisor aims at helping users seeking advertising partnerships on Twitch, enables users to monitor chatroom reactions and review ended live streams.</p>
 
 ## Architecture
-![image](https://github.com/BoscoTing/TwitchAdvisor/assets/110707173/d0721688-3e3d-425d-ace5-43f4cde93a09)
+![image](https://github.com/BoscoTing/TwitchAdvisor/assets/110707173/cf7781b4-c7ca-4893-9e79-fe98da9babb7)
 
 
 ## Features
