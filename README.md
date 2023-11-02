@@ -30,7 +30,7 @@ Website Link: [twitch-advisor.com](https://twitch-advisor.com)
 ![Recording 2023-10-28 at 20 16 36](https://github.com/BoscoTing/TwitchAdvisor/assets/110707173/1182df00-939a-43f4-9b0a-236fc910ec8f)
 ## Data Processing
 > Extract
-1. Collect data from two sources in different frequency using multithreading
+1. Collect data from two sources in different frequency using multi-threading
     * Twitch API
     * Twitch Chatbots
 2. Write data into log files
