@@ -48,7 +48,7 @@ class TwitchChatListenerTEMP():
             self.started_at = TwitchDeveloper().detect_living_channel(self.channel)['started_at'] # already turn timezone to +8 for showing on the chart.
 
         except Exception as e:
-            dev_logger.error(e)
+            dev_logger.debug(e)
 
             return False
     
