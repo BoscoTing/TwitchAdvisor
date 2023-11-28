@@ -67,7 +67,6 @@ function updateHistoricalPlot(convertSelectedBroadcaster, startedAt) {
                 mode: 'lines',
                 marker: {color: 'gray'},
                 name: 'Cheers',
-                visible: 'legendonly'
             };
 
             const trace4 = {
