@@ -6,5 +6,5 @@
 Airflow/data/
 Airflow/logs/
 scheduled_dags/.cache
-
+App/server/*.log
 App/server/static/assets
