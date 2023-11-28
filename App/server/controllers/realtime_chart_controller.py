@@ -45,7 +45,8 @@ def streaming_logs():
             dev_logger.debug("stopped while loop")
 
         except Exception as e:
-            dev_logger.error(e)
+            if "'StreamingLogsRoute' object has no attribute 'listener'" not in str(e):
+                dev_logger.debug(e)
 
         if stream_logs_route.latest_selected_channel: # when switching channels
             os.remove(os.getcwd() + f'/App/server/static/assets/chat_logs/{stream_logs_route.latest_selected_channel}.log')
@@ -126,7 +127,7 @@ def streaming_stats():
         analyser.insert_temp_chat_logs(os.getcwd() + f'/App/server/static/assets/chat_logs/{channel}.log')
 
     except Exception as e:
-        dev_logger.error(f"{e}, channel seleted is offline")
+        dev_logger.debug(f"{e}, channel seleted is offline")
 
         global stream_logs_route
         if stream_logs_route:
