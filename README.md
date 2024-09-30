@@ -1,20 +1,14 @@
 # TwitchAdvisor
 
----
-
 TwitchAdvisor aims to enable analysis of Twitch live stream peak hours and chatroom activity comparisons.
 
 ## Features
-
----
 
 1. Realtime chatroom activities
 2. Chatroom engagement metrics review
 3. Weekly performance comparison among streamers
 
 ## Demo
-
----
 
 ![Recording 2023-10-28 at 19 56 55](https://github.com/BoscoTing/TwitchAdvisor/assets/110707173/e8841a70-0d5d-4416-b417-3196969afc93)
 
@@ -24,13 +18,9 @@ TwitchAdvisor aims to enable analysis of Twitch live stream peak hours and chatr
 
 ## Architecture
 
----
-
 ![image](https://github.com/BoscoTing/TwitchAdvisor/assets/110707173/09cd0fee-279b-4486-922a-3454030f7be2)
 
 ## Technologies
-
----
 
 - Programming Language
 
