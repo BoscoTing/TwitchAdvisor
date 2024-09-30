@@ -4,7 +4,7 @@ TwitchAdvisor aims to enable analysis of Twitch live stream peak hours and chatr
 
 ## Features
 
-1. Realtime chatroom activities
+1. Dynamic chatroom activities
 2. Chatroom engagement metrics review
 3. Weekly performance comparison among streamers
 
