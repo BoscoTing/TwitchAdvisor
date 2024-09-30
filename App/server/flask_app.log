@@ -1,0 +1,14 @@
+dev-INFO [realtime_chart_controller.py at line 32: realtime_chart_controller-streaming_logs]: (2023-11-28 22:29:27,016) None
+dev-INFO [realtime_chart_controller.py at line 74: realtime_chart_controller-streaming_logs]: (2023-11-28 22:29:28,012) Trying to turn on The while loop and socket.
+dev-INFO [realtime_chart_controller.py at line 32: realtime_chart_controller-streaming_logs]: (2023-11-28 22:29:28,780) None
+dev-ERROR [realtime_chart_controller.py at line 130: realtime_chart_controller-streaming_stats]: (2023-11-28 22:29:29,740) [Errno 2] No such file or directory: '/Users/surfgreen/B/AppworksSchool/projects/personal_project/App/server/static/assets/chat_logs/caedrel.log', channel seleted is offline
+dev-INFO [realtime_chart_controller.py at line 134: realtime_chart_controller-streaming_stats]: (2023-11-28 22:29:29,740) trying to stop streaming_logs process...
+dev-INFO [realtime_chart_controller.py at line 138: realtime_chart_controller-streaming_stats]: (2023-11-28 22:29:29,740) closed the socket
+dev-INFO [realtime_chart_controller.py at line 144: realtime_chart_controller-streaming_stats]: (2023-11-28 22:29:29,740) stopped the while loop
+dev-INFO [realtime_chart_controller.py at line 32: realtime_chart_controller-streaming_logs]: (2023-11-28 22:29:32,320) None
+dev-INFO [realtime_chart_controller.py at line 32: realtime_chart_controller-streaming_logs]: (2023-11-28 22:29:32,411) caedrel
+dev-INFO [realtime_chart_controller.py at line 74: realtime_chart_controller-streaming_logs]: (2023-11-28 22:29:33,397) Trying to turn on The while loop and socket.
+dev-INFO [realtime_stats.py at line 88: realtime_stats-listen_to_chatroom_temp]: (2023-11-28 22:29:35,157) connect_chatroom_temp
+dev-INFO [realtime_chart_controller.py at line 32: realtime_chart_controller-streaming_logs]: (2023-11-28 22:31:02,409) caedrel
+dev-INFO [realtime_chart_controller.py at line 74: realtime_chart_controller-streaming_logs]: (2023-11-28 22:31:03,419) Trying to turn on The while loop and socket.
+dev-INFO [realtime_stats.py at line 88: realtime_stats-listen_to_chatroom_temp]: (2023-11-28 22:31:05,277) connect_chatroom_temp

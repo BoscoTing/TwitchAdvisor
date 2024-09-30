@@ -51,6 +51,17 @@ def main_page():
     end_week = schedule_week_range[1]
 
     recommend_channels = TwitchDeveloper().search_channels()['League of Legends']
+    try:
+        second_recommend_channel = recommend_channels[1]
+    except Exception as e:
+        dev_logger.warning(f"recommend channel is less than two")
+        second_recommend_channel = ""
+
+    try:
+        first_recommend_channel = recommend_channels[0]
+    except Exception as e:
+        dev_logger.warning(f"no recommend channels")
+        first_recommend_channel = ""
 
     return render_template(
         'main.html',
@@ -58,8 +69,8 @@ def main_page():
         week_value=week_value,
         start_week=start_week,
         end_week=end_week,
-        recommend_channel=recommend_channels[0],
-        recommend_channels=recommend_channels[1]
+        recommend_channel=first_recommend_channel,
+        recommend_channels=second_recommend_channel
     )
 
 

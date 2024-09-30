@@ -3,12 +3,13 @@ import boto3
 import time
 from decouple import config
 
-dev_logger: logging.Logger = logging.getLogger(name='dev')
-dev_logger.setLevel(logging.DEBUG)
-handler: logging.StreamHandler = logging.StreamHandler()
-formatter: logging.Formatter = logging.Formatter('%(name)s-%(levelname)s [%(filename)s at line %(lineno)s: %(module)s-%(funcName)s]: (%(asctime)s) %(message)s')
-handler.setFormatter(formatter)
-dev_logger.addHandler(handler)
+dev_logger = logging.getLogger(name='dev')
+dev_logger.setLevel(logging.INFO)
+file_handler = logging.FileHandler('App/server/flask_app.log')
+formatter = logging.Formatter('%(name)s-%(levelname)s [%(filename)s at line %(lineno)s: %(module)s-%(funcName)s]: (%(asctime)s) %(message)s')
+file_handler.setFormatter(formatter)
+dev_logger.addHandler(file_handler)
+
 
 client = boto3.client('logs', region_name='ap-southeast-2', aws_access_key_id=config("aws_access_key"),
                                aws_secret_access_key=config("aws_secret_access_key"))
